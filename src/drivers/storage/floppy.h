@@ -3,4 +3,6 @@
 
 #include "types.h"
 
+void floppy_init();
+
 #endif
