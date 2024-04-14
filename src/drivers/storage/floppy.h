@@ -12,7 +12,7 @@ void floppy_init();
 #define FLOPPY_DOR  0x3F2
 #define FLOPPY_MSR  0x3F4
 #define FLOPPY_FIFO 0x3F5
-#define FLOPPY_CTRL 0x3F7
+#define FLOPPY_CCR  0x3F7
 
 #define FLOPPY_DOR_MASK_DRIVE0          0
 #define FLOPPY_DOR_MASK_DRIVE1          1

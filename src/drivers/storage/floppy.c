@@ -25,8 +25,15 @@ void floppy_init() {
 // ===== BASIC FDC IO
 // =========================================================
 
-#define _GET_DOR()      inportb(FLOPPY_DOR);
-#define _GET_MSR()      inportb(FLOPPY_MSR);
+#define _GET_DOR()      inportb(FLOPPY_DOR)
+#define _GET_MSR()      inportb(FLOPPY_MSR)
+#define _GET_FIFO()     inportb(FLOPPY_FIFO)
+#define _GET_CCR()      inportb(FLOPPY_CCR)
+
+#define _SET_DOR(X)     outportb(FLOPPY_DOR, X)
+#define _SET_MSR(X)     outportb(FLOPPY_MSR, X)
+#define _SET_FIFO(X)    outportb(FLOPPY_FIFO, X)
+#define _SET_CCR(X)     outportb(FLOPPY_CCR, X)
 
 int floppy_busy() {
     if(inportb(FLOPPY_MSR) & FLOPPY_MSR_MASK_BUSY)
