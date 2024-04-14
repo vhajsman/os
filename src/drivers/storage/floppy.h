@@ -3,6 +3,11 @@
 
 #include "types.h"
 
+#define FLOPPY_SECTOR_DTL_128   0
+#define FLOPPY_SECTOR_DTL_256   1
+#define FLOPPY_SECTOR_DTL_512   2
+#define FLOPPY_SECTOR_DTL_1024  3
+
 void floppy_init();
 
 // =========================================================
@@ -51,5 +56,19 @@ void floppy_init();
 #define FLOPPY_COMMAND_READ_DEL_SECTOR  0xC
 #define FLOPPY_COMMAND_FORMAT_TRACK     0xD
 #define FLOPPY_COMMAND_SEEK             0xF
+
+// ----- EXTENDED COMMAND BITS -----
+#define FLOPPY_COMMAND_EXTENDED_SKIP        0x20
+#define FLOPPY_COMMAND_EXTENDED_DENSITY     0x40
+#define FLOPPY_COMMAND_EXTENDED_MULTITRACK  0x80
+
+
+// =========================================================
+// ===== GAP 3
+// =========================================================
+
+#define FLOPPY_GAP3_LENGTH_STD          42
+#define FLOPPY_GAP3_LENGTH_5_14         32
+#define FLOPPY_GAP3_LENGTH_3_5          27
 
 #endif
