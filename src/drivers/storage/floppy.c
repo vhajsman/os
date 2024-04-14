@@ -22,6 +22,38 @@ void floppy_init() {
 }
 
 // =========================================================
+// ===== BASIC FDC IO
+// =========================================================
+
+#define _GET_DOR()      inportb(FLOPPY_DOR);
+#define _GET_MSR()      inportb(FLOPPY_MSR);
+
+int floppy_busy() {
+    if(inportb(FLOPPY_MSR) & FLOPPY_MSR_MASK_BUSY)
+        return 1;
+    
+    return 0;
+}
+
+void floppy_sendCommand(u8 command) {
+    for(int i = 0; i < 500; i ++) {
+        if(inportb(FLOPPY_MSR) & FLOPPY_MSR_MASK_DATAREG) {
+            outportb(FLOPPY_FIFO, command);
+            return;
+        }
+    }
+}
+
+u8 floppy_readData() {
+    for(int i = 0; i < 500; i ++) {
+        if(inportb(FLOPPY_MSR) & FLOPPY_MSR_MASK_DATAREG)
+            return inportb(FLOPPY_FIFO);
+    }
+
+    return 0;
+}
+
+// =========================================================
 // ===== ISA DMA
 // =========================================================
 
