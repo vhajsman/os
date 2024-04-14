@@ -20,3 +20,31 @@ void floppy_irqwait() {
 void floppy_init() {
     isr_registerInterruptHandler(IRQ_BASE + IRQ6_DISKETTE_DRIVE, floppy_irq);
 }
+
+// =========================================================
+// ===== ISA DMA
+// =========================================================
+
+void floppy_dma_init() {
+    outportb (0x0a, 0x06);  // mask dma channel 2
+    outportb (0xd8, 0xff);  // reset master flip-flop
+    outportb (0x04, 0x00);  // address=0x1000 
+    outportb (0x04, 0x10);
+    outportb (0xd8, 0xff);  // reset master flip-flop
+    outportb (0x05, 0xff);  // count to 0x23ff (number of bytes in a 3.5" floppy disk track)
+    outportb (0x05, 0x23);
+    outportb (0x80, 0x00);  // external page register = 0
+    outportb (0x0a, 0x02);  // unmask dma channel 2
+}
+
+void floppy_dma_read() {
+    outportb (0x0a, 0x06); // mask dma channel 2
+    outportb (0x0b, 0x56); // single transfer, address increment, autoinit, read, channel 2
+    outportb (0x0a, 0x02); // unmask dma channel 2
+}
+
+void floppy_dma_write() {
+    outportb (0x0a, 0x06); // mask dma channel 2
+    outportb (0x0b, 0x5a); // single transfer, address increment, autoinit, write, channel 2
+    outportb (0x0a, 0x02); // unmask dma channel 2
+}
