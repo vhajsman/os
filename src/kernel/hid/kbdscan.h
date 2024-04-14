@@ -1,0 +1,185 @@
+#ifndef __KBDSCAN_H
+#define __KBDSCAN_H
+
+
+/* 
+    scan codes in alphabetical order for QWERTY keyboard
+    see https://wiki.osdev.org/PS/2_Keyboard
+*/
+
+
+#define SCAN_CODE_KEY_ESC                   0x01
+#define SCAN_CODE_KEY_1                     0x02
+#define SCAN_CODE_KEY_2                     0x03
+#define SCAN_CODE_KEY_3                     0x04
+#define SCAN_CODE_KEY_4                     0x05
+#define SCAN_CODE_KEY_5                     0x06
+#define SCAN_CODE_KEY_6                     0x07
+#define SCAN_CODE_KEY_7                     0x08
+#define SCAN_CODE_KEY_8                     0x09
+#define SCAN_CODE_KEY_9                     0x0A
+#define SCAN_CODE_KEY_0                     0x0B
+#define SCAN_CODE_KEY_MINUS                 0x0C
+#define SCAN_CODE_KEY_EQUAL                 0x0D
+#define SCAN_CODE_KEY_BACKSPACE             0x0E
+#define SCAN_CODE_KEY_TAB                   0x0F
+#define SCAN_CODE_KEY_Q                     0x10
+#define SCAN_CODE_KEY_W                     0x11
+#define SCAN_CODE_KEY_E                     0x12
+#define SCAN_CODE_KEY_R                     0x13
+#define SCAN_CODE_KEY_T                     0x14
+#define SCAN_CODE_KEY_Y                     0x15
+#define SCAN_CODE_KEY_U                     0x16
+#define SCAN_CODE_KEY_I                     0x17
+#define SCAN_CODE_KEY_O                     0x18
+#define SCAN_CODE_KEY_P                     0x19
+#define SCAN_CODE_KEY_SQUARE_OPEN_BRACKET   0x1A
+#define SCAN_CODE_KEY_SQUARE_CLOSE_BRACKET  0x1B
+#define SCAN_CODE_KEY_ENTER                 0x1C
+#define SCAN_CODE_KEY_LEFT_CTRL             0x1D
+#define SCAN_CODE_KEY_A                     0x1E
+#define SCAN_CODE_KEY_S                     0x1F
+#define SCAN_CODE_KEY_D                     0x20
+#define SCAN_CODE_KEY_F                     0x21
+#define SCAN_CODE_KEY_G                     0x22
+#define SCAN_CODE_KEY_H                     0x23
+#define SCAN_CODE_KEY_J                     0x24
+#define SCAN_CODE_KEY_K                     0x25
+#define SCAN_CODE_KEY_L                     0x26
+#define SCAN_CODE_KEY_SEMICOLON             0x27
+#define SCAN_CODE_KEY_SINGLE_QUOTE          0x28
+#define SCAN_CODE_KEY_ACUTE                 0x29
+#define SCAN_CODE_KEY_LEFT_SHIFT            0x2A
+#define SCAN_CODE_KEY_BACKSLASH             0x2B
+#define SCAN_CODE_KEY_Z                     0x2C
+#define SCAN_CODE_KEY_X                     0x2D
+#define SCAN_CODE_KEY_C                     0x2E
+#define SCAN_CODE_KEY_V                     0x2F
+#define SCAN_CODE_KEY_B                     0x30
+#define SCAN_CODE_KEY_N                     0x31
+#define SCAN_CODE_KEY_M                     0x32
+#define SCAN_CODE_KEY_COMMA                 0x33
+#define SCAN_CODE_KEY_DOT                   0x34
+#define SCAN_CODE_KEY_FORESLHASH            0x35
+#define SCAN_CODE_KEY_RIGHT_SHIFT           0x36
+#define SCAN_CODE_KEY_ASTERISK              0x37
+#define SCAN_CODE_KEY_ALT                   0x38
+#define SCAN_CODE_KEY_SPACE                 0x39
+#define SCAN_CODE_KEY_CAPS_LOCK             0x3A
+#define SCAN_CODE_KEY_F1                    0x3B
+#define SCAN_CODE_KEY_F2                    0x3C
+#define SCAN_CODE_KEY_F3                    0x3D
+#define SCAN_CODE_KEY_F4                    0x3E
+#define SCAN_CODE_KEY_F5                    0x3F
+#define SCAN_CODE_KEY_F6                    0x40
+#define SCAN_CODE_KEY_F7                    0x41
+#define SCAN_CODE_KEY_F8                    0x42
+#define SCAN_CODE_KEY_F9                    0x43
+#define SCAN_CODE_KEY_F10                   0x44
+#define SCAN_CODE_KEY_NUM_LOCK              0x45
+#define SCAN_CODE_KEY_SCROLL_LOCK           0x46
+#define SCAN_CODE_KEY_HOME                  0x47
+#define SCAN_CODE_KEY_UP                    0x48
+#define SCAN_CODE_KEY_PAGE_UP               0x49
+#define SCAN_CODE_KEY_KEYPAD_MINUS          0x4A
+#define SCAN_CODE_KEY_LEFT                  0x4B
+#define SCAN_CODE_KEY_KEYPAD_5              0x4C
+#define SCAN_CODE_KEY_RIGHT                 0x4D
+#define SCAN_CODE_KEY_KEYPAD_PLUS           0x4E
+#define SCAN_CODE_KEY_END                   0x4F
+#define SCAN_CODE_KEY_DOWN                  0x50
+#define SCAN_CODE_KEY_PAGE_DOWN             0x51
+#define SCAN_CODE_KEY_INSERT                0x52
+#define SCAN_CODE_KEY_DELETE                0x53
+#define SCAN_CODE_KEY_F11                   0x57
+#define SCAN_CODE_KEY_F12                   0x58
+
+typedef enum {
+    KBD_KEY_ESC = 0x01,
+    KBD_KEY_1 = 0x02,
+    KBD_KEY_2 = 0x03,
+    KBD_KEY_3 = 0x04,
+    KBD_KEY_4 = 0x05,
+    KBD_KEY_5 = 0x06,
+    KBD_KEY_6 = 0x07,
+    KBD_KEY_7 = 0x08,
+    KBD_KEY_8 = 0x09,
+    KBD_KEY_9 = 0x0A,
+    KBD_KEY_0 = 0x0B,
+    KBD_KEY_MINUS = 0x0C,
+    KBD_KEY_EQUAL = 0x0D,
+    KBD_KEY_BACKSPACE = 0x0E,
+    KBD_KEY_TAB = 0x0F,
+    KBD_KEY_Q = 0x10,
+    KBD_KEY_W = 0x11,
+    KBD_KEY_E = 0x12,
+    KBD_KEY_R = 0x13,
+    KBD_KEY_T = 0x14,
+    KBD_KEY_Y = 0x15,
+    KBD_KEY_U = 0x16,
+    KBD_KEY_I = 0x17,
+    KBD_KEY_O = 0x18,
+    KBD_KEY_P = 0x19,
+    KBD_KEY_LEFT_BRACE = 0x1A,
+    KBD_KEY_RIGHT_BRACE = 0x1B,
+    KBD_KEY_ENTER = 0x1C,
+    KBD_KEY_LEFT_CTRL = 0x1D,
+    KBD_KEY_A = 0x1E,
+    KBD_KEY_S = 0x1F,
+    KBD_KEY_D = 0x20,
+    KBD_KEY_F = 0x21,
+    KBD_KEY_G = 0x22,
+    KBD_KEY_H = 0x23,
+    KBD_KEY_J = 0x24,
+    KBD_KEY_K = 0x25,
+    KBD_KEY_L = 0x26,
+    KBD_KEY_SEMICOLON = 0x27,
+    KBD_KEY_SINGLE_QUOTE = 0x28,
+    KBD_KEY_GRAVE = 0x29,
+    KBD_KEY_LEFT_SHIFT = 0x2A,
+    KBD_KEY_BACKSLASH = 0x2B,
+    KBD_KEY_Z = 0x2C,
+    KBD_KEY_X = 0x2D,
+    KBD_KEY_C = 0x2E,
+    KBD_KEY_V = 0x2F,
+    KBD_KEY_B = 0x30,
+    KBD_KEY_N = 0x31,
+    KBD_KEY_M = 0x32,
+    KBD_KEY_COMMA = 0x33,
+    KBD_KEY_PERIOD = 0x34,
+    KBD_KEY_SLASH = 0x35,
+    KBD_KEY_RIGHT_SHIFT = 0x36,
+    KBD_KEY_PRINT_SCREEN = 0x37,
+    KBD_KEY_LEFT_ALT = 0x38,
+    KBD_KEY_SPACE = 0x39,
+    KBD_KEY_CAPS_LOCK = 0x3A,
+    KBD_KEY_F1 = 0x3B,
+    KBD_KEY_F2 = 0x3C,
+    KBD_KEY_F3 = 0x3D,
+    KBD_KEY_F4 = 0x3E,
+    KBD_KEY_F5 = 0x3F,
+    KBD_KEY_F6 = 0x40,
+    KBD_KEY_F7 = 0x41,
+    KBD_KEY_F8 = 0x42,
+    KBD_KEY_F9 = 0x43,
+    KBD_KEY_F10 = 0x44,
+    KBD_KEY_NUM_LOCK = 0x45,
+    KBD_KEY_SCROLL_LOCK = 0x46,
+    KBD_KEY_HOME = 0x47,
+    KBD_KEY_UP_ARROW = 0x48,
+    KBD_KEY_PAGE_UP = 0x49,
+    KBD_KEY_MINUS_PAD = 0x4A,
+    KBD_KEY_LEFT_ARROW = 0x4B,
+    KBD_KEY_CENTER_PAD = 0x4C,
+    KBD_KEY_RIGHT_ARROW = 0x4D,
+    KBD_KEY_PLUS_PAD = 0x4E,
+    KBD_KEY_END = 0x4F,
+    KBD_KEY_DOWN_ARROW = 0x50,
+    KBD_KEY_PAGE_DOWN = 0x51,
+    KBD_KEY_INSERT = 0x52,
+    KBD_KEY_DELETE = 0x53,
+    KBD_KEY_F11 = 0x57,
+    KBD_KEY_F12 = 0x58
+} KbdScan;
+
+#endif

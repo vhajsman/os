@@ -1,0 +1,4 @@
+discard
+.vscode
+build
+*.bak
