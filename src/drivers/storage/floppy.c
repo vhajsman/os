@@ -116,3 +116,4 @@ void floppy_readSector(u8 head, u8 track, u8 sector) {
     floppy_sendCommand(FLOPPY_GAP3_LENGTH_3_5);
     floppy_sendCommand(0xFF);
 }
+
