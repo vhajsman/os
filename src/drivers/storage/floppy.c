@@ -3,6 +3,7 @@
 #include "irq/isr.h"
 #include "ioport.h"
 #include "kernel.h"
+#include "time/timer.h"
 
 const int floppy_spt = 18;
 static u8 _currentDrive = 0;
@@ -129,3 +130,35 @@ void floppy_readSector(u8 head, u8 track, u8 sector) {
     floppy_sendCommand(0xFF);
 }
 
+
+// =========================================================
+// ===== FLOPPY DISK MOTOR CONTROL
+// =========================================================
+
+void floppy_motor(int enable) {
+    if(_currentDrive > 3)
+        return;
+    
+    u32 motor = 0;
+
+    switch(_currentDrive) {
+        case 0: motor = FLOPPY_DOR_MASK_MOTOR0; break;
+        case 1: motor = FLOPPY_DOR_MASK_MOTOR1; break;
+        case 2: motor = FLOPPY_DOR_MASK_MOTOR2; break;
+        case 3: motor = FLOPPY_DOR_MASK_MOTOR3; break;
+
+        default:
+            // Prevent from mistaking addresses. 
+            // Actually should not be even reached if used as excepted.
+
+            return; 
+    }
+
+    _SET_DOR(
+        enable 
+        ? (_currentDrive | motor | FLOPPY_DOR_MASK_RESET | FLOPPY_DOR_MASK_DMA)
+        : FLOPPY_DOR_MASK_RESET
+    );
+
+    timer_wait(20);
+}
