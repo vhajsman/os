@@ -4,6 +4,9 @@
 #include "ioport.h"
 #include "kernel.h"
 
+const int floppy_spt = 18;
+static u8 _currentDrive = 0;
+
 u8 _irq_fired = 0;
 
 void floppy_irq(REGISTERS* r) {
@@ -64,6 +67,8 @@ u8 floppy_readData() {
 // ===== ISA DMA
 // =========================================================
 
+const int floppy_dma_buffer = 0x1000;
+
 void floppy_dma_init() {
     outportb (0x0a, 0x06);  // mask dma channel 2
     outportb (0xd8, 0xff);  // reset master flip-flop
@@ -86,4 +91,28 @@ void floppy_dma_write() {
     outportb (0x0a, 0x06); // mask dma channel 2
     outportb (0x0b, 0x5a); // single transfer, address increment, autoinit, write, channel 2
     outportb (0x0a, 0x02); // unmask dma channel 2
+}
+
+
+// =========================================================
+// ===== SECTOR READ/WRITE
+// =========================================================
+
+void floppy_readSector(u8 head, u8 track, u8 sector) {
+    u32 st0, cylinder;
+
+    floppy_dma_read();
+
+    floppy_sendCommand( FLOPPY_COMMAND_READ_SECTOR | 
+                        FLOPPY_COMMAND_EXTENDED_MULTITRACK |
+                        FLOPPY_COMMAND_EXTENDED_SKIP |
+                        FLOPPY_COMMAND_EXTENDED_DENSITY);
+    floppy_sendCommand(head << 2 | _currentDrive);
+    floppy_sendCommand(track);
+    floppy_sendCommand(head);
+    floppy_sendCommand(sector);
+    floppy_sendCommand(FLOPPY_SECTOR_DTL_512);
+    floppy_sendCommand(((sector + 1) >= floppy_spt) ? floppy_spt : sector + 1);
+    floppy_sendCommand(FLOPPY_GAP3_LENGTH_3_5);
+    floppy_sendCommand(0xFF);
 }
