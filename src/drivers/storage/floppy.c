@@ -9,6 +9,15 @@ static u8 _currentDrive = 0;
 
 u8 _irq_fired = 0;
 
+
+void floppy_init() {
+    isr_registerInterruptHandler(IRQ_BASE + IRQ6_DISKETTE_DRIVE, floppy_irq);
+}
+
+// =========================================================
+// ===== INTERRUPT HANDLING ROUTINES
+// =========================================================
+
 void floppy_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
 
@@ -20,9 +29,6 @@ void floppy_irqwait() {
     _irq_fired = 0;
 }
 
-void floppy_init() {
-    isr_registerInterruptHandler(IRQ_BASE + IRQ6_DISKETTE_DRIVE, floppy_irq);
-}
 
 // =========================================================
 // ===== BASIC FDC IO
