@@ -29,6 +29,12 @@ void floppy_irqwait() {
     _irq_fired = 0;
 }
 
+void floppy_checkInterrupt(u32* st0, u32* cyl) {
+    floppy_sendCommand(FLOPPY_COMMAND_CHECK_INTERRUPT);
+
+    *st0 = floppy_readData();
+    *cyl = floppy_readData();
+}
 
 // =========================================================
 // ===== BASIC FDC IO
