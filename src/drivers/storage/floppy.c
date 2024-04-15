@@ -162,3 +162,18 @@ void floppy_motor(int enable) {
 
     timer_wait(20);
 }
+
+
+// =========================================================
+// ===== DRIVE CONFIGURATION
+// =========================================================
+
+int floppy_configure(u32 stepr, u32 loadt, u32 unloadt, int dma) {
+    u32 data[2];
+
+    data[1] = ((stepr & 0x0F) << 4 | (unloadt & 0x0F));
+    data[2] = ((loadt       ) << 1 | dma ? 1 : 0);
+
+    floppy_sendCommand(data[0]);
+    floppy_sendCommand(data[1]);
+}
