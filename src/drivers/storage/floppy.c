@@ -168,7 +168,7 @@ void floppy_motor(int enable) {
 // ===== DRIVE CONFIGURATION
 // =========================================================
 
-int floppy_configure(u32 stepr, u32 loadt, u32 unloadt, int dma) {
+int floppy_info(u32 stepr, u32 loadt, u32 unloadt, int dma) {
     u32 data[2];
 
     data[1] = ((stepr & 0x0F) << 4 | (unloadt & 0x0F));
@@ -177,3 +177,35 @@ int floppy_configure(u32 stepr, u32 loadt, u32 unloadt, int dma) {
     floppy_sendCommand(data[0]);
     floppy_sendCommand(data[1]);
 }
+
+
+// =========================================================
+// ===== CALIBRATE, SEEK
+// =========================================================
+
+int floppy_calibrate(u32 drive) {
+    u32 st0, cyl;
+
+    if(drive >= 4)
+        return 1;
+    
+    floppy_motor(1);
+
+    for(int i = 0; i < 10; i ++) {
+        floppy_sendCommand(FLOPPY_COMMAND_CALIBRATE);
+        floppy_sendCommand(drive);
+
+        floppy_irqwait();
+        floppy_checkInterrupt(&st0, &cyl);
+
+        if(!cyl) {
+            floppy_motor(0);
+            return 0;
+        }
+    }
+
+    floppy_motor(0);
+    return -1;
+}
+
+
