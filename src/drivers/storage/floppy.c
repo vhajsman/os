@@ -11,10 +11,6 @@ static u8 _currentDrive = 0;
 u8 _irq_fired = 0;
 
 
-void floppy_init() {
-    isr_registerInterruptHandler(IRQ_BASE + IRQ6_DISKETTE_DRIVE, floppy_irq);
-}
-
 // =========================================================
 // ===== INTERRUPT HANDLING ROUTINES
 // =========================================================
@@ -168,7 +164,7 @@ void floppy_motor(int enable) {
 // ===== DRIVE CONFIGURATION
 // =========================================================
 
-int floppy_info(u32 stepr, u32 loadt, u32 unloadt, int dma) {
+int floppy_config(u32 stepr, u32 loadt, u32 unloadt, int dma) {
     u32 data[2];
 
     data[1] = ((stepr & 0x0F) << 4 | (unloadt & 0x0F));
@@ -227,4 +223,45 @@ int floppy_seek(u32 cyl, u32 head) {
     }
 
     return 2;
+}
+
+
+// =========================================================
+// ===== ENABLE, DISABLE, RESET
+// =========================================================
+
+void floppy_disable() {
+    _SET_DOR(0x00);
+}
+
+void floppy_enable() {
+    _SET_DOR(FLOPPY_DOR_MASK_RESET | FLOPPY_DOR_MASK_DMA);
+}
+
+void floppy_reset() {
+    u32 st0, cyl;
+
+    floppy_disable();
+    floppy_enable();
+
+    floppy_irqwait();
+
+    for(int i = 0; i < 4; i ++)
+        floppy_checkInterrupt(&st0, &cyl);
+    
+    _SET_CCR(0);
+
+    floppy_config(0x03, 0x0F, 240, 1);
+    floppy_calibrate(_currentDrive);
+}
+
+
+// =========================================================
+// ===== DRIVER INIT
+// =========================================================
+
+void floppy_init() {
+    isr_registerInterruptHandler(IRQ_BASE + IRQ6_DISKETTE_DRIVE, floppy_irq);
+
+    floppy_reset();
 }
