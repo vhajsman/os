@@ -205,7 +205,26 @@ int floppy_calibrate(u32 drive) {
     }
 
     floppy_motor(0);
-    return -1;
+    return 2;
 }
 
+int floppy_seek(u32 cyl, u32 head) {
+    u32 st0, _cyl;
 
+    if(_currentDrive >= 4)
+        return 1;
+    
+    for(int i = 0; i < 10; i ++) {
+        floppy_sendCommand(FLOPPY_COMMAND_SEEK);
+        floppy_sendCommand((head) << 2 | _currentDrive);
+        floppy_sendCommand(cyl);
+
+        floppy_irqwait();
+        floppy_checkInterrupt(&st0, &_cyl);
+
+        if(_cyl == cyl)
+            return 0;
+    }
+
+    return 2;
+}
