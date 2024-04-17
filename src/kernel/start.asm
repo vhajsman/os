@@ -46,14 +46,15 @@ section .text
     global BOOTLOADER_MAGIC
 
 _start:
-    extern paging_enable
+    ; extern paging_enable
     extern kmain
+
+    ; Enable paging
+    ; call paging_enable
+
 
     mov esp, stack_top
     mov eax, BOOTLOADER_MAGIC
-
-    ; Enable paging
-    call paging_enable
 
     push ebx
     push eax
