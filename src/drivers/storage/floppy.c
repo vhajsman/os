@@ -10,6 +10,7 @@ static u8 _currentDrive = 0;
 
 u8 _irq_fired = 0;
 
+void floppy_sendCommand(u8 command);
 
 // =========================================================
 // ===== INTERRUPT HANDLING ROUTINES
@@ -108,7 +109,7 @@ void floppy_dma_write() {
 // =========================================================
 
 void floppy_readSector(u8 head, u8 track, u8 sector) {
-    u32 st0, cylinder;
+    // u32 st0;
 
     floppy_dma_read();
 
@@ -167,11 +168,13 @@ void floppy_motor(int enable) {
 int floppy_config(u32 stepr, u32 loadt, u32 unloadt, int dma) {
     u32 data[2];
 
-    data[1] = ((stepr & 0x0F) << 4 | (unloadt & 0x0F));
-    data[2] = ((loadt       ) << 1 | dma ? 1 : 0);
+    data[0] = ((stepr & 0x0F) << 4 | (unloadt & 0x0F));
+    data[1] = ((loadt       ) << 1 | dma ? 1 : 0);
 
     floppy_sendCommand(data[0]);
     floppy_sendCommand(data[1]);
+
+    return 0;
 }
 
 
