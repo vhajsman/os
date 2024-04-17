@@ -8,7 +8,6 @@
 #define FLOPPY_SECTOR_DTL_512   2
 #define FLOPPY_SECTOR_DTL_1024  3
 
-void floppy_init();
 
 // =========================================================
 // ===== I/O MAPPING
@@ -70,5 +69,27 @@ void floppy_init();
 #define FLOPPY_GAP3_LENGTH_STD          42
 #define FLOPPY_GAP3_LENGTH_5_14         32
 #define FLOPPY_GAP3_LENGTH_3_5          27
+
+
+// =========================================================
+// ===== DRIVER FUNCTIONS
+// =========================================================
+
+//void floppy_reset();
+
+// Intializes the floppy disk controller
+void floppy_init();
+
+void floppy_disable();
+void floppy_enable();
+void floppy_reset();
+
+// void floppy_motor(int enable);
+
+void floppy_readSector(u8 head, u8 track, u8 sector);
+
+u8 floppy_readData();
+
+int floppy_busy();
 
 #endif
