@@ -46,13 +46,21 @@ section .text
     global BOOTLOADER_MAGIC
 
 _start:
-    mov esp, stack_top
+    extern paging_enable
     extern kmain
 
+    mov esp, stack_top
     mov eax, BOOTLOADER_MAGIC
+
+    ; Enable paging
+    call paging_enable
+
     push ebx
     push eax
     call kmain
+
+    ; Prevent issuing interrupts in fallback.
+    cli
 
 loop:
     jmp loop
