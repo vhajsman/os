@@ -1,0 +1,8 @@
+#ifndef __POINTER_H
+#define __POINTER_H
+
+
+#define DEFINE_FUNCTION_POINTER(RETURN_TYPE, IDENTIFIER, ...) \
+    typedef RETURN_TYPE (*IDENTIFIER)(__VA_ARGS__)
+
+#endif
