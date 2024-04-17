@@ -136,7 +136,7 @@ void putc(char c) {
         }
 	}
 
-	console_put(c, console_color, console_position.x, console_position.y);
+	console_put(c, console_color, console_position.x - 1, console_position.y);
 }
  
 void console_write(const char* data, size_t size) {
