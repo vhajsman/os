@@ -181,3 +181,12 @@ char* gets(size_t bufferSize, char breaker) {
 
     return buffer;
 }
+
+void colorPrint(const char* str, u8 color) {
+    u8 prevcolor = console_color;
+    console_color = color;
+
+    puts(str);
+
+    console_color = prevcolor;
+}

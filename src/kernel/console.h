@@ -42,4 +42,6 @@ void puts(const char* data);
 char getc();
 char* gets(size_t bufferSize, char breaker);
 
+void colorPrint(const char* str, u8 color);
+
 #endif
