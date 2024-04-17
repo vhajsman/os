@@ -375,14 +375,17 @@ void keybuffer_discard() {
     _keyb_index = 0;
     
     for(size_t i = 0; i < _keyb_size; i ++) {
-        keybuffer_append(0x00);
+        keybuffer_append('\0');
     }
 
     _keyb_index = 0;
 }
 
 const unsigned char* keybuffer_read() {
-    return _keyb;
+    unsigned char* k = _keyb;
+    k[_keyb_index + 1] = '\0';
+
+    return k;
 }
 
 const unsigned char* keybuffer_wait(char breaker) {
