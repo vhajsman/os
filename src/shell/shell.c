@@ -13,18 +13,21 @@ void shell_setPrefix(char* prefix) {
     _shell = prefix;
 }
 
+/*
 BOOL strchk(const unsigned char* stra, const unsigned char* strb) {
     int i = 0;
 
     while(1) {
         if(stra[i] != strb[i])
             return FALSE;
-        if(stra[i] == '\0' && strb[i] == '\0');
+
+        if(stra[i] == '\0' || strb[i] == '\0');
             break;
     }
 
     return TRUE;
 }
+*/
 
 void shellhelp() {
     printf("USE: help <command>\n");
@@ -54,17 +57,17 @@ void shell() {
 
         
 
-        if(strchk(buffer, "help\0") == TRUE){
+        if(strcmp(buffer, "help\0")){
             shellhelp();
             continue;
         }
 
-        if(strchk(buffer, "cpuid\0") == TRUE) {
+        if(strcmp(buffer, "cpuid\0")) {
             cpuid_info(1);
             continue;
         }
 
-        if(strchk(buffer, "clear\0") == TRUE) {
+        if(strcmp(buffer, "clear\0")) {
             console_initialize();
             continue;
         }
