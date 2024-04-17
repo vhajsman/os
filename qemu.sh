@@ -1,0 +1,1 @@
+qemu-system-x86_64 -kernel build/bin/krnl.bin -m 64
