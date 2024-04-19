@@ -35,6 +35,7 @@ void shellhelp() {
 
 
 void shell() {
+    colorPrint("Welcome to CubeBox OS shell! Use 'help' command to get help.\n", vga_entryColor(VGA_COLOR_LIGHT_MAGENTA, 0));
     kbd_enable();
 
     while(1) {
