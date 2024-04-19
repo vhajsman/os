@@ -50,8 +50,8 @@ int serial_available(u16 port) {
 }
 
 void serial_writeByte(u16 port, char data) {
-    while(serial_available(port) == 0);
     outportb(port + SERIAL_OFFSET_DATA, data);
+    // while(serial_available(port) == 0);
 }
 
 void serial_write(u16 port, const char* data) {

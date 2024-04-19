@@ -90,9 +90,9 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     memory_init(mboot_info);
 
-    //serial_init();
-    //serial_write(COM1, "Serial communication test: COM1\n\r");
-    //serial_write(COM2, "Serial communication test: COM2\n\r");
+    serial_init();
+    serial_write(COM1, "Serial communication test: COM1\n\r");
+    serial_write(COM2, "Serial communication test: COM2\n\r");
 
     timer_install();
 
