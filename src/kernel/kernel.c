@@ -9,6 +9,7 @@
 #include "com/serial.h"
 #include "time/timer.h"
 #include "memory/memory.h"
+#include "debug.h"
 // #include "storage/fdc.h"
 
 /*
@@ -95,6 +96,10 @@ void kmain(unsigned long magic, unsigned long addr) {
     serial_write(COM2, "Serial communication test: COM2\n\r");
 
     timer_install();
+
+    debug_setPort(COM1);
+    debug_separator("START OF DEBUG LOG");
+    debug_message("Debug OK.", "KMAIN", KERNEL_MESSAGE);
 
     shell();
 }
