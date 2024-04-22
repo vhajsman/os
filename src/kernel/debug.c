@@ -57,36 +57,15 @@ void debug_message(const  char* message, const  char* interface, enum kernel_sta
         return;
     }
 
-    for(int i = 0; i < 12; i ++) {
-        debug_append(_levelsStrings[level][i]);
+    debug_append(_levelsStrings[level]);
+
+    if(interface != NULL) {
+        debug_append("[");
+        debug_append(interface);
+        debug_append("] ");
     }
 
-    if(interface == NULL) {
-        debug_append("[");
-
-        for(int i = 0; i < __INTERFACE_MAX_CHARS; i ++)
-            debug_append(" ");
-        
-        debug_append("]");
-    } else {
-        debug_append("[");
-
-        // int completed = 0;
-        for(int i, completed = 0; i < __INTERFACE_MAX_CHARS; i ++) {
-            if(completed) {
-                debug_append(" ");
-            } else if(interface[i] == '\0' || interface[i] == '\n' || interface[i] == '\r') {
-                debug_append(" ");
-                completed = 1;
-            } else {
-                debug_append(interface[i]);
-            }
-        }
-
-        debug_append("]");
-    }
-
-    for(int i = 0; i < strlen(message); i ++) {
+    /*for(int i = 0; i < strlen(message); i ++) {
         if(message[i] == '\n') {
             debug_append("\n\r");
 
@@ -96,12 +75,14 @@ void debug_message(const  char* message, const  char* interface, enum kernel_sta
             // ? ---------------------
             // ? TOTAL              33
 
-            for(int j = 0; j < 33 /* *explained above */; j ++) 
+            for(int j = 0; j < 33; j ++) 
                 debug_append(" ");
         } else {
             debug_append(message[i]);
         }
-    }
+    }*/
+
+    debug_append(message);
 
     debug_append("\n\r");
 }
