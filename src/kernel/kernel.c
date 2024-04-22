@@ -98,8 +98,10 @@ void kmain(unsigned long magic, unsigned long addr) {
     timer_install();
 
     debug_setPort(COM1);
-    debug_separator("START OF DEBUG LOG");
-    debug_message("Debug OK.", "KMAIN", KERNEL_MESSAGE);
+    debug_setVerbose(0);
+
+    debug_separator("START OF THE DEBUG LOG");
+    debug_message("Debug enabled.", "Kernel main", KERNEL_MESSAGE);
 
     shell();
 }

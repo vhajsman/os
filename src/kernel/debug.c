@@ -20,6 +20,7 @@ static char* _levelsStrings[7] = {
 
 void debug_setVerbose(int verbose) {
     _verbose = verbose ? 1 : 0;
+    debug_message("Verbose flag enabled", 0, KERNEL_VERBOSE);
 }
 
 void debug_setPort(u16 port) {
