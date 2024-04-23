@@ -236,7 +236,7 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_J:       K('j', 'J', '\''); break;
         case SCAN_CODE_KEY_K:       K('k', 'K', 0); break;
         case SCAN_CODE_KEY_L:       K('l', 'L', 0); break;
-        case SCAN_CODE_KEY_Z:       K('z', 'Z', '°'); break;
+        case SCAN_CODE_KEY_Z:       K('z', 'Z', 0); break;
         case SCAN_CODE_KEY_X:       K('x', 'X', '#'); break;
         case SCAN_CODE_KEY_C:       K('c', 'C', '&'); break;
         case SCAN_CODE_KEY_V:       K('v', 'V', '@'); break;
@@ -345,7 +345,7 @@ u8 _keyb_putc = 0;
 size_t _keyb_size = KEYBUFFER_SIZE_DEFAULT;
 size_t _keyb_index = 0;
 
-static unsigned char _keyb[KEYBUFFER_SIZE_DEFAULT];
+static unsigned char* _keyb;
 
 void keybuffer_disable() {
     _keyb_enable = 0;
@@ -357,7 +357,9 @@ void keybuffer_enable(u8 printOnAppend) {
 }
 
 void keybuffer_set(const unsigned char* val) {
-    strcpy(_keyb, val);
+    //strcpy(_keyb, val);
+
+    _keyb = val;
     _keyb_index = 0;
 }
 
