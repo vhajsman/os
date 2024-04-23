@@ -87,10 +87,6 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
 
-    cpuid_info(1);
-
-    memory_init(mboot_info);
-
     serial_init();
     serial_write(COM1, "Serial communication test: COM1\n\r");
     serial_write(COM2, "Serial communication test: COM2\n\r");
@@ -102,6 +98,9 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     debug_separator("START OF THE DEBUG LOG");
     debug_message("Debug enabled.", "Kernel main", KERNEL_MESSAGE);
+
+    cpuid_info(1);
+    memory_init(mboot_info);
 
     shell();
 }

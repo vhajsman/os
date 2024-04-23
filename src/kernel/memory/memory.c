@@ -1,6 +1,7 @@
 #include "memory.h"
 #include "multiboot.h"
 #include "console.h"
+#include "debug.h"
 
 u32 _mem_low;
 u32 _mem_high;
@@ -31,7 +32,7 @@ void memory_init(MULTIBOOT_INFO* mboot_info) {
 
     memory_printInfo();
 
-
+    debug_message("Intialization OK.", "PMMU", KERNEL_OK);
 
     memory_start = (struct memory_block*) memory_dynamicArea;
     memory_start->size = MEMORY_DYNAMIC_TOTAL_SIZE - MEMORY_DYNAMIC_NODE_SIZE;
