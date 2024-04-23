@@ -14,7 +14,7 @@ int cpuid_info(int print) {
     u32 eax, ebx, ecx, edx;
     u32 type;
 
-    char* eax_str, ebx_str, ecx_str, edx_str;
+    static char* eax_str, ebx_str, ecx_str, edx_str;
     char* type_str;
 
     memset(brand, 0, sizeof(brand));
