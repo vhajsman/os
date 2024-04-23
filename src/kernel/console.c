@@ -163,7 +163,7 @@ char getc() {
 }
 
 char* gets(size_t bufferSize, char breaker) {
-    char buffer[bufferSize];
+    static char* buffer;
     // buffer = 0;
 
     char l = 0;
