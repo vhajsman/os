@@ -53,11 +53,6 @@ void shell() {
         keybuffer_enable(0);
 
         buffer = keybuffer_read();
-        puts("buffer:");
-        puts(buffer);
-        puts(".");
-
-        
 
         if(!strcmp(buffer, "help")){
             shellhelp();
@@ -69,7 +64,7 @@ void shell() {
             continue;
         }
 
-        if(!strcmp(buffer, "blank")) {
+        if(!strcmp(buffer, "clear")) {
             console_initialize();
             continue;
         }
