@@ -55,6 +55,7 @@ void serial_writeByte(u16 port, char data) {
 }
 
 void serial_write(u16 port, const char* data) {
-    for(size_t i = 0; i < strlen(data); i ++)
+    size_t len = strlen(data);
+    for(size_t i = 0; i < len; i ++)
         serial_writeByte(port, data[i]);
 }
