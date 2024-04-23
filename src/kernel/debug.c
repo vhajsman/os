@@ -54,8 +54,8 @@ void debug_message(const  char* message, const  char* interface, enum kernel_sta
         // * Message level verbose, but verbosity not allowed.
         return;
     
-    debug_append("\n");
-    debug_append("DEBUG: ");
+    //debug_append("\n");
+    debug_append("\n\rDEBUG: ");
     
     if(message == NULL) {
         debug_append("\n\r");
