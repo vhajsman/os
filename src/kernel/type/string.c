@@ -1,5 +1,6 @@
 #include "string.h"
 #include "types.h"
+#include "memory/memory.h"
 
 void *memset(void *dst, char c, u32 n) {
     char *temp = dst;
@@ -274,3 +275,37 @@ int snprintf(char* str, size_t size, const char* fmt, int num, const char* strar
     return w;
 }
 */
+
+char* strtok(char* str, char* delm) {
+    if(!str || !delm || str[0] == '\0')
+        return NULL;
+
+    static int current = 0;
+
+    char* W = (char*) malloc(sizeof(char) * 100);
+    int i = current;
+    int k, j = 0;
+
+    while(str[i] != '\0') {
+        j = 0;
+
+        while(delm[j] != '\0') {
+            if(str[i] != delm[j]) {
+                W[k] = str[i];
+            } else {
+                goto It;
+            }
+
+            j ++;
+        }
+
+        i ++;
+        k ++;
+    }
+
+It:
+    W[i] = 0;
+    current = i + 1;
+    
+    return W;
+}
