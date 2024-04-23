@@ -12,7 +12,7 @@ struct xy2d mouse_position;
 
 void mouse_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
-    
+
     switch(mouse_cycle) {
         case 0:
             mouse_byte[0] = inportb(0x60);
@@ -51,7 +51,7 @@ void mouse_wait(u8 a) {
     }
 
     while(timeout--) {
-        if((inportb(0x64) & 2) == 1)
+        if((inportb(0x64) & 2))
             return;
     }
 
