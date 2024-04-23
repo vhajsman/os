@@ -174,3 +174,103 @@ char *strstr(const char *in, const char *str) {
 
     return (char*) (in - 1);
 }
+
+/*
+int snprintf(char* str, size_t size, const char* fmt, int num, const char* strarg) {
+    int w = 0;
+    int r = 0;
+
+    size_t r = size;
+
+
+    while(*fmt != '\0') {
+        if(*fmt == '%' && *(fmt + 1) != '\0') {
+            fmt ++;
+
+            switch(*fmt) {
+                case 'd':
+                    int digits = 0;
+                    int n = num;
+
+                    while(n != 0) {
+                        n /= 10;
+                        digits ++;
+                    }
+
+                    if(num < 0)
+                        digits ++;
+
+                    if(w + digits < size) {
+                        char temp[12];
+                        int i = digits;
+
+                        if(num < 0) {
+                            temp[0] = '-';
+                            num = -num;
+                        }
+
+                        while(i > 0) {
+                            temp[i - 1] = num % 10 + '0';
+                            num /= 10;
+
+                            i --;
+                        }
+
+                        for(int j = 0; j < digits; j ++) 
+                            str[w + j] = temp[j];
+
+                        
+                        w += digits;
+                        r -= digits;
+                    } else {
+                        // Insufficient space in the buffer
+                        break;
+                    }
+
+                    break;
+                
+                case 's':
+                    int len = 0;
+                    const char* s = strarg;
+
+                    while(*s != '\0') {
+                        len ++;
+                        s ++;
+                    }
+
+                    if(w + len < size) {
+                        for(int i = 0; i < len; i ++) 
+                            str[w + i] = strarg[i];
+                        
+                        w += len;
+                        r -= len;
+                    }
+
+                    break;
+                
+
+                default:
+                    break;
+            }
+        } else {
+            if(r > 1) {
+                *str ++ = *fmt;
+                w ++;
+                r --;
+            } else {
+                break;
+            }
+        }
+
+        fmt ++;
+    }
+
+    if(r > 0) {
+        *str = '\0';
+    } else {
+        str[size - 1] = '\0';
+    }
+
+    return w;
+}
+*/

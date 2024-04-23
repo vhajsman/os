@@ -22,4 +22,6 @@ char lower(char c);
 void itoa(char *buf, int base, int d);
 char *strstr(const char *in, const char *str);
 
+//int snprintf(char* str, size_t size, const char* fmt, int num, const char* strarg);
+
 #endif
