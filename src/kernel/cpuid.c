@@ -22,8 +22,13 @@ int cpuid_info(int print) {
     cpuid(0x80000003, (u32*) brand + 0x4, (u32*) brand + 0x5, (u32*) brand + 0x6, (u32*) brand + 0x7);
     cpuid(0x80000004, (u32*) brand + 0x8, (u32*) brand + 0x9, (u32*) brand + 0xa, (u32*) brand + 0xb);
 
-    if(print)
-        printf("CPUID: Brand: %s\n", brand);
+    if(print) {
+        //printf("CPUID: Brand: %s\n", brand);
+
+        puts("CPUID: Brand: ");
+        puts(brand);
+        puts("\n");
+    }
 
     debug_message("Brand: ", "cpuid", KERNEL_MESSAGE);
     debug_append(brand);
