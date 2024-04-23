@@ -31,10 +31,10 @@ void debug_setPort(u16 port) {
 
     _port = port;
 
-    puts("Port ");
-    puts(port == COM1 ? "COM1" : "COM2");
-    puts(" used as a debug port. ");
-    puts("You should be able to use debug features after connecting the debugger via this port.\n");
+    colorPrint("Port ", vga_entryColor(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
+    colorPrint(port == COM1 ? "COM1" : "COM2", vga_entryColor(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
+    colorPrint(" used as a debug port. ", vga_entryColor(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
+    colorPrint("You should be able to use debug features after connecting the debugger via this port.\n", vga_entryColor(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
 
     // ! SERIAL COMMUNICATION SHOULD BE ALREADY INIT!!!
     // serial_init();
