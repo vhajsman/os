@@ -61,7 +61,7 @@ void kbd_setLeds(int n, int c, int s) {
 }
 
 void kbd_irq(REGISTERS* r) {
-    (void)(r);
+    IGNORE_UNUSED(r);
 
     //asm("add esp, 12");
     //asm("pushad");

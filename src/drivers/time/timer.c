@@ -39,6 +39,8 @@ void timer_write(u32 time) {
 }
 
 void timer_handler(REGISTERS* r) {
+    IGNORE_UNUSED(r);
+    
     _ticks++;
 
     //if(_ticks % 18 == 0)
