@@ -39,7 +39,7 @@ void shell() {
     kbd_enable();
 
     while(1) {
-        unsigned char* buffer;
+        char* buffer;
 
         printf(_shell);
         printf(" ");
@@ -53,20 +53,23 @@ void shell() {
         keybuffer_enable(0);
 
         buffer = keybuffer_read();
+        puts("buffer:");
+        puts(buffer);
+        puts(".");
 
         
 
-        if(strchk(buffer, "help\0")){
+        if(!strcmp(buffer, "help")){
             shellhelp();
             continue;
         }
 
-        if(strchk(buffer, "cpuid\0")) {
+        if(!strcmp(buffer, "cpuid")) {
             cpuid_info(1);
             continue;
         }
 
-        if(strchk(buffer, "blank\0")) {
+        if(!strcmp(buffer, "blank")) {
             console_initialize();
             continue;
         }

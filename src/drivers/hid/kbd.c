@@ -345,6 +345,8 @@ u8 _keyb_putc = 0;
 size_t _keyb_size = KEYBUFFER_SIZE_DEFAULT;
 size_t _keyb_index = 0;
 
+char _ignore;
+
 static unsigned char* _keyb;
 
 void keybuffer_disable() {
@@ -364,6 +366,9 @@ void keybuffer_set(const unsigned char* val) {
 }
 
 void keybuffer_append(char c) {
+    if(_ignore == c)
+        return;
+
     if(_keyb_enable) {
         _keyb[_keyb_index] = c;
         _keyb_index++;
@@ -392,9 +397,10 @@ const unsigned char* keybuffer_read() {
 
 const unsigned char* keybuffer_wait(char breaker) {
     _keyb_wait = 1;
+    _ignore = breaker;
 
     while(1) {
-        if(_keyb_index > 0 && _keyb[_keyb_index - 1] == breaker)
+        if(_keyb_index > 0 && _last_char == breaker)
             break;
         if(_keyb_index >= _keyb_size)
             break;
