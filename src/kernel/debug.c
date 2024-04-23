@@ -54,6 +54,7 @@ void debug_message(const  char* message, const  char* interface, enum kernel_sta
         // * Message level verbose, but verbosity not allowed.
         return;
     
+    debug_append("\n");
     debug_append("DEBUG: ");
     
     if(message == NULL) {
@@ -87,8 +88,6 @@ void debug_message(const  char* message, const  char* interface, enum kernel_sta
     }*/
 
     debug_append(message);
-
-    debug_append("\n\r");
 }
 
 #define __SEPARATOR_LENGTH  80
