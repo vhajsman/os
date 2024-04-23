@@ -3,6 +3,7 @@
 #include "string.h"
 #include "gdt/gdt.h"
 #include "irq/idt.h"
+#include "irq/isr.h"
 #include "hid/kbd.h"
 #include "ioport.h"
 #include "shell/shell.h"
@@ -63,6 +64,31 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     shell();
 }
+
+void kernel_panic(REGISTERS* reg, signed int exception) {
+    asm("cli");
+
+    console_initialize();
+
+    colorPrint("----- KERNEL PANIC -----\n", 128 + 4);
+    printf("Kernel panic.\n");
+
+    print_registers(reg);
+
+    if(exception >= 0) {
+        printf("EXCEPTION: %s\n", exception_messages[reg->int_no]);
+    }
+
+    puts("\n");
+    puts("CPU is now halted. If debugging enabled, check debug log for more information.\n");
+
+    puts("--------------");
+
+    while(1) {
+        
+    }
+}
+
  
 #define STACK_CHK_GUARD 0xe2dee396
 u32 __stack_chk_guard = STACK_CHK_GUARD;
