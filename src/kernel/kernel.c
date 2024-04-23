@@ -47,8 +47,6 @@ void kmain(unsigned long magic, unsigned long addr) {
     kbd_enable();
 
     serial_init();
-    serial_write(COM1, "Serial communication test: COM1\n\r");
-    serial_write(COM2, "Serial communication test: COM2\n\r");
 
     timer_install();
 
@@ -85,7 +83,7 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
     puts("--------------");
 
     while(1) {
-        
+
     }
 }
 
