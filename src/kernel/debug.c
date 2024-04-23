@@ -8,14 +8,17 @@ int _timestamp = 0; // UNDONE
 
 u16 _port;
 
-static char* _levelsStrings[7] = {
+static char* _levelsStrings[10] = {
     "[   ***   ]\0",
     "[ NOTE    ]\0",
     "[ NOTE !! ]\0",
     "[ WARNING ]\0",
     "[ ERROR   ]\0",
     "[ FATAL   ]\0",
-    "[ VERBOSE ]\0"
+    "[ VERBOSE ]\0",
+    "[ OKAY    ]\0",
+    "[ FAIL    ]\0",
+    "[ PENDING ]\0"
 };
 
 void debug_setVerbose(int verbose) {

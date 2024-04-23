@@ -10,7 +10,10 @@ enum kernel_statusLevels {
     KERNEL_WARNING,
     KERNEL_ERROR,
     KERNEL_FATAL,
-    KERNEL_VERBOSE
+    KERNEL_VERBOSE,
+    KERNEL_OK,
+    KERNEL_FAIL,
+    KERNEL_PENDING
 };
 
 void debug_setVerbose(int verbose);
