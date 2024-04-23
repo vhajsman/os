@@ -13,40 +13,7 @@ void isr_endInterrupt(int num);
 void isr_exceptionHandler(REGISTERS reg);
 void isr_irqHandler(REGISTERS *reg);
 
-char *exception_messages[32] = {
-    "Division By Zero",
-    "Debug",
-    "Non Maskable Interrupt",
-    "Breakpoint",
-    "Overflow",
-    "BOUND Range Exceeded",
-    "Invalid Opcode",
-    "Device Not Available (No Math Coprocessor)",
-    "Double Fault",
-    "Coprocessor Segment Overrun",
-    "Invalid TSS",
-    "Segment Not Present",
-    "Stack-Segment Fault",
-    "General Protection",
-    "Page Fault",
-    "Unknown Interrupt (intel reserved)",
-    "x87 FPU Floating-Point Error (Math Fault)",
-    "Alignment Check",
-    "Machine Check",
-    "SIMD Floating-Point Exception",
-    "Virtualization Exception",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved"
-};
+extern char* exception_messages[32];
 
 extern void exception_0();
 extern void exception_1();
