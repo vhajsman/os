@@ -358,7 +358,7 @@ void keybuffer_enable(u8 printOnAppend) {
 
 void keybuffer_set(const unsigned char* val) {
     strcpy(_keyb, val);
-    _keyb_index;
+    _keyb_index = 0;
 }
 
 void keybuffer_append(char c) {
