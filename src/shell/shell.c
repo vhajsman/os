@@ -54,6 +54,8 @@ void shell() {
 
         buffer = keybuffer_read();
 
+        putc('\n');
+
         if(!strcmp(buffer, "help")){
             shellhelp();
             continue;
