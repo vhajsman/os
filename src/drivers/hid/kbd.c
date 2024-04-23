@@ -400,7 +400,7 @@ const unsigned char* keybuffer_wait(char breaker) {
             break;
 
         if(!_kbd_enable) {
-            putc("Keyboard disabled while keybuffer waiting!! break.\n");
+            puts("Keyboard disabled while keybuffer waiting!! break.\n");
             break;
         }
     }
