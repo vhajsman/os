@@ -3,6 +3,16 @@
 
 #include "types.h"
 
+#define MAX_TOKS    30
+
+struct shell_parseout {
+    int tok_count;
+    char* tok_str;
+    char* tok_arr[MAX_TOKS];
+};
+
+int shell_handleUserInput(char* userInput);
+
 void shell();
 void shell_setPrefix(char* prefix);
 

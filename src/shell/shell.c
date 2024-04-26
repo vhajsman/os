@@ -56,6 +56,7 @@ void shell() {
 
         putc('\n');
 
+        /*
         if(!strcmp(buffer, "help")){
             shellhelp();
             continue;
@@ -70,5 +71,8 @@ void shell() {
             console_initialize();
             continue;
         }
+        */
+
+       shell_handleUserInput(buffer);
     }
 }

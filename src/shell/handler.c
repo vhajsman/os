@@ -30,7 +30,7 @@ struct shell_parseout parse(char* userInput) {
                 break;
 
             case '\n':
-                if(!quotes) {
+                if(quotes) {
                     i = len;    // ? Breaks the for loop
                     tok_count ++;
                     of++;
@@ -40,7 +40,7 @@ struct shell_parseout parse(char* userInput) {
             
             case '\t':
             case ' ':
-                if(!quotes) {
+                if(quotes) {
                     tok_str[i] = TOKEN_SEPARATOR;
                     tok_count ++;
                     of ++;
@@ -57,6 +57,25 @@ struct shell_parseout parse(char* userInput) {
                 tok_str[i - of] = userInput[i];
         }
     }
+    
+    output.tok_count = tok_count;
+    output.tok_str = tok_str;
+
+    char* token = "";
+    for(size_t i, j, k = 0; i < strlen(tok_str); i ++) {
+        if(tok_str[i] != TOKEN_SEPARATOR) {
+            token[j] = tok_str[i];
+            j ++;
+        } else {
+            j = 0;
+            token = "";
+
+            output.tok_arr[k] = token;
+            k ++;
+        }
+    }
+
+    return output;
 }
 
 int shell_handleUserInput(char* userInput) {
@@ -76,10 +95,15 @@ int shell_handleUserInput(char* userInput) {
     debug_append(" Token array[...] = {");
 
     for(size_t i = 0; i < MAX_TOKS; i ++) {
+        if(p.tok_arr[i] == '\0')
+            continue;
+
         debug_append("'");
         debug_append(p.tok_arr[i]);
         debug_append("', ");
     }
+
+    debug_append("}");
 
     return 0;
 }
