@@ -44,4 +44,7 @@ char* gets(size_t bufferSize, char breaker);
 
 void colorPrint(const char* str, u8 color);
 
+void console_gotoxy(int x, int y);
+coords console_wherexy();
+
 #endif
