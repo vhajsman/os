@@ -26,8 +26,8 @@
 #define DIMS2D(X, Y) COORDS2D(X, Y)
 
 struct xy2d {
-    s32 x;   // Horizontal
-    s32 y;   // Vertical
+    u8 x;   // Horizontal
+    u8 y;   // Vertical
 
     s32 o;  // Border
     s32 S;  // Surface
