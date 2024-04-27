@@ -63,7 +63,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     shell();
 }
 
- 
+
 #define STACK_CHK_GUARD 0xe2dee396
 u32 __stack_chk_guard = STACK_CHK_GUARD;
  
