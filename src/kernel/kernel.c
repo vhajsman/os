@@ -36,7 +36,6 @@ void kmain(unsigned long magic, unsigned long addr) {
     IGNORE_UNUSED(mboot_info);
 
     console_initialize();
-    cursor_disable();
 
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
 
