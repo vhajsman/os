@@ -73,12 +73,9 @@ void print_registers(REGISTERS *reg) {
  * being called in exception.asm
  */
 void isr_exception_handler(REGISTERS reg) {
-    if (reg.int_no < 32) {
-        printf("EXCEPTION: %s\n", exception_messages[reg.int_no]);
-        print_registers(&reg);
-        
+    if (reg.int_no < 32)
         kernel_panic(&reg, (signed int) reg.int_no);
-    }
+        
     if (g_interrupt_handlers[reg.int_no] != NULL) {
         ISR handler = g_interrupt_handlers[reg.int_no];
         handler(&reg);
