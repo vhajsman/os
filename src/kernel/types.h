@@ -23,4 +23,16 @@ typedef enum {
     TRUE
 } BOOL;
 
+#ifdef __cplusplus
+    #define __bool_defined
+#endif
+
+#ifndef __bool_defined
+#define __bool_defined
+    #define __bool u8
+    
+    typedef __bool boolean_t;
+    typedef __bool bool;
+#endif
+
 #endif
