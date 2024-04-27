@@ -19,6 +19,7 @@ u16 vga_entry(unsigned char uc, u8 color) {
 // ===== VGA CURSOR
 // =========================================================
 
+/*
 u8 _cursor_start = 0;
 u8 _cursor_end = 15;
 
@@ -58,4 +59,5 @@ void cursor_update(coords pos) {
 
 coords cursor_get() {
 	return _cursor_pos;
-}
+}s
+*/
