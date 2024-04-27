@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#define STRINGIFICATE(X)    #X
+
 int strlen(const char *s);
 
 int strcmp(const char *s1, char *s2);

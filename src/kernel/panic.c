@@ -4,8 +4,6 @@
 #include "irq/isr.h"
 #include "string.h"
 
-#define STRINGIFICATE(X)    #X
-
 #define KERNEL_DEBUG_DUMP_SINGLE_REG(REGS, REG) {   \
     char* regdump;                                  \
     itoa(regdump, 16, REGS->REG);                   \
