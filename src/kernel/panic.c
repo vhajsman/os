@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "console.h"
 #include "irq/isr.h"
+#include "string.h"
 
 #define STRINGIFICATE(X)    #X
 
@@ -45,7 +46,6 @@ void kernel_panic_dumpreg(REGISTERS* reg, signed int exception) {
 }
 
 void kernel_panic(REGISTERS* reg, signed int exception) {
-    asm("cli");
 
     console_initialize();
 
@@ -62,6 +62,7 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
 
     puts("--------------");
 
+    asm("cli");
     while(1) {
     }
 }
