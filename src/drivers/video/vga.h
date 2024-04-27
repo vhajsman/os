@@ -90,9 +90,9 @@ void cursor_update(coords pos);
 coords cursor_get();
 */
 
-void cursor_update(const coords* pos);
-void cursor_disable();
-void cursor_enable(u8 cursor_start, u8 cursor_end);
-void cursor_locate(coords* pos);
+extern void cursor_update(const coords* pos);
+extern void cursor_disable();
+extern void cursor_enable(u8 cursor_start, u8 cursor_end);
+extern void cursor_locate(coords* pos);
 
 #endif

@@ -1,7 +1,7 @@
 %define VGA_SET_CURSOR_POS  0x0002
 %define VGA_HIDE_CURSOR     0x0100
 %define VGA_SHOW_CURSOR     0x0100
-%define VGA_GET_CURSOR_POS
+%define VGA_GET_CURSOR_POS  0x0200
 
 section .data
     cursor_row      db 0
