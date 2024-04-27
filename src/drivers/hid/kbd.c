@@ -345,6 +345,8 @@ u8 _keyb_putc = 0;
 size_t _keyb_size = KEYBUFFER_SIZE_DEFAULT;
 size_t _keyb_index = 0;
 
+u8 _keyb_color_deleted;
+
 char _ignore;
 
 static unsigned char* _keyb;
@@ -356,6 +358,8 @@ void keybuffer_disable() {
 void keybuffer_enable(u8 printOnAppend) {
     _keyb_enable = 1;
     _keyb_putc = printOnAppend;
+
+    _keyb_color_deleted = vga_entryColor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
 }
 
 void keybuffer_set(const unsigned char* val) {
@@ -368,6 +372,19 @@ void keybuffer_set(const unsigned char* val) {
 void keybuffer_append(char c) {
     if(_ignore == c)
         return;
+
+    if(c == '\b') {
+        coords xy = console_wherexy();
+        xy.x--;
+
+        console_gotoxy(xy);
+        putc(' ');
+
+        _keyb[_keyb_index] = '\0';
+        _keyb_index--;
+        
+        return;
+    }
 
     if(_keyb_enable) {
         _keyb[_keyb_index] = c;
