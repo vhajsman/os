@@ -5,7 +5,7 @@
 #include "string.h"
 
 #define KERNEL_DEBUG_DUMP_SINGLE_REG(REGS, REG) {   \
-    char* regdump;                                  \
+    char regdump[10];                               \
     itoa(regdump, 16, REGS->REG);                   \
                                                     \
     debug_append(STRINGIFICATE(REG));               \
@@ -62,5 +62,6 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
 
     asm("cli");
     while(1) {
+        asm("hlt");
     }
 }

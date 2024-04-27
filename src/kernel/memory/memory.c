@@ -2,6 +2,7 @@
 #include "multiboot.h"
 #include "console.h"
 #include "debug.h"
+#include "string.h"
 
 u32 _mem_low;
 u32 _mem_high;
@@ -32,7 +33,13 @@ void memory_init(MULTIBOOT_INFO* mboot_info) {
 
     memory_printInfo();
 
+    char buf[20];
+
     debug_message("Intialization OK.", "PMMU", KERNEL_OK);
+    debug_message("Low Memory  KB   |", "PMMU", KERNEL_MESSAGE);  itoa(buf, 10, mboot_info->mem_low); debug_append(buf);
+    debug_message("High Memory KB   |", "PMMU", KERNEL_MESSAGE);  itoa(buf, 10, mboot_info->mem_high); debug_append(buf);
+    debug_message("Map length Bytes |", "PMMU", KERNEL_MESSAGE);  itoa(buf, 10, mboot_info->mmap_length); debug_append(buf);
+    debug_message("Map address      |", "PMMU", KERNEL_MESSAGE);  itoa(buf, 10, mboot_info->mmap_addr); debug_append(buf);
 
     memory_start = (struct memory_block*) memory_dynamicArea;
     memory_start->size = MEMORY_DYNAMIC_TOTAL_SIZE - MEMORY_DYNAMIC_NODE_SIZE;
