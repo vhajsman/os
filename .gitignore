@@ -2,3 +2,4 @@ discard
 .vscode
 build
 *.bak
+*.log
