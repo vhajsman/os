@@ -4,6 +4,10 @@
 #include "irq/isr.h"
 #include "string.h"
 
+// For blinking keyboard leds
+#include "hid/kbd.h"
+#include "devices/pit.h"
+
 #define KERNEL_DEBUG_DUMP_SINGLE_REG(REGS, REG) {   \
     char regdump[10];                               \
     itoa(regdump, 16, REGS->REG);                   \
@@ -43,6 +47,13 @@ void kernel_panic_dumpreg(REGISTERS* reg, signed int exception) {
 
 }
 
+void kernel_panic_delay(u32 __delay) {
+    u32 start = pit_directRead();
+    u32 end = start + __delay;
+
+    while(pit_directRead() < end) {}
+}
+
 void kernel_panic(REGISTERS* reg, signed int exception) {
 
     console_initialize();
@@ -62,6 +73,9 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
 
     asm("cli");
     while(1) {
-        asm("hlt");
+        kbd_setLeds(1, 0, 0);
+        kernel_panic_delay(250);
+        kbd_setLeds(0, 1, 0);
+        kernel_panic_delay(250);
     }
 }
