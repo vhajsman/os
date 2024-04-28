@@ -45,6 +45,7 @@ void kbd_disable();
 
 void kbd_discard();
 
+void kbd_setLeds(int n, int c, int s);
 
 // =========================================================
 // ===== READING INPUT
