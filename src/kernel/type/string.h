@@ -10,6 +10,7 @@ int strlen(const char *s);
 int strcmp(const char *s1, char *s2);
 int strncmp(const char *s1, const char *s2, int c);
 int strcpy(char *dst, const char *src);
+int strncpy(char* dst, const char* src, int N);
 void strcat(char *dest, const char *src);
 
 void *memset(void *dst, char c, u32 n);

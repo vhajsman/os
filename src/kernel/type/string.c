@@ -75,6 +75,14 @@ int strcpy(char *dst, const char *src) {
     return i;
 }
 
+int strncpy(char* dst, const char* src, int N) {
+    int i = 0;
+    while((*dst++ = *src++) != 0 && i < N)
+        i++;
+
+    return i;
+}
+
 void strcat(char *dest, const char *src) {
     char *end = (char *)dest + strlen(dest);
 
