@@ -38,7 +38,7 @@ u8 pit_readData (u8 counter) {
 
 void pit_init() {
     isr_registerInterruptHandler(IRQ_BASE + IRQ0_TIMER, pit_irq);
-    debug_message("OK", "PIT", KERNEL_OK);
+    debug_message("Init OK", "PIT", KERNEL_OK);
 }
 
 void pit_start(u32 frequency, u8 counter, u8 mode) {
