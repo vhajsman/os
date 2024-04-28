@@ -66,3 +66,21 @@ void pit_wait(u32 ticks) {
 
     while(_ticks < finish) {}
 }
+
+u32 pit_directRead() {
+    u32 count = 0;
+
+	outportb(0x43, 0);
+ 
+	count = inportb(0x40);
+	count |= inportb(0x40) << 8;
+ 
+	return count;
+}
+
+void pit_directWrite(u32 val) {
+	outb(0x40,  val & 0xFF);
+	outb(0x40, (val & 0xFF00) >> 8);
+    
+    _ticks = val;
+}

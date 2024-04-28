@@ -40,4 +40,7 @@ void pit_start(u32 frequency, u8 counter, u8 mode);
 
 void pit_wait(u32 ticks);
 
+u32 pit_directRead();
+void pit_directWrite(u32 val);
+
 #endif
