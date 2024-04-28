@@ -114,7 +114,21 @@ void arrcpy(char** src, char* dest[], size_t dest_size) {
     }
 }
 
+struct shell_execcall shell_genExecutionCall(struct shell_parseout* parseData) {
+    struct shell_execcall call;
 
+    call.prompt = shell_getPrompt();
+
+    call.call = parseData->tok_arr[0];
+    call.argc = parseData->tok_count > 0 ? parseData->tok_count - 1 : 0;
+
+    if(parseData->tok_count > 1) {
+        for(size_t i = 0; i < sizeof(parseData->tok_arr) / sizeof(parseData->tok_arr[0]); i ++) 
+            call.argv[i] = parseData->tok_arr[i + 1];
+    } else {
+        call.argv = NULL;
+    }
+}
 
 int shell_handleUserInput(char* userInput) {
     // Ignore comment

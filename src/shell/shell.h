@@ -30,6 +30,8 @@ int shell_handleUserInput(char* userInput);
 void shell();
 void shell_setPrefix(char* prefix);
 
+char* shell_getPrompt();
+
 #define SHELL_CALLPTR(X) \
     int (*X)(const char* callParams, u8* uref)
 

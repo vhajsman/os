@@ -76,3 +76,10 @@ void shell() {
        shell_handleUserInput(buffer);
     }
 }
+
+char* shell_getPrompt() {
+    if(_shell[0] == '\0')
+        return NULL;
+
+    return _shell;
+}
