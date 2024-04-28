@@ -2,6 +2,7 @@
 #include "memory/memory.h"
 #include "string.h"
 #include "debug.h"
+#include "console.h"
 
 #define TOKEN_SEPARATOR '\n'
 
