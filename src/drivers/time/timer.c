@@ -79,8 +79,8 @@ u32 pit_directRead() {
 }
 
 void pit_directWrite(u32 val) {
-	outb(0x40,  val & 0xFF);
-	outb(0x40, (val & 0xFF00) >> 8);
+	outportb(0x40,  val & 0xFF);
+	outportb(0x40, (val & 0xFF00) >> 8);
     
     _ticks = val;
 }
