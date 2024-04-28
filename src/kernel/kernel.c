@@ -41,12 +41,13 @@ void kmain(unsigned long magic, unsigned long addr) {
     gdt_init();
     idt_init();
     
+    pit_init();
+    
     kbd_init();
     kbd_enable();
 
     serial_init();
 
-    pit_init();
 
     debug_setPort(COM1);
     debug_setVerbose(0);
