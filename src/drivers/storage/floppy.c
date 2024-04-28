@@ -157,7 +157,7 @@ void floppy_motor(int enable) {
         : FLOPPY_DOR_MASK_RESET
     );
 
-    timer_wait(20);
+    pit_wait(20);
 }
 
 

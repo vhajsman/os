@@ -46,7 +46,7 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     serial_init();
 
-    timer_install();
+    pit_init();
 
     debug_setPort(COM1);
     debug_setVerbose(0);
