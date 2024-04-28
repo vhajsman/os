@@ -5,60 +5,58 @@
 #include "irq/isr.h"
 #include "irq/irqdef.h"
 
+#include "debug.h"
+
 u32 _ticks = 0;
 
-void timer_phase(int freq) {
-    int divisor = 1193180 / freq;
-
-    outportb(0x43, 0x36);
-    outportb(0x40, divisor & 0xFF);
-    outportb(0x40, divisor >> 8);
-}
-
-u32 timer_read() {
-    u32 count = 0;
-
-    asm("cli");
-
-    outportb(0x43, 0x00);
-    count = inportb(0x40);
-    count |= inportb(0x40) << 8;
-
-    asm("sti");
-    return count;
-}
-
-void timer_write(u32 time) {
-    asm("cli");
-
-    outportb(0x40, time & 0xFF);
-    outportb(0x40, (time & 0xFF00) >> 8);
-
-    asm("sti");
-    return;
-}
-
-void timer_handler(REGISTERS* r) {
+void pit_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
-    
+
     _ticks++;
-
-    //if(_ticks % 18 == 0)
-        //printf("1 second has passed.\n");
 }
 
-void timer_install() {
-    timer_phase(18);
-    isr_registerInterruptHandler(IRQ_BASE + 0, timer_handler);
+u8 pit_addressing(u8 counter) {
+    return
+    (counter == PIT_COUNTER_0) 
+    ? PIT_REG_COUNTER0
+    : ((counter==PIT_COUNTER_1) 
+        ? PIT_REG_COUNTER1
+        : PIT_REG_COUNTER2);
 }
 
-void timer_wait(u32 ticks) {
-    u32 eticks = _ticks + ticks;
-    while(_ticks < eticks);
+void pit_sendCommand(u8 command) {
+    outportb(PIT_REG_COMMAND, command);
 }
 
-void timer_sleepSecs(u32 s) {
-    u32 _t = _ticks;
-    for(u32 i = 0; i < s; i ++)
-        while(_t % 18 != 0 || _t > 0);
+void pit_sendData (u16 data, u8 counter) {
+	outportb(pit_addressing(counter), data);
+}
+
+u8 pit_readData (u8 counter) {
+    return inportb(pit_addressing(counter));
+}
+
+void pit_init() {
+    isr_registerInterruptHandler(IRQ_BASE + IRQ0_TIMER, pit_irq);
+    debug_message("OK", "PIT", KERNEL_OK);
+}
+
+void pit_start(u32 frequency, u8 counter, u8 mode) {
+    if(! frequency) // TODO: Make the timer stop.
+        return;
+    
+    u16 divisor = PIT_CALCULATE_DIVISOR(frequency);
+
+    u8 ocw = 0;
+    ocw = (ocw & ~PIT_MASK_MODE)    | mode;
+	ocw = (ocw & ~PIT_MASK_RL)      | PIT_RL_DATA;
+	ocw = (ocw & ~PIT_MASK_COUNTER) | counter;
+
+    pit_sendCommand(ocw);
+
+    // ? Set the frequency
+    pit_sendData( divisor       & 0xFF, 0);
+    pit_sendData((divisor >> 8) & 0xFF, 0);
+
+    _ticks = 0;
 }
