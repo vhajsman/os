@@ -32,8 +32,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     IGNORE_UNUSED(magic);
     IGNORE_UNUSED(addr);
 
-    MULTIBOOT_INFO *mboot_info;
-    IGNORE_UNUSED(mboot_info);
+    static MULTIBOOT_INFO *mboot_info;
 
     console_initialize();
 
