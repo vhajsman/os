@@ -5,77 +5,112 @@
 
 #define TOKEN_SEPARATOR '\n'
 
-struct shell_parseout parse(char* userInput) {
-    struct shell_parseout output;
+char* replace_spaces(const char* str, char replace_with) {
+    int inside_quotes = 0;
+    size_t len = strlen(str);
 
-    size_t len = strlen(userInput);
-    if(! len) {
-        output.tok_count = 0;
-        output.tok_str = "";
+    char* result = (char*) malloc((len + 1) * sizeof(char));
 
-        return output;
+    if (!result) {
+        puts("Handler: Malloc failed");
+        debug_message("Malloc failed", "Shell->handler", KERNEL_ERROR);
+
+        return NULL;
     }
 
-    u8 quotes = 0;
-
-    char* tok_str;
-    size_t tok_count = 0;
-
-    size_t i, of;
-    for(i, of = 0; i < len; i ++) {
-        switch(userInput[i]) {
-            case '\0':
-                i = len;
-                // of ++;
-                break;
-
-            case '\n':
-                if(quotes) {
-                    i = len;    // ? Breaks the for loop
-                    tok_count ++;
-                    of++;
-                }
-
-                break;
-            
-            case '\t':
-            case ' ':
-                if(quotes) {
-                    tok_str[i] = TOKEN_SEPARATOR;
-                    tok_count ++;
-                    of ++;
-                }
-
-                break;
-            
-            case '"':
-                quotes = !quotes;
-                of ++;
-                break;
-
-            default:
-                tok_str[i - of] = userInput[i];
-        }
-    }
-    
-    output.tok_count = tok_count;
-    output.tok_str = tok_str;
-
-    char* token = "";
-    for(size_t i, j, k = 0; i < strlen(tok_str); i ++) {
-        if(tok_str[i] != TOKEN_SEPARATOR) {
-            token[j] = tok_str[i];
-            j ++;
+    size_t i, j;
+    for (i = 0, j = 0; i < len; i++, j++) {
+        if (str[i] == '"' && !inside_quotes) {
+            inside_quotes = 1;
+            result[j] = str[i];
+        } else if (str[i] == '"' && inside_quotes) {
+            inside_quotes = 0;
+            result[j] = str[i];
+        } else if (str[i] == ' ' && !inside_quotes) {
+            result[j] = replace_with;
         } else {
-            j = 0;
-            token = "";
-
-            output.tok_arr[k] = token;
-            k ++;
+            result[j] = str[i];
         }
     }
 
-    return output;
+    result[j] = '\0';
+
+    return result;
+}
+
+char** split_string(const char* str, int* num_parts) {
+    int len = 0;
+    const char* ptr = str;
+
+    // Count the number of parts
+    while (*ptr != '\0') {
+        if (*ptr == TOKEN_SEPARATOR) {
+            while (*ptr == TOKEN_SEPARATOR) {
+                ptr++;  // Skip consecutive spaces
+            }
+        } else {
+            len++;
+            while (*ptr != ' ' && *ptr != '\0') {
+                ptr++;
+            }
+        }
+    }
+
+    if (len == 0) {
+        *num_parts = 0;
+        return NULL;
+    }
+
+    // Allocate memory for the array of strings
+    char** parts = (char**)malloc(len * sizeof(char*));
+    if (parts == NULL) {
+        *num_parts = 0;
+        return NULL;
+    }
+
+    // Split the string and store the parts in the array
+    int part_index = 0;
+    ptr = str;
+    while (*ptr != '\0') {
+        if (*ptr == TOKEN_SEPARATOR) {
+            while (*ptr == TOKEN_SEPARATOR) {
+                ptr++;  // Skip consecutive spaces
+            }
+        } else {
+            const char* start = ptr;
+            while (*ptr != ' ' && *ptr != '\0') {
+                ptr++;
+            }
+            int part_len = ptr - start;
+            parts[part_index] = (char*)malloc((part_len + 1) * sizeof(char));
+            if (parts[part_index] == NULL) {
+                // Free memory allocated so far
+                for (int i = 0; i < part_index; i++) {
+                    free(parts[i]);
+                }
+                free(parts);
+                *num_parts = 0;
+                return NULL;
+            }
+            strncpy(parts[part_index], start, part_len);
+            parts[part_index][part_len] = '\0';  // Null-terminate the string
+            part_index++;
+        }
+    }
+
+    *num_parts = len;
+    return parts;
+}
+
+void arrcpy(char** src, char* dest[], size_t dest_size) {
+    for(size_t i = 0; i < dest_size; i ++) {
+        if(src[i] != NULL) {
+            strncpy(dest[i], src[i], MAX_TOKS - 1);
+            dest[i][MAX_TOKS - 1] = '\0';
+        } else {
+            dest[i][0] = '\0';
+        }
+    }
 }
 
 int shell_handleUserInput(char* userInput) {
@@ -87,7 +122,12 @@ int shell_handleUserInput(char* userInput) {
 
     struct shell_parseout p;
 
-    char* buf_c;    itoa(buf_c, 10, p.tok_count);
+    arrcpy(userInput, p.tok_arr, MAX_TOKS);
+    p.tok_str = replace_spaces(userInput, TOKEN_SEPARATOR);
+    p.tok_count = sizeof(p.tok_arr) / sizeof(p.tok_arr[0]);
+
+    char* buf_c;
+    itoa(buf_c, 10, p.tok_count);
 
     debug_message("Parser: User input parse. ", "Shell", KERNEL_MESSAGE);
     debug_append("Token count: ");
