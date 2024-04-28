@@ -38,4 +38,6 @@ u8 pit_addressing(u8 counter);
 void pit_init();
 void pit_start(u32 frequency, u8 counter, u8 mode);
 
+void pit_wait(u32 ticks);
+
 #endif

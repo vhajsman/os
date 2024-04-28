@@ -60,3 +60,9 @@ void pit_start(u32 frequency, u8 counter, u8 mode) {
 
     _ticks = 0;
 }
+
+void pit_wait(u32 ticks) {
+    u32 finish = _ticks + ticks;
+
+    while(_ticks < finish) {}
+}
