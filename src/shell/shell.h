@@ -11,6 +11,20 @@ struct shell_parseout {
     char* tok_arr[MAX_TOKS];
 };
 
+struct shell_execcall {
+    char* prompt;
+
+    union {
+        char* executable;
+        char* internalCommand;
+        char* identifier;
+        char* call;
+    };
+
+    size_t argc;    // Argument count
+    char** argv;    // Arguments
+};
+
 int shell_handleUserInput(char* userInput);
 
 void shell();
