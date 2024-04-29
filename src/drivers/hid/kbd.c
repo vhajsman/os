@@ -375,9 +375,8 @@ void keybuffer_append(char c) {
 
     if(c == '\b') {
         coords xy = console_wherexy();
-        xy.x--;
+        console_gotoxy(xy.x - 1, xy.y);
 
-        console_gotoxy(xy);
         putc(' ');
 
         _keyb[_keyb_index] = '\0';
