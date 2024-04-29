@@ -191,8 +191,9 @@ void colorPrint(const char* str, u8 color) {
     console_color = prevcolor;
 }
 
-inline void console_gotoxy(coords xy) {
-    console_position = xy;
+void console_gotoxy(u8 x, u8 y) {
+    console_position.x = x;
+    console_position.y = y;
 }
 
 coords console_wherexy() {
