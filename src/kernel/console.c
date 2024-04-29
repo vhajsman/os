@@ -199,3 +199,11 @@ void console_gotoxy(u8 x, u8 y) {
 coords console_wherexy() {
     return console_position;
 }
+
+u8 console_wherex() {
+    return console_position.x;
+}
+
+u8 console_wherey() {
+    return console_position.x;
+}
