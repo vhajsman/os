@@ -47,4 +47,7 @@ void colorPrint(const char* str, u8 color);
 void console_gotoxy(u8 x, u8 y);
 coords console_wherexy();
 
+u8 console_wherex();
+u8 console_wherey();
+
 #endif
