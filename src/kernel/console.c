@@ -110,16 +110,17 @@ void putc(char c) {
     }
 
     if(c == '\b') {
+        console_put(' ', console_color, console_position.x, console_position.y);
+
+        if(console_position.x == 0 && console_position.y == 0)
+            return;
+
         if(console_position.x == 0 && console_position.y != 0) {
             console_position.x = VGA_WIDTH;
             console_position.y --;
+        } else {
+            console_position.x--;
         }
-
-        if(console_position.x == 0 && console_position.y == 0) {
-            return;
-        }
-
-        console_position.x--;
     }
 
 	if (++console_position.x == VGA_WIDTH) {
