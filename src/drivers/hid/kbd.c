@@ -373,7 +373,8 @@ void keybuffer_append(char c) {
         return;
 
     if(c == '\b') {
-        //console_gotoxy(console_wherex() - 1, console_wherey());
+        if(_keyb_index == 0)
+            return;
 
         putc('\b');
 
