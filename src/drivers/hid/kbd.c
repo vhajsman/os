@@ -376,10 +376,13 @@ void keybuffer_append(char c) {
         if(_keyb_index == 0)
             return;
 
-        putc('\b');
+        // putc('\b');
 
         _keyb[_keyb_index] = '\0';
         _keyb_index--;
+
+        console_gotoxy(console_wherex() - 1, console_wherey());
+        putc(' ');
 
         return;
     }
