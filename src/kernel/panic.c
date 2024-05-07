@@ -73,6 +73,6 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
 
     asm("cli");
     while(1) {
-        asm("hlt");
+        // asm("hlt");
     }
 }
