@@ -36,5 +36,6 @@ int cpuid_info(int print);
 
 void kernel_panic(REGISTERS* reg, signed int exception);
 
+void kout(enum kernel_statusLevels lvl, char* interface, char* message, char* query);
 
 #endif

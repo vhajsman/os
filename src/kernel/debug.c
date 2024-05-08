@@ -8,7 +8,7 @@ int _timestamp = 0; // UNDONE
 
 u16 _port;
 
-static char* _levelsStrings[10] = {
+char* _levelsStrings[10] = {
     "[   ***   ]\0",
     "[ NOTE    ]\0",
     "[ NOTE !! ]\0",
