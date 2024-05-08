@@ -48,6 +48,7 @@ section .text
 _start:
     ; extern paging_enable
     extern kmain
+    extern kernel_exit
 
     ; Enable paging
     ; call paging_enable
@@ -60,8 +61,10 @@ _start:
     push eax
     call kmain
 
-    ; Prevent issuing interrupts in fallback.
-    cli
+    call kernel_exit
 
-loop:
-    jmp loop
+    ; Prevent issuing interrupts in fallback.
+    ; cli
+
+; loop:
+    ; jmp loop

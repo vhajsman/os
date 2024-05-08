@@ -13,9 +13,11 @@
 #include "multiboot.h"
 #include "debug.h"
 
+bool _kernel_exitOk = 0;
+
 #define STACK_CHK_GUARD 0xe2dee396
 u32 __stack_chk_guard = STACK_CHK_GUARD;
- 
+
 __attribute__((noreturn))
 void __stack_chk_fail(void) {
     while(1);
@@ -114,4 +116,14 @@ void kout(enum kernel_statusLevels lvl, char* interface, char* message, char* qu
     }
 
     putc('\n');
+}
+
+void kernel_exit() {
+    asm("cli");
+
+    if(_kernel_exitOk)
+        return;
+
+    kout(KERNEL_FATAL, "kernel", "Kernel exited unexceptedly (crashed), call panic.", NULL);
+    kernel_panic((REGISTERS*) 0, 6);
 }
