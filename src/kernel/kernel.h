@@ -2,6 +2,7 @@
 #define __KERNEL_H
 
 #include "types.h"
+#include "debug.h"
 
 #define IGNORE_UNUSED(X)    (void)(X)
 
