@@ -71,7 +71,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     debug_message("Debug enabled.", "Kernel main", KERNEL_MESSAGE);
     debug_message("CubeBox OS! v 0.0.1 kernel! (test)", 0, KERNEL_IMPORTANT);
 
-    cpuid_info(1);
+    cpuid_info(0);
     memory_init(mboot_info);
 
     shell();

@@ -41,7 +41,7 @@ char *exception_messages[32] = {
 };
 
 void isr_registerInterruptHandler(int num, ISR handler) {
-    printf("IRQ %d registered\n", num);
+    // printf("IRQ %d registered\n", num);
 
     if (num < NO_INTERRUPT_HANDLERS)
         g_interrupt_handlers[num] = handler;

@@ -298,7 +298,7 @@ void kbd_init() {
 
     kbd_enable();
 
-    puts("Waiting for KBD to respond...\n");
+    // puts("Waiting for KBD to respond...\n");
 
     
     kbd_sendCommand(KEYBOARD_COMMAND_ECHO);
@@ -310,7 +310,7 @@ void kbd_init() {
     }
 
 
-    puts("KBD: Keyboard not responding.\n");
+    // puts("KBD: Keyboard not responding.\n");
 
     return;
 

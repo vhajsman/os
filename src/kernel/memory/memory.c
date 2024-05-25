@@ -31,7 +31,7 @@ void memory_init(MULTIBOOT_INFO* mboot_info) {
     _map_length = mboot_info->mmap_length;
     _map_address = mboot_info->mmap_addr;
 
-    memory_printInfo();
+    // memory_printInfo();
 
     char buf[20];
 
