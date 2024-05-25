@@ -5,8 +5,13 @@
 
 int _verbose = 0;
 int _timestamp = 0; // UNDONE
+int _debug_enable = 0;
 
 u16 _port;
+
+#define __check_debug   \
+    if(!_debug_enable)  \
+        return
 
 char* _levelsStrings[10] = {
     "[   ***   ]\0",
@@ -22,17 +27,26 @@ char* _levelsStrings[10] = {
 };
 
 void debug_setVerbose(int verbose) {
+    __check_debug;
+
     _verbose = verbose ? 1 : 0;
     debug_message("Verbose flag enabled", 0, KERNEL_VERBOSE);
 }
 
 void debug_setPort(u16 port) {
+    if(port == 0) {
+        _debug_enable = 0;
+        return;
+    }
+    
     if(port != COM1 && port != COM2) {
+        _debug_enable = 0;
         printf("Error: Debug port not supported");
         return;
     }
 
     _port = port;
+    _debug_enable = 1;
 
     colorPrint("Port ", vga_entryColor(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
     colorPrint(port == COM1 ? "COM1" : "COM2", vga_entryColor(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
@@ -44,12 +58,15 @@ void debug_setPort(u16 port) {
 }
 
 void debug_append(const  char* data) {
+    __check_debug;
     serial_write(_port, data);
 }
 
 #define __INTERFACE_MAX_CHARS   12
 
 void debug_message(const  char* message, const  char* interface, enum kernel_statusLevels level) {
+    __check_debug;
+
     if(level == KERNEL_VERBOSE && !_verbose)
         // * Message level verbose, but verbosity not allowed.
         return;
@@ -93,6 +110,8 @@ void debug_message(const  char* message, const  char* interface, enum kernel_sta
 #define __SEPARATOR_LENGTH  80
 
 void debug_separator(const  char* title) {
+    __check_debug;
+
     if(title != NULL) {
         debug_append("DEBUG: << [ ");
         debug_append(title);
@@ -106,5 +125,7 @@ void debug_separator(const  char* title) {
 }
 
 void debug_breakpoint() {
+    // __check_debug;
+
     asm volatile("1: jmp 1b");
 }
