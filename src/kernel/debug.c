@@ -104,3 +104,7 @@ void debug_separator(const  char* title) {
 
     debug_append("\n\r");
 }
+
+void debug_breakpoint() {
+    asm volatile("1: jmp 1b");
+}

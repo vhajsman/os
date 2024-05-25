@@ -27,4 +27,10 @@ void debug_message(     const  char* message,
                         enum kernel_statusLevels level);
 void debug_separator(   const  char* title);
 
+/*  Inserts a pseudo-breakpoint, where another debug
+    functions are not usable.
+    These can be used to perform a binary space
+    isolation (binary chop) through the code.*/
+void debug_breakpoint();
+
 #endif
