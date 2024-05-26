@@ -1,12 +1,16 @@
 #include "linkedlist.h"
 #include "memory/memory.h"
+#include "kernel.h"
+
+#define list_size linkedlist_size
 
 linkedlist_t* linkedlist_create() {
-    linkedlist_t* list = malloc(sizeof(list_t));
+    linkedlist_t* list = malloc(sizeof(linkedlist_t));
+    IGNORE_UNUSED(list);
 }
 
 u32 linkedlist_size(linkedlist_t* list) {
-    return (!list) ? 0 : list->size();
+    return (!list) ? 0 : list->size;
 }
 
 void* linkedlist_removeNode(linkedlist_t* list, linkedlist_node_t* node) {
@@ -26,7 +30,7 @@ void* linkedlist_removeNode(linkedlist_t* list, linkedlist_node_t* node) {
     return val;
 }
 
-linkedlist_node_t* linkedList_insertFront(linkedlist_t* list, void* val) {
+linkedlist_node_t* linkedlist_insertFront(linkedlist_t* list, void* val) {
     linkedlist_node_t* t = malloc(sizeof(linkedlist_node_t));
     
     list->head->prev = t;
@@ -50,7 +54,7 @@ void linkedlist_insertBack(linkedlist_t* list, void* val) {
     if(list->tail)
         list->tail->next = t;
 
-    t->vail = val;
+    t->val = val;
 
     if(!list->head)
         list->head = t;
@@ -81,7 +85,7 @@ void* linkedlist_removeBack(linkedlist_t* list) {
     if(!list->head)
         return;
 
-    linkedlist_node_t t = list->tail;
+    linkedlist_node_t* t = list->tail;
     void* val = t->val;
 
     list->tail = t->prev;
@@ -103,7 +107,7 @@ linkedlist_node_t* linkedlist_pop(linkedlist_t* list) {
     if(!list->head)
         return NULL;
 
-    linkedlist_node_t t = list->tail;
+    linkedlist_node_t* t = list->tail;
     list->tail = t->prev;
 
     if(list->tail)
@@ -114,7 +118,7 @@ linkedlist_node_t* linkedlist_pop(linkedlist_t* list) {
 }
 
 void linkedlist_unqueue(linkedlist_t* list, void* val) {
-    linedlist_insertFront(list, val);
+    linkedlist_insertFront(list, val);
 }
 
 linkedlist_node_t* linkedlist_dequeue(linkedlist_t* list) {
