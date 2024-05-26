@@ -25,7 +25,7 @@ typedef struct {
     u32 edi, esi, ebp, esp, ebx, edx, ecx, eax;
     u32 int_no, err_code;
     u32 eip, cs, eflags, useresp, ss;
-    u32 eflags, cr3;
+    u32 cr3;
 } REGISTERS;
 
 BOOL is_echo(char *b);
