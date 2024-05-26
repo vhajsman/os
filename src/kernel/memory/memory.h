@@ -11,6 +11,25 @@
 #define MEMORY_DYNAMIC_TOTAL_SIZE       (4 * 1024)
 #define MEMORY_DYNAMIC_NODE_SIZE        sizeof(struct memory_block)
 
+#define BLOCK_SIZE 4096
+#define BLOCKS_PER_BUCKET 8
+
+#define SETBIT(i)   \
+    bitmap[i / BLOCKS_PER_BUCKET] = bitmap[i / BLOCKS_PER_BUCKET] | \
+                                    (1 << (i % BLOCKS_PER_BUCKET))
+#define CLEARBIT(i) \
+    bitmap[i / BLOCKS_PER_BUCKET] = bitmap[i / BLOCKS_PER_BUCKET] & \
+                                    (~(1 << (i % BLOCKS_PER_BUCKET)))
+
+#define ISSET(i) \
+    ((bitmap[i / BLOCKS_PER_BUCKET] >> (i % BLOCKS_PER_BUCKET)) & 0x1)
+
+#define GET_BUCKET32(i) \
+    (*((u32*) &bitmap[i / 32]))
+
+#define BLOCK_ALIGN(addr) \
+    (((addr) & 0xFFFFF000) + 0x1000)
+
 struct memory_block {
     u8 used;
     u8 kernel;
