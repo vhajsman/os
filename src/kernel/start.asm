@@ -37,15 +37,14 @@ section .multiboot
 
 section .data
     align 4096
-    global TEMP_PAGE_DIRECTOY
+    global TEMP_PAGE_DIRECTORY
 
-TEMP_PAGE_DIRECTOY:
+TEMP_PAGE_DIRECTORY:
     dd 0x00000083
     times(PDE_INDEX - 1) dd 0
 
     dd 0x00000083
     times(1024 - PDE_INDEX - 1) dd 0 
-
 
 section .initial_stack, nobits
     align 4
