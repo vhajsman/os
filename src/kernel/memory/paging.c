@@ -386,6 +386,9 @@ void paging_fault(REGISTERS* reg) {
     //qemu_printf("]\n");
     //
     //print_reg(reg);
+
+    debug_message("Page fault detected", "Memory", KERNEL_FATAL);
+    kernel_panic(reg, -1);
 } 
 
 #undef __REQ_ALL_ADDRESS
