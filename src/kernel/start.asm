@@ -75,10 +75,10 @@ _start:
     push eax
     call kmain
 
-    call kernel_exit
-
     ; Prevent issuing interrupts in fallback.
     cli
 
-; loop:
-    ; jmp loop
+    call kernel_exit
+
+loop:
+    jmp loop
