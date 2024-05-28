@@ -20,6 +20,12 @@ FLAGS           equ  MEMINFO | BOOTDEVICE | CMDLINE | MODULECOUNT | SYMT | MEMMA
 MAGIC_HEADER    equ  0x1BADB002
 CHECKSUM        equ -(MAGIC_HEADER + FLAGS)
 
+VM_BASE     equ 0xC0000000
+PDE_INDEX   equ (VM_BASE >> 22)
+PSE_BIT     equ 0x00000010
+PG_BIT      equ 0x80000000
+
+
 BOOTLOADER_MAGIC  equ  0x2BADB002
 
 section .multiboot
@@ -31,6 +37,15 @@ section .multiboot
 
 section .data
     align 4096
+    global TEMP_PAGE_DIRECTOY
+
+TEMP_PAGE_DIRECTOY:
+    dd 0x00000083
+    times(PDE_INDEX - 1) dd 0
+
+    dd 0x00000083
+    times(1024 - PDE_INDEX - 1) dd 0 
+
 
 section .initial_stack, nobits
     align 4
