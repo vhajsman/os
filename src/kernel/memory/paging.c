@@ -365,27 +365,6 @@ void paging_copyDir(page_directory_t* dst, page_directory_t* src) {
  * */
 void paging_fault(REGISTERS* reg) {
     asm volatile("sti");
-    //set_curr_color(LIGHT_RED);
-    //qemu_printf("Page fault:\n");
-    //
-    //// Gather fault info and print to screen
-    //uint32_t faulting_addr;
-    //asm volatile("mov %%cr2, %0" : "=r" (faulting_addr));
-    //uint32_t present = reg->err_code & ERR_PRESENT;
-    //uint32_t rw = reg->err_code & ERR_RW;
-    //uint32_t user = reg->err_code & ERR_USER;
-    //uint32_t reserved = reg->err_code & ERR_RESERVED;
-    //uint32_t inst_fetch = reg->err_code & ERR_INST;
-    //
-    //qemu_printf("Possible causes: [ ");
-    //if(!present) qemu_printf("Page not present ");
-    //if(rw) qemu_printf("Page is read only ");
-    //if(user) qemu_printf("Page is read only ");
-    //if(reserved) qemu_printf("Overwrote reserved bits ");
-    //if(inst_fetch) qemu_printf("Instruction fetch ");
-    //qemu_printf("]\n");
-    //
-    //print_reg(reg);
 
     debug_message("Page fault detected", "Memory", KERNEL_FATAL);
     kernel_panic(reg, -1);
