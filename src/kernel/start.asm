@@ -78,7 +78,7 @@ _start:
     call kernel_exit
 
     ; Prevent issuing interrupts in fallback.
-    ; cli
+    cli
 
 ; loop:
     ; jmp loop
