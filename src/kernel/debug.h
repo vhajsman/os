@@ -33,4 +33,28 @@ void debug_separator(   const  char* title);
     isolation (binary chop) through the code.*/
 void debug_breakpoint();
 
+
+#define __debug_messagen(message, interface, level, number, base)   \
+    char* ___b_itoa_##number##_;                                    \
+    itoa(___b_itoa_##number##_, base, number);                      \
+                                                                    \
+    debug_message(message, interface, level);                       \
+                                                                    \
+    if(base == 16)  debug_append("0x");                             \
+    if(base == 12)  debug_append("0c");                             \
+    if(base == 2)   debug_append("0b");                             \
+                                                                    \
+    debug_append(___b_itoa_##number##_);
+#define __debug_messagea(message, interface, level, number, base)   \
+    char* ___b_itoa_##number##_;                                    \
+    itoa(___b_itoa_##number##_, (int) &base, number);               \
+                                                                    \
+    debug_message(message, interface, level);                       \
+                                                                    \
+    if(base == 16)  debug_append("0x");                             \
+    if(base == 12)  debug_append("0c");                             \
+    if(base == 2)   debug_append("0b");                             \
+                                                                    \
+    debug_append(___b_itoa_##number##_);
+
 #endif

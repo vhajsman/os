@@ -173,29 +173,6 @@ u8* memory_start;
 u32 memory_size;
 u32 memory_blockCount;
 
-#define __debug_messagen(message, interface, level, number, base)   \
-    char* ___b_itoa_##number##_;                                    \
-    itoa(___b_itoa_##number##_, base, number);                      \
-                                                                    \
-    debug_message(message, interface, level);                       \
-                                                                    \
-    if(base == 16)  debug_append("0x");                             \
-    if(base == 12)  debug_append("0c");                             \
-    if(base == 2)   debug_append("0b");                             \
-                                                                    \
-    debug_append(___b_itoa_##number##_);
-#define __debug_messagea(message, interface, level, number, base)   \
-    char* ___b_itoa_##number##_;                                    \
-    itoa(___b_itoa_##number##_, (int) &base, number);               \
-                                                                    \
-    debug_message(message, interface, level);                       \
-                                                                    \
-    if(base == 16)  debug_append("0x");                             \
-    if(base == 12)  debug_append("0c");                             \
-    if(base == 2)   debug_append("0b");                             \
-                                                                    \
-    debug_append(___b_itoa_##number##_);
-
 void memory_init(MULTIBOOT_INFO* mboot_info) {
     // _mem_low = mboot_info->mem_low;
     // _mem_high = mboot_info->mem_high;
