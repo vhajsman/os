@@ -12,6 +12,7 @@
 #include "memory/memory.h"
 #include "multiboot.h"
 #include "debug.h"
+#include "pci.h"
 
 bool _kernel_exitOk = 0;
 
@@ -73,6 +74,9 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     cpuid_info(0);
     memory_init(mboot_info);
+
+
+    pci_init();
 
     shell();
 }
