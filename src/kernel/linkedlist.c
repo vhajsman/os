@@ -6,7 +6,7 @@
 
 linkedlist_t* linkedlist_create() {
     linkedlist_t* list = malloc(sizeof(linkedlist_t));
-    IGNORE_UNUSED(list);
+    return list;
 }
 
 u32 linkedlist_size(linkedlist_t* list) {
@@ -65,7 +65,7 @@ void linkedlist_insertBack(linkedlist_t* list, void* val) {
 
 void* linkedlist_removeFront(linkedlist_t* list) {
     if(!list->head)
-        return;
+        return NULL;
 
     linkedlist_node_t* t = list->head;
     void* val = t->val;
@@ -83,7 +83,7 @@ void* linkedlist_removeFront(linkedlist_t* list) {
 
 void* linkedlist_removeBack(linkedlist_t* list) {
     if(!list->head)
-        return;
+        return NULL;
 
     linkedlist_node_t* t = list->tail;
     void* val = t->val;
@@ -152,14 +152,16 @@ int linkedlist_contain(linkedlist_t* list, void* val) {
     return -1;
 }
 
-linkedlist_node_t* linkedlist_getNodeByIndex(linkedlist_t* list, int index) {
+linkedlist_node_t* linkedlist_getNodeByIndex(linkedlist_t* list, u32 index) {
     if(index < 0 || index >= list_size(list))
         return NULL;
 
-    int curr = 0;
+    u32 curr = 0;
 
     list_foreach(listnode, list) {
-        if(index == curr) return listnode;
+        if(index == curr) 
+            return listnode;
+
         curr++;
     }
 

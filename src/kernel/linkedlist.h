@@ -42,7 +42,7 @@ void* linkedlist_peekBack(linkedlist_t* list);
 
 int linkedlist_contain(linkedlist_t* list, void* val);
 
-linkedlist_node_t* linkedlist_getNodeByIndex(linkedlist_t* list, int index);
+linkedlist_node_t* linkedlist_getNodeByIndex(linkedlist_t* list, u32 index);
 void* linkedlist_removeByIndex(linkedlist_t* list, int index);
 
 #endif
