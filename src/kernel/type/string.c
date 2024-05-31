@@ -1,6 +1,7 @@
 #include "string.h"
 #include "types.h"
 #include "memory/memory.h"
+#include "linkedlist.h"
 
 void *memset(void *dst, char c, u32 n) {
     char *temp = dst;
@@ -316,4 +317,92 @@ It:
     current = i + 1;
     
     return W;
+}
+
+char* strdup(const char* source) {
+    int len = strlen(source);
+    char* dest = kmalloc(len);
+
+    memcpy(dest, source, len);
+
+    return dest;
+}
+
+char* strsep(char** stringp, const char* delim) {
+    int c, sc;
+    char *s, *token;
+    const char *spanp;
+
+    if((s = *stringp) == NULL)
+        return (NULL);
+
+    for(token = s; ;) {
+        c = *s++;
+        spanp = delim;
+
+        do {
+            if((sc = *spanp++) == c) {
+                if(c == 0) {
+                    s = NULL;
+                } else {
+                    s[-1] = 0;
+                }
+
+                *stringp = s;
+
+                return token;
+            }
+        } while(sc != 0);
+    }
+}
+
+linkedlist_t* str_split(const char* src, const char* delim, unsigned int* tokenCount) {
+    linkedlist_t* ret_list = linkedlist_create();
+
+    char* s = strdup(src);
+    char *token, *rest = s;
+
+    while((token = strsep(&rest, delim)) != NULL) {
+        if(!strcmp(token, "."))
+            continue;
+        
+        if(!strcmp(token, "..")) {
+            if(linkedlist_size(ret_list) > 0)
+                linkedlist_pop(ret_list);
+            
+            continue;
+        }
+
+        linkedlist_push(ret_list, strdup(token));
+
+        if(tokenCount)
+            (*tokenCount)++;
+    }
+
+    free(s);
+
+    return ret_list;
+}
+
+char* linkedlist_toString(linkedlist_t* list, const char* delim) {
+    int len = 0, ret_len = 256;
+    char* ret = kmalloc(256);
+    
+    memset(ret, 0, 256);
+
+    while(linkedlist_size(list) > 0) {
+        char* temp = linkedlist_pop(list)->val;
+        int temp_len = strlen(temp);
+
+        if(len + temp_len /*+ 1 + 1*/ + 2 > ret_len) {
+            ret_len = ret_len * 2;
+            ret = krealloc(ret, ret_len);
+            len = len + temp_len + 1;
+        }
+
+        strcat(ret, delim);
+        strcat(ret, temp);
+    }
+
+    return ret;
 }
