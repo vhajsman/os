@@ -126,3 +126,5 @@
 #define EOWNERDEAD 142        /* Previous owner died */
 #define ESTRPIPE 143          /* Streams pipe error */
 #define EWOULDBLOCK EAGAIN    /* Operation would block */
+
+#endif
