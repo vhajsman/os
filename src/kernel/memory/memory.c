@@ -5,7 +5,7 @@
 #include "string.h"
 #include "paging.h"
 
-extern const u32* end;
+extern u32* end;
 
 /*
 u32 _mem_low;
@@ -301,7 +301,7 @@ u32 kmalloc_int(u32 sz, int align, u32* phys) {
 }
 
 void* kmalloc_align(u32 sz) {
-    return kmalloc_int(sz, 1, 0);
+    return (void*) kmalloc_int(sz, 1, 0);
 }
 
 u32 kmalloc_p(u32 sz, u32 *phys) {

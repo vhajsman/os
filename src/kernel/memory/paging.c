@@ -1,6 +1,7 @@
 #include "paging.h"
 #include "debug.h"
 #include "math.h"
+#include "irq/isr.h"
 
 #define __REQ_ALL_ADDRESS
 #include "memory.h"
