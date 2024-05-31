@@ -17,7 +17,7 @@ gtreenode_t* tree_createNode(void* value) {
 gtreenode_t* tree_insert(gtree_t* tree, gtreenode_t* subroot, void* value) {
     gtreenode_t* treenode = kcalloc(sizeof(gtreenode_t), 1);
 
-    treenode->children = list_create();
+    treenode->children = linkedlist_create();
     treenode->value = value;
 
     if(!tree->root) {
@@ -74,8 +74,8 @@ void tree_toList_recur(gtreenode_t* subroot, linkedlist_t* list) {
         gtreenode_t* curr_treenode = (gtreenode_t*) child->val;
         void* curr_val = curr_treenode->value;
 
-        list_insert_back(list, curr_val);
-        tree2list_recur(child->val, list);
+        linkedlist_insertBack(list, curr_val);
+        tree_toList_recur(child->val, list);
     }
 }
 
@@ -84,7 +84,7 @@ void tree_toList(gtree_t* tree, linkedlist_t* list) {
 }
 
 void tree_toArray(gtree_t* tree, void** array, int* size) {
-    tree2array_recur(tree->root, array, size);
+    tree_toArray_recur(tree->root, array, size);
 }
 
 void tree_toArray_recur(gtreenode_t* subroot, void** array, int* size) {
