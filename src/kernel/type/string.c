@@ -1,7 +1,6 @@
 #include "string.h"
 #include "types.h"
 #include "memory/memory.h"
-#include "linkedlist.h"
 
 void *memset(void *dst, char c, u32 n) {
     char *temp = dst;
@@ -356,7 +355,7 @@ char* strsep(char** stringp, const char* delim) {
     }
 }
 
-linkedlist_t* str_split(const char* src, const char* delim, unsigned int* tokenCount) {
+linkedlist_t* string_split(const char* src, const char* delim, unsigned int* tokenCount) {
     linkedlist_t* ret_list = linkedlist_create();
 
     char* s = strdup(src);

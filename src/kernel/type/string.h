@@ -2,6 +2,7 @@
 #define __STRING_H
 
 #include "types.h"
+#include "linkedlist.h"
 
 #define STRINGIFICATE(X)    #X
 
@@ -30,7 +31,7 @@ char* strsep(char** stringp, const char* delim);
 
 //int snprintf(char* str, size_t size, const char* fmt, int num, const char* strarg);
 
-linkedlist_t* str_split(const char* src, const char* delim, unsigned int* tokenCount);
+linkedlist_t* string_split(const char* src, const char* delim, unsigned int* tokenCount);
 char* linkedlist_toString(linkedlist_t* list, const char* delim);
 
 #endif
