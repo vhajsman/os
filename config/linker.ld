@@ -43,6 +43,9 @@ SECTIONS
         __kernel_bss_section_end = .;
     }
 
-    end = .; _end = .; __end = .;
+    end = .; 
+    _end = .; 
+    __end = .;
+    
     __kernel_section_end = .;
 }
