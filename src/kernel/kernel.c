@@ -13,6 +13,7 @@
 #include "multiboot.h"
 #include "debug.h"
 #include "pci.h"
+#include "storage/ata.h"
 
 bool _kernel_exitOk = 0;
 
@@ -77,6 +78,7 @@ void kmain(unsigned long magic, unsigned long addr) {
 
 
     pci_init();
+    ata_init();
 
     shell();
 }
