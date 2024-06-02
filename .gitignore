@@ -3,3 +3,6 @@ discard
 build
 *.bak
 *.log
+GPATH
+GRTAGS
+GTAGS
