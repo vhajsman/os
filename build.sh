@@ -13,7 +13,7 @@ for fa in $(find -name "*.asm" -type f); do
 done
 
 for fc in $(find -name "*.c" -type f); do
-    gcc -I kernel -I drivers -I kernel/type -I . \
+    gcc -I kernel -I drivers -I kernel/type -I kernel/structures -I . \
         -m32 -std=gnu99 -ffreestanding -c \
         -Wall -Wextra \
         $fc -o ../build/obj/$fc.o
