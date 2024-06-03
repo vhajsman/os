@@ -118,14 +118,40 @@ void console_scroll() {
     }
 }
 
+// Makes a newline but keeps current X coordination
+void console_nli() {
+    // console_position.x = 0;
+
+    if(console_position.y >= VGA_HEIGHT) {
+        console_scroll();
+        return;
+    }
+
+    console_position.y ++;
+}
+
+// Makes a newline
+void console_nl() {
+    console_position.x = 0;
+
+    if(console_position.y >= VGA_HEIGHT) {
+        console_scroll();
+        return;
+    }
+
+    console_position.y ++;
+}
+
 // void console_update() {
 //     memmove(VGA_MEMORY, console_buffer);
 // }
 
 void putc(char c) {
     if(c == '\n') {
-        console_position.x = 0;
-        console_position.y++;
+        // console_position.x = 0;
+        // console_position.y++;
+
+        console_nl();
 
         return;
     }

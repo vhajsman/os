@@ -30,6 +30,8 @@ svoid getstr_bound(char *buffer, u8 bound);
 */
 
 extern struct xy2d console_position;
+extern u8* console_posx;
+extern u8* console_posy;
 
 void printf(const char *format, ...);
 
@@ -51,5 +53,9 @@ coords console_wherexy();
 
 u8 console_wherex();
 u8 console_wherey();
+
+void console_scroll();
+void console_nli();
+void console_nl();
 
 #endif
