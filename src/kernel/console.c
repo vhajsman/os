@@ -3,9 +3,16 @@
 #include "types.h"
 #include "video/vga.h"
 #include "hid/kbd.h"
+#include "debug.h"
 
 // #include "hid/kbd.h"
 // #include "hid/kbdscan.h"
+
+struct xy2d console_position;
+u8* console_posx = &console_position.x;
+u8* console_posy = &console_position.y;
+
+static u16* const VGA_MEMORY = (u16*) 0xB8000;
 
 void printf(const char *format, ...) {
     char **arg = (char **)&format;
@@ -100,7 +107,21 @@ void console_put(char c, u8 color, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
 	console_buffer[index] = vga_entry(c, color);
 }
- 
+
+#include "string.h"
+
+void console_scroll() {
+    for(u8 y = 0; y < VGA_HEIGHT; y++) {
+        for(u8 x = 0; x < VGA_WIDTH; x++) {
+            console_buffer[y * VGA_WIDTH + x] = console_buffer[(y + 1) * VGA_WIDTH + x];
+        }
+    }
+}
+
+// void console_update() {
+//     memmove(VGA_MEMORY, console_buffer);
+// }
+
 void putc(char c) {
     if(c == '\n') {
         console_position.x = 0;
@@ -109,19 +130,19 @@ void putc(char c) {
         return;
     }
 
-    if(c == '\b') {
-        console_put(' ', console_color, console_position.x, console_position.y);
-
-        if(console_position.x == 0 && console_position.y == 0)
-            return;
-
-        if(console_position.x == 0 && console_position.y != 0) {
-            console_position.x = VGA_WIDTH;
-            console_position.y --;
-        } else {
-            console_position.x--;
-        }
-    }
+    // if(c == '\b') {
+    //     console_put(' ', console_color, console_position.x, console_position.y);
+    // 
+    //     if(console_position.x == 0 && console_position.y == 0)
+    //         return;
+    // 
+    //     if(console_position.x == 0 && console_position.y != 0) {
+    //         console_position.x = VGA_WIDTH;
+    //         console_position.y --;
+    //     } else {
+    //         console_position.x--;
+    //     }
+    // }
 
 	if (++console_position.x == VGA_WIDTH) {
         if(console_position.y != VGA_HEIGHT) {
@@ -131,13 +152,36 @@ void putc(char c) {
             for(size_t i = 0; i < VGA_WIDTH; i++) {
                 console_buffer[i] = console_buffer[i + 1];
             }
-
+    
             console_position.x = 0;
             console_position.y--;
         }
 	}
 
-	console_put(c, console_color, console_position.x - 1, console_position.y); 
+    if(console_position.x == VGA_WIDTH) {
+        if(console_position.y == VGA_HEIGHT) {
+            console_position.x = 0;
+            console_position.y = 0;
+    
+            return;
+        }
+    
+        console_position.x = 0;
+        console_position.y =+ 1;
+    }
+
+	// console_put(c, console_color, console_position.x - 1, console_position.y); 
+
+    console_put(c, console_color, console_position.x, console_position.y);
+
+    if(++console_posx == VGA_WIDTH) {
+        console_position.x = 0;
+
+        if(++console_posy == VGA_HEIGHT) {
+            console_scroll();
+            // console_update();
+        }
+    }
 }
  
 void console_write(const char* data, size_t size) {

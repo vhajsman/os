@@ -29,6 +29,8 @@ void getstr(char *buffer);
 svoid getstr_bound(char *buffer, u8 bound);
 */
 
+extern struct xy2d console_position;
+
 void printf(const char *format, ...);
 
 void console_initialize(void);
