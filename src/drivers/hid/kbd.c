@@ -243,6 +243,7 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_B:       K('b', 'B', '{'); break;
         case SCAN_CODE_KEY_N:       K('n', 'N', '}'); break;
         case SCAN_CODE_KEY_M:       K('m', 'M', '^'); break;
+        case SCAN_CODE_KEY_SPACE:   return ' '; break;
 
         case SCAN_CODE_KEY_MINUS:
         case SCAN_CODE_KEY_KEYPAD_MINUS:
@@ -381,7 +382,7 @@ void keybuffer_append(char c) {
         _keyb[_keyb_index] = '\0';
         _keyb_index--;
 
-        console_gotoxy(console_wherex() - 1, console_wherey());
+        console_gotoxy(console_posx - 1, console_posy);
         putc(' ');
 
         return;
@@ -399,9 +400,12 @@ void keybuffer_append(char c) {
 void keybuffer_discard() {
     _keyb_index = 0;
 
-    for(size_t i = 0; i < _keyb_size; i ++) {
-        keybuffer_append('\0');
-    }
+    // for(size_t i = 0; i < _keyb_size; i ++) {
+    //     keybuffer_append('\0');
+    // }
+
+    for(size_t i = 0; i < _keyb_size; i++)
+        _keyb[i] = '\0';
 
     _keyb_index = 0;
 }
@@ -418,10 +422,14 @@ const unsigned char* keybuffer_wait(char breaker) {
     _ignore = breaker;
 
     while(1) {
-        if(_keyb_index > 0 && _last_char == breaker)
+        if(_keyb_index > 0 && _last_char == breaker) {
+            putc(breaker);
             break;
+        }
+
         if(_keyb_index >= _keyb_size)
             break;
+
         if(!_keyb_wait)
             break;
 
