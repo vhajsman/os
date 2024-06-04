@@ -33,6 +33,8 @@ void debug_separator(   const  char* title);
     isolation (binary chop) through the code.*/
 void debug_breakpoint();
 
+void debug_printf(const char* interface, enum kernel_statusLevels level, const char* format, ...);
+void debug_number(int number, int base);
 
 #define __debug_messagen(message, interface, level, number, base)   \
     char* ___b_itoa_##number##_;                                    \
