@@ -9,6 +9,10 @@ void cpuid(u32 type, u32 *eax, u32 *ebx, u32 *ecx, u32 *edx) {
                 : "0"(type)); // put the type into eax
 }
 
+u32 cpuid_checkBrand(u32* brand) {
+    return (strstr((char*) brand, "QEMU") != NULL) ? BRAND_QEMU : BRAND_VBOX;
+}
+
 int cpuid_info(int print) {
     u32 brand[12];
     u32 eax, ebx, ecx, edx;
@@ -60,5 +64,6 @@ int cpuid_info(int print) {
         debug_append(edx_str);
     }
 
-    return (strstr(brand, "QEMU") != NULL) ? BRAND_QEMU : BRAND_VBOX;
+    // return (strstr(brand, "QEMU") != NULL) ? BRAND_QEMU : BRAND_VBOX;
+    return cpuid_checkBrand(brand);
 }
