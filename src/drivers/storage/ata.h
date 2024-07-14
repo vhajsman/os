@@ -1,11 +1,11 @@
 #ifndef __ATA_H
 #define __ATA_H
 
-#include "kernel.h"
+#include "kernel/kernel.h"
 #include "memory/paging.h"
 #include "filesystem/vfs.h"
 
-extern page_directory_t * kpage_dir;
+extern page_directory_t* kpage_dir;
 
 typedef struct prdt {
 	u32 buffer_phys;

@@ -2,7 +2,7 @@
 #include "pci.h"
 #include "memory/memory.h"
 #include "ioport.h"
-#include "fs.h"
+#include "filesystem/vfs.h"
 #include "irq/isr.h"
 #include "irq/irqdef.h"
 
@@ -104,7 +104,7 @@ u32 ata_read(vfs_node_t* node, u32 offset, u32 size, char* buffer) {
 
         memcpy(buffer_curr, ret + off, readSize);
 
-        buffer_curr =+ readSize;
+        buffer_curr += readSize;
         total =+ readSize;
         counter ++;
     }
@@ -168,7 +168,7 @@ u32 ata_write(vfs_node_t* node, u32 offset, u32 size, char* buffer) {
 
         ata_writeSector((ata_dev_t*) node->device, counter, ret);
 
-        buffer_curr =+ writeSize;
+        buffer_curr += writeSize;
         total =+ writeSize;
 
         counter++;

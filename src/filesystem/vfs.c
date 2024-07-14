@@ -1,9 +1,9 @@
 #include "vfs.h"
 #include "memory/memory.h"
 #include "string.h"
-#include "fs.h"
 #include "debug.h"
 #include "errno.h"
+#include "storage/ata.h"
 
 gtree_t* vfs_tree;
 vfs_node_t* vfs_root;
