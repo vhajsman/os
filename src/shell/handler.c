@@ -130,7 +130,7 @@ struct shell_execcall shell_genExecutionCall(struct shell_parseout* parseData) {
     }
 }
 
-int shell_handleUserInput(char* userInput) {
+int shell_handleUserInput(char** userInput) {
     // Ignore comment
     if(userInput[0] == '#')
         return 0;

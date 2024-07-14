@@ -382,7 +382,7 @@ void keybuffer_append(char c) {
         _keyb[_keyb_index] = '\0';
         _keyb_index--;
 
-        console_gotoxy(console_posx - 1, console_posy);
+        console_gotoxy(console_position.x - 1, console_position.y);
         putc(' ');
 
         return;

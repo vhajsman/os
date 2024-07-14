@@ -164,86 +164,89 @@ badbase:
     return;
 }
 
-void debug_printf(const char* interface, enum kernel_statusLevels level, const char* format, ...) {
-    __check_debug;
-
-    if(level == KERNEL_VERBOSE && !_verbose)
-        // * Message level verbose, but verbosity not allowed.
-        return;
-    
-    //debug_append("\n");
-    debug_append("\n\rDEBUG: ");
-    
-    if(format == NULL) {
-        debug_append("\n\r");
-        return;
-    }
-
-    debug_append(_levelsStrings[level]);
-
-    if(interface != NULL) {
-        debug_append("[");
-        debug_append(interface);
-        debug_append("] ");
-    }
-    
-    char **arg = (char **)&format;
-    char buf[32];
-    int c;
-
-    arg++;
-
-    memset(buf, 0, sizeof(buf));
-
-    while ((c = *format++) != 0) {
-        if (c != '%') {
-            debug_append(c);
-        } else {
-            char *p, *p2;
-            int pad0 = 0, pad = 0;
-
-            c = *format++;
-
-            if (c == '0') {
-                pad0 = 1;
-                c = *format++;
-            }
-
-            if (c >= '0' && c <= '9') {
-                pad = c - '0';
-                c = *format++;
-            }
-
-            switch (c) {
-                case 'd':
-                case 'u':
-                case 'x':
-                    itoa(buf, c, *((int *)arg++));
-                    p = buf;
-
-                    goto string;
-
-                    break;
-
-                case 's':
-                    p = *arg++;
-                    if (!p)
-                        p = "(null)";
-
-                string:
-                    for (p2 = p; *p2; p2++);
-                    for (; p2 < p + pad; p2++)
-                        debug_append(pad0 ? '0' : ' ');
-
-                    while (*p)
-                        debug_append(*p++);
-
-                    break;
-
-                default:
-                    debug_append(*((int *)arg++));
-                    break;
-            }
-        }
-    }
-}
+// void debug_printf(const char* interface, enum kernel_statusLevels level, const char* format, ...) {
+//     __check_debug;
+// 
+//     if(level == KERNEL_VERBOSE && !_verbose)
+//         // * Message level verbose, but verbosity not allowed.
+//         return;
+//     
+//     //debug_append("\n");
+//     debug_append("\n\rDEBUG: ");
+//     
+//     if(format == NULL) {
+//         debug_append("\n\r");
+//         return;
+//     }
+// 
+//     debug_append(_levelsStrings[level]);
+// 
+//     if(interface != NULL) {
+//         debug_append("[");
+//         debug_append(interface);
+//         debug_append("] ");
+//     }
+//     
+//     char **arg = (char **)&format;
+//     char buf[32];
+//     int c;
+// 
+//     arg++;
+// 
+//     memset(buf, 0, sizeof(buf));
+// 
+//     while ((c = *format++) != 0) {
+//         if (c != '%') {
+//             debug_append(c);
+//         } else {
+//             char *p, *p2;
+//             int pad0 = 0, pad = 0;
+// 
+//             c = *format++;
+// 
+//             if (c == '0') {
+//                 pad0 = 1;
+//                 c = *format++;
+//             }
+// 
+//             if (c >= '0' && c <= '9') {
+//                 pad = c - '0';
+//                 c = *format++;
+//             }
+// 
+//             switch (c) {
+//                 case 'd':
+//                 case 'u':
+//                 case 'x':
+//                     itoa(buf, c, *((int *)arg++));
+//                     p = buf;
+// 
+//                     goto string;
+// 
+//                     break;
+// 
+//                 case 's':
+//                     p = *arg++;
+//                     if (!p)
+//                         p = "(null)";
+// 
+//                 string:
+//                     for (p2 = p; *p2; p2++);
+//                     for (; p2 < p + pad; p2++) {
+//                         // debug_append(pad0 ? '0' : ' ');
+// 
+//                         if(pad0) debug_append("0"); else debug_append(" ");
+//                     }
+// 
+//                     while (*p)
+//                         debug_append(*p++);
+// 
+//                     break;
+// 
+//                 default:
+//                     debug_append(*((int *)arg++));
+//                     break;
+//             }
+//         }
+//     }
+// }
