@@ -99,13 +99,6 @@ typedef struct ata_dev {
 
 typedef u32 lba_t;
 
-// 
-// #define _LBA(cylinder, head, sector, spt, hpc) \
-//     ((cylinder * hpc + head) * spt + (sector - 1))
-// #define LBA(cylinder, head, sector) \
-//     _LBA(cylinder, head, sector, )
-//
-
 #define __drive(device, lba) \
     (0xE8 | device->slave << 4 | (lba & 0x0f000000) >> 24)
 

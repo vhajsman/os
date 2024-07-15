@@ -36,14 +36,25 @@ void ata_reset(ata_dev_t * dev) {
 }
 
 void ata_irq(REGISTERS* regs) {
+    IGNORE_UNUSED(regs);
+
     inportb(primary_master.status);
     inportb(primary_master.BMR_STATUS);
 
     outportb(primary_master.BMR_COMMAND, BMR_COMMAND_DMA_STOP);
 }
 
-void ata_open(vfs_node_t* node, u32 flags) {return;}
-void ata_close(vfs_node_t* node) {return;}
+void ata_open(vfs_node_t* node, u32 flags) {
+    IGNORE_UNUSED(node);
+    IGNORE_UNUSED(flags);
+
+    return;
+}
+void ata_close(vfs_node_t* node) {
+    IGNORE_UNUSED(node);
+    
+    return;
+}
 
 
 char* ata_readSector(ata_dev_t* device, lba_t lba) {
@@ -135,6 +146,8 @@ char* ata_writeSector(ata_dev_t* device, lba_t lba, char* buffer) {
         if(!(dstatus & 0x80))
             break;
     }
+
+    return NULL;
 }
 
 u32 ata_write(vfs_node_t* node, u32 offset, u32 size, char* buffer) {
@@ -194,6 +207,8 @@ vfs_node_t* ata_createDevice(ata_dev_t* device) {
 }
 
 void ata_initDevice(ata_dev_t* device, int primary) {
+    IGNORE_UNUSED(primary);
+
     // ----- Setup DMA -----
     // ! Prdt must not cross 64kb boundary / contiguous in physical memory.
 
