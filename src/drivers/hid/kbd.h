@@ -62,7 +62,7 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr);
 
 void keybuffer_disable();
 void keybuffer_enable(u8 printOnAppend);
-void keybuffer_set(const unsigned char* val);
+void keybuffer_set(unsigned char* val);
 void keybuffer_append(char c);
 void keybuffer_discard();
 const unsigned char* keybuffer_read();

@@ -203,7 +203,7 @@ void kbd_disable() {
 }
 
 char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
-    #define K(n, u, alt) \
+    #define ___K(n, u, alt) \
     return altgr ? alt : (uppercase ? u : n)
     switch (scancode) {
         case SCAN_CODE_KEY_0:       return '0'; break;
@@ -217,32 +217,32 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_8:       return '8'; break;
         case SCAN_CODE_KEY_9:       return '9'; break;
 
-        case SCAN_CODE_KEY_Q:       K('q', 'Q', '\\'); break;
-        case SCAN_CODE_KEY_W:       K('w', 'W', '|');  break;
-        case SCAN_CODE_KEY_E:       K('e', 'E', 0); break;
-        case SCAN_CODE_KEY_R:       K('r', 'R', '\r'); break;
-        case SCAN_CODE_KEY_T:       K('t', 'T', 0); break;
-        case SCAN_CODE_KEY_Y:       K('y', 'Y', 0); break;
-        case SCAN_CODE_KEY_U:       K('u', 'U', 0); break;
-        case SCAN_CODE_KEY_I:       K('i', 'I', 0); break;
-        case SCAN_CODE_KEY_O:       K('o', 'O', 0); break;
-        case SCAN_CODE_KEY_P:       K('p', 'P', 0); break;
-        case SCAN_CODE_KEY_A:       K('a', 'A', '~'); break;
-        case SCAN_CODE_KEY_S:       K('s', 'S', 0); break;
-        case SCAN_CODE_KEY_D:       K('d', 'D', 0); break;
-        case SCAN_CODE_KEY_F:       K('f', 'F', '['); break;
-        case SCAN_CODE_KEY_G:       K('g', 'G', ']'); break;
-        case SCAN_CODE_KEY_H:       K('h', 'H', '`'); break;
-        case SCAN_CODE_KEY_J:       K('j', 'J', '\''); break;
-        case SCAN_CODE_KEY_K:       K('k', 'K', 0); break;
-        case SCAN_CODE_KEY_L:       K('l', 'L', 0); break;
-        case SCAN_CODE_KEY_Z:       K('z', 'Z', 0); break;
-        case SCAN_CODE_KEY_X:       K('x', 'X', '#'); break;
-        case SCAN_CODE_KEY_C:       K('c', 'C', '&'); break;
-        case SCAN_CODE_KEY_V:       K('v', 'V', '@'); break;
-        case SCAN_CODE_KEY_B:       K('b', 'B', '{'); break;
-        case SCAN_CODE_KEY_N:       K('n', 'N', '}'); break;
-        case SCAN_CODE_KEY_M:       K('m', 'M', '^'); break;
+        case SCAN_CODE_KEY_Q:       ___K('q', 'Q', '\\'); break;
+        case SCAN_CODE_KEY_W:       ___K('w', 'W', '|');  break;
+        case SCAN_CODE_KEY_E:       ___K('e', 'E', 0); break;
+        case SCAN_CODE_KEY_R:       ___K('r', 'R', '\r'); break;
+        case SCAN_CODE_KEY_T:       ___K('t', 'T', 0); break;
+        case SCAN_CODE_KEY_Y:       ___K('y', 'Y', 0); break;
+        case SCAN_CODE_KEY_U:       ___K('u', 'U', 0); break;
+        case SCAN_CODE_KEY_I:       ___K('i', 'I', 0); break;
+        case SCAN_CODE_KEY_O:       ___K('o', 'O', 0); break;
+        case SCAN_CODE_KEY_P:       ___K('p', 'P', 0); break;
+        case SCAN_CODE_KEY_A:       ___K('a', 'A', '~'); break;
+        case SCAN_CODE_KEY_S:       ___K('s', 'S', 0); break;
+        case SCAN_CODE_KEY_D:       ___K('d', 'D', 0); break;
+        case SCAN_CODE_KEY_F:       ___K('f', 'F', '['); break;
+        case SCAN_CODE_KEY_G:       ___K('g', 'G', ']'); break;
+        case SCAN_CODE_KEY_H:       ___K('h', 'H', '`'); break;
+        case SCAN_CODE_KEY_J:       ___K('j', 'J', '\''); break;
+        case SCAN_CODE_KEY_K:       ___K('k', 'K', 0); break;
+        case SCAN_CODE_KEY_L:       ___K('l', 'L', 0); break;
+        case SCAN_CODE_KEY_Z:       ___K('z', 'Z', 0); break;
+        case SCAN_CODE_KEY_X:       ___K('x', 'X', '#'); break;
+        case SCAN_CODE_KEY_C:       ___K('c', 'C', '&'); break;
+        case SCAN_CODE_KEY_V:       ___K('v', 'V', '@'); break;
+        case SCAN_CODE_KEY_B:       ___K('b', 'B', '{'); break;
+        case SCAN_CODE_KEY_N:       ___K('n', 'N', '}'); break;
+        case SCAN_CODE_KEY_M:       ___K('m', 'M', '^'); break;
         case SCAN_CODE_KEY_SPACE:   return ' '; break;
 
         case SCAN_CODE_KEY_MINUS:
@@ -256,26 +256,26 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_EQUAL:   return '='; break;
 
         case SCAN_CODE_KEY_SQUARE_OPEN_BRACKET:
-            K('[', '{', '/');
+            ___K('[', '{', '/');
             break;
         case SCAN_CODE_KEY_SQUARE_CLOSE_BRACKET:
-            K(']', '}', ')');
+            ___K(']', '}', ')');
             break;
 
         case SCAN_CODE_KEY_SEMICOLON:
-            K(':', '"', ';');
+            ___K(':', '"', ';');
             break;
         case SCAN_CODE_KEY_SINGLE_QUOTE:
-            K('\'', '|', '\\');
+            ___K('\'', '|', '\\');
             break;
 
-        case SCAN_CODE_KEY_COMMA:   K(',', '<', '?'); break;
-        case SCAN_CODE_KEY_DOT:     K('.', '>', ':'); break;
+        case SCAN_CODE_KEY_COMMA:   ___K(',', '<', '?'); break;
+        case SCAN_CODE_KEY_DOT:     ___K('.', '>', ':'); break;
 
         case SCAN_CODE_KEY_ASTERISK:return '*'; break;
 
         case SCAN_CODE_KEY_FORESLHASH:
-            K('_', '-', '*');
+            ___K('_', '-', '*');
             break;
 
         case SCAN_CODE_KEY_BACKSPACE:
@@ -362,7 +362,7 @@ void keybuffer_enable(u8 printOnAppend) {
     _keyb_color_deleted = vga_entryColor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
 }
 
-void keybuffer_set(const unsigned char* val) {
+void keybuffer_set(unsigned char* val) {
     //strcpy(_keyb, val);
 
     _keyb = val;
