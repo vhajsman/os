@@ -15,7 +15,6 @@ char* replace_spaces(const char* str, char replace_with) {
     if (!result) {
         puts("Handler: Malloc failed");
         debug_message("Malloc failed", "Shell->handler", KERNEL_ERROR);
-
         return NULL;
     }
 
@@ -47,7 +46,7 @@ char** split_string(const char* str, int* num_parts) {
     while (*ptr != '\0') {
         if (*ptr == TOKEN_SEPARATOR) {
             while (*ptr == TOKEN_SEPARATOR) {
-                ptr++;  // Skip consecutive spaces
+                ptr++;  // Skip consecutive separators
             }
         } else {
             len++;
@@ -75,31 +74,25 @@ char** split_string(const char* str, int* num_parts) {
     while (*ptr != '\0') {
         if (*ptr == TOKEN_SEPARATOR) {
             while (*ptr == TOKEN_SEPARATOR) {
-                ptr++;  // Skip consecutive spaces
+                ptr++;  // Skip consecutive separators
             }
         } else {
             const char* start = ptr;
             while (*ptr != ' ' && *ptr != '\0') {
                 ptr++;
             }
-
             int part_len = ptr - start;
             parts[part_index] = (char*)malloc((part_len + 1) * sizeof(char));
             if (parts[part_index] == NULL) {
                 // Free memory allocated so far
-
                 for (int i = 0; i < part_index; i++) {
                     free(parts[i]);
                 }
-
                 free(parts);
                 *num_parts = 0;
-
                 return NULL;
             }
-
             strncpy(parts[part_index], start, part_len);
-
             parts[part_index][part_len] = '\0';  // Null-terminate the string
             part_index++;
         }
@@ -110,8 +103,8 @@ char** split_string(const char* str, int* num_parts) {
 }
 
 void arrcpy(char** src, char* dest[], size_t dest_size) {
-    for(size_t i = 0; i < dest_size; i ++) {
-        if(src[i] != NULL) {
+    for (size_t i = 0; i < dest_size; i++) {
+        if (src[i] != NULL) {
             strncpy(dest[i], src[i], MAX_TOKS - 1);
             dest[i][MAX_TOKS - 1] = '\0';
         } else {
@@ -128,28 +121,53 @@ struct shell_execcall shell_genExecutionCall(struct shell_parseout* parseData) {
     call.call = parseData->tok_arr[0];
     call.argc = parseData->tok_count > 0 ? parseData->tok_count - 1 : 0;
 
-    if(parseData->tok_count > 1) {
-        for(size_t i = 0; i < sizeof(parseData->tok_arr) / sizeof(parseData->tok_arr[0]); i ++) 
-            call.argv[i] = parseData->tok_arr[i + 1];
+    if (call.argc > 0) {
+        call.argv = malloc(call.argc * sizeof(char*));
+        if (call.argv != NULL) {
+            for (size_t i = 0; i < call.argc; i++) {
+                call.argv[i] = parseData->tok_arr[i + 1];
+            }
+        } else {
+            call.argv = NULL;
+        }
     } else {
         call.argv = NULL;
     }
+
+    return call;
 }
 
 int shell_handleUserInput(char* userInput) {
     // Ignore comment
-    if(userInput[0] == '#')
+    if (userInput[0] == '#')
         return 0;
 
     // --- Parse ---
-
     struct shell_parseout p;
 
-    arrcpy(&userInput, p.tok_arr, MAX_TOKS);
-    p.tok_str = replace_spaces(userInput, TOKEN_SEPARATOR);
-    p.tok_count = sizeof(p.tok_arr) / sizeof(p.tok_arr[0]);
+    char* replaced_input = replace_spaces(userInput, TOKEN_SEPARATOR);
+    if (!replaced_input) {
+        return -1; // Malloc failed
+    }
 
-    char* buf_c;
+    int num_parts;
+    char** split_parts = split_string(replaced_input, &num_parts);
+
+    if (!split_parts) {
+        free(replaced_input);
+        return -1; // Malloc failed
+    }
+
+    p.tok_str = replaced_input;
+    p.tok_count = num_parts;
+    arrcpy(split_parts, p.tok_arr, MAX_TOKS);
+
+    for (int i = 0; i < num_parts; i++) {
+        free(split_parts[i]);
+    }
+    free(split_parts);
+
+    char buf_c[10];
     itoa(buf_c, 10, p.tok_count);
 
     debug_message("Parser: User input parse. ", "Shell", KERNEL_MESSAGE);
@@ -157,9 +175,9 @@ int shell_handleUserInput(char* userInput) {
     debug_append(buf_c);
     debug_append(" Token array[...] = {");
 
-    for(size_t i = 0; i < MAX_TOKS; i ++) {
+    for (size_t i = 0; i < MAX_TOKS; i++) {
         char* ct = p.tok_arr[i];
-        if(ct == NULL)
+        if (ct == NULL)
             continue;
 
         debug_append("'");
@@ -168,6 +186,11 @@ int shell_handleUserInput(char* userInput) {
     }
 
     debug_append("}");
+
+    struct shell_execcall call = shell_genExecutionCall(&p);
+
+    // Assuming some execution logic
+    // execute_command(call);
 
     return 0;
 }

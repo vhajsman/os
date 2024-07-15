@@ -5,12 +5,17 @@
 #include "console.h"
 #include "hid/kbd.h"
 
+#define SHELL_MAX_BUFFER_SIZE 1024
+
 char* _shell = "$";
 
 int handlersInstalled = 0;
 
 void shell_setPrefix(char* prefix) {
-    _shell = prefix;
+    // _shell = prefix;
+
+    strncpy(_shell, prefix, SHELL_MAX_BUFFER_SIZE - 1);
+    _shell[SHELL_MAX_BUFFER_SIZE - 1] = '\0';
 }
 
 int strchk(const unsigned char* stra, const unsigned char* strb) {
@@ -22,6 +27,8 @@ int strchk(const unsigned char* stra, const unsigned char* strb) {
 
         if(stra[i] == '\0' && strb[i] == '\0')
             break;
+
+        i++;
     }
 
     return 1;
@@ -39,10 +46,9 @@ void shell() {
     kbd_enable();
 
     while(1) {
-        char* buffer;
+        char buffer[SHELL_MAX_BUFFER_SIZE];
 
-        printf(_shell);
-        printf(" ");
+        puts(_shell); puts(" ");    // printf("%s ", _shell);
 
         keybuffer_discard();
         keybuffer_enable(1);
@@ -52,7 +58,10 @@ void shell() {
         keybuffer_append('\0');
         keybuffer_enable(0);
 
-        buffer = keybuffer_read();
+        //buffer = keybuffer_read();
+
+        strncpy(buffer, keybuffer_read(), SHELL_MAX_BUFFER_SIZE - 1);
+        buffer[SHELL_MAX_BUFFER_SIZE - 1] = '\0';
 
         putc('\n');
 
