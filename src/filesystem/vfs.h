@@ -39,7 +39,7 @@
 #define     _IFSOCK 0140000 /* socket */
 #define     _IFIFO  0010000 /* fifo */
 
-typedef struct vfs_node;
+struct vfs_node;
 
 typedef u32     (*get_file_size_callback)       (struct vfs_node* node);
 typedef u32     (*read_callback)                (struct vfs_node*, u32, u32, char*);
@@ -56,7 +56,7 @@ typedef void    (*close_callback)               (struct vfs_node*);
 typedef struct  dirent *(*readdir_callback)     (struct vfs_node*, u32);
 typedef struct  vfs_node *(*finddir_callback)   (struct vfs_node*, char* name);
 
-typedef struct vfs_node {
+struct vfs_node {
     char name[256];
     void* device;
     u32 mask;
