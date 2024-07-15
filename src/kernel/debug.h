@@ -37,7 +37,7 @@ void debug_printf(const char* interface, enum kernel_statusLevels level, const c
 void debug_number(int number, int base);
 
 #define __debug_messagen(message, interface, level, number, base)   \
-    char* ___b_itoa_##number##_;                                    \
+    char ___b_itoa_##number##_[64];                                 \
     itoa(___b_itoa_##number##_, base, number);                      \
                                                                     \
     debug_message(message, interface, level);                       \
@@ -48,7 +48,7 @@ void debug_number(int number, int base);
                                                                     \
     debug_append(___b_itoa_##number##_);
 #define __debug_messagea(message, interface, level, number, base)   \
-    char* ___b_itoa_##number##_;                                    \
+    char ___b_itoa_##number##_[64];                                 \
     itoa(___b_itoa_##number##_, (int) &base, number);               \
                                                                     \
     debug_message(message, interface, level);                       \

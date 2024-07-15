@@ -131,7 +131,7 @@ void debug_breakpoint() {
 }
 
 void debug_number(int number, int base) {
-    char* res;
+    char res[64];
     itoa(res, base, number);
 
     switch(base) {
