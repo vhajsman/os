@@ -15,6 +15,8 @@ u32 cpuid_checkBrand(u32* brand) {
 
 int cpuid_info(int print) {
     u32 brand[12];
+    u32 _brand;
+
     u32 eax, ebx, ecx, edx;
     u32 type;
 
@@ -22,17 +24,18 @@ int cpuid_info(int print) {
     char* type_str;
 
     memset(brand, 0, sizeof(brand));
+
     cpuid(0x80000002, (u32*) brand + 0x0, (u32*) brand + 0x1, (u32*) brand + 0x2, (u32*) brand + 0x3);
     cpuid(0x80000003, (u32*) brand + 0x4, (u32*) brand + 0x5, (u32*) brand + 0x6, (u32*) brand + 0x7);
     cpuid(0x80000004, (u32*) brand + 0x8, (u32*) brand + 0x9, (u32*) brand + 0xa, (u32*) brand + 0xb);
 
-    if(print) {
-        //printf("CPUID: Brand: %s\n", brand);
-
-        puts("CPUID: Brand: ");
-        puts(brand);
-        puts("\n");
-    }
+//    if(print) {
+//        //printf("CPUID: Brand: %s\n", brand);
+//
+//        puts("CPUID: Brand: ");
+//        puts(brand);
+//        puts("\n");
+//    }
 
     debug_message("Brand: ", "cpuid", KERNEL_MESSAGE);
     debug_append(brand);
@@ -65,5 +68,5 @@ int cpuid_info(int print) {
     }
 
     // return (strstr(brand, "QEMU") != NULL) ? BRAND_QEMU : BRAND_VBOX;
-    return cpuid_checkBrand(brand);
+    // return cpuid_checkBrand(brand);
 }
