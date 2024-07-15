@@ -59,7 +59,7 @@ void debug_number(int number, int base);
                                                                     \
     debug_append(___b_itoa_##number##_);
 
-void debug_messagen(message, interface, level, number, base);
-void debug_messagea(message, interface, level, number, base);
+void debug_messagen(const char* message, const char* interface, enum kernel_statusLevels level, int number, int base);
+void debug_messagea(const char* message, const char* interface, enum kernel_statusLevels level, int number, int base);
 
 #endif
