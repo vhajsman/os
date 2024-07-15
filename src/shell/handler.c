@@ -82,18 +82,24 @@ char** split_string(const char* str, int* num_parts) {
             while (*ptr != ' ' && *ptr != '\0') {
                 ptr++;
             }
+
             int part_len = ptr - start;
             parts[part_index] = (char*)malloc((part_len + 1) * sizeof(char));
             if (parts[part_index] == NULL) {
                 // Free memory allocated so far
+
                 for (int i = 0; i < part_index; i++) {
                     free(parts[i]);
                 }
+
                 free(parts);
                 *num_parts = 0;
+
                 return NULL;
             }
+
             strncpy(parts[part_index], start, part_len);
+
             parts[part_index][part_len] = '\0';  // Null-terminate the string
             part_index++;
         }
