@@ -134,7 +134,7 @@ void paging_allocateRegion(page_directory_t* dir, u32 start_va, u32 end_va, int 
 
     void ___free(page_table_t* table, int page_tbl_idx){ 
         if(table != NULL && page_tbl_idx >= 0) {
-            void* ptr = (void*) table->pages[page_tbl_idx].frame;
+            void* ptr = (unsigned int*) table->pages[page_tbl_idx].frame;
 
             if(ptr == NULL)
                 return;
