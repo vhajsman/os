@@ -17,13 +17,16 @@ u32 cpuid_checkBrand(u32* brand) {
 
 int cpuid_info(int print) {
     u32 brand[12];
-    u32 _brand;
+    // u32 _brand;
 
     u32 eax, ebx, ecx, edx;
     u32 type;
 
-    static char* eax_str, ebx_str, ecx_str, edx_str;
-    char* type_str;
+    static char eax_str[12], 
+                ebx_str[12], 
+                ecx_str[12], 
+                edx_str[12];
+    static char* type_str;
 
     memset(brand, 0, sizeof(brand));
 
@@ -80,5 +83,5 @@ int cpuid_info(int print) {
     }
 
     // return (strstr(brand, "QEMU") != NULL) ? BRAND_QEMU : BRAND_VBOX;
-    // return cpuid_checkBrand(brand);
+    return cpuid_checkBrand(brand);
 }
