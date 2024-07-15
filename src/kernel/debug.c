@@ -250,3 +250,11 @@ badbase:
 //         }
 //     }
 // }
+
+void debug_messagen(message, interface, level, number, base) {
+    __debug_messagen(message, interface, level, number, base);
+}
+
+void debug_messagea(message, interface, level, number, base) {
+    __debug_messagea(message, interface, level, number, base);
+}
