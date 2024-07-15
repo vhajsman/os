@@ -153,7 +153,7 @@ int linkedlist_contain(linkedlist_t* list, void* val) {
 }
 
 linkedlist_node_t* linkedlist_getNodeByIndex(linkedlist_t* list, u32 index) {
-    if(index < 0 || index >= list_size(list))
+    if(index >= list_size(list))
         return NULL;
 
     u32 curr = 0;
