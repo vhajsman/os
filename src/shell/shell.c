@@ -48,7 +48,7 @@ void shell() {
     while(1) {
         char buffer[SHELL_MAX_BUFFER_SIZE];
 
-        puts(_shell); puts(" ");    // printf("%s ", _shell);
+        puts(_shell); puts(" ");
 
         keybuffer_discard();
         keybuffer_enable(1);
@@ -58,31 +58,12 @@ void shell() {
         keybuffer_append('\0');
         keybuffer_enable(0);
 
-        //buffer = keybuffer_read();
-
         strncpy(buffer, keybuffer_read(), SHELL_MAX_BUFFER_SIZE - 1);
         buffer[SHELL_MAX_BUFFER_SIZE - 1] = '\0';
 
         putc('\n');
 
-        /*
-        if(!strcmp(buffer, "help")){
-            shellhelp();
-            continue;
-        }
-
-        if(!strcmp(buffer, "cpuid")) {
-            cpuid_info(1);
-            continue;
-        }
-
-        if(!strcmp(buffer, "clear")) {
-            console_initialize();
-            continue;
-        }
-        */
-
-       shell_handleUserInput(buffer);
+        shell_handleUserInput(buffer);
     }
 }
 
