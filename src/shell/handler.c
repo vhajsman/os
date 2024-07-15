@@ -130,7 +130,7 @@ struct shell_execcall shell_genExecutionCall(struct shell_parseout* parseData) {
     }
 }
 
-int shell_handleUserInput(char** userInput) {
+int shell_handleUserInput(char* userInput) {
     // Ignore comment
     if(userInput[0] == '#')
         return 0;
@@ -139,7 +139,7 @@ int shell_handleUserInput(char** userInput) {
 
     struct shell_parseout p;
 
-    arrcpy(userInput, p.tok_arr, MAX_TOKS);
+    arrcpy(&userInput, p.tok_arr, MAX_TOKS);
     p.tok_str = replace_spaces(userInput, TOKEN_SEPARATOR);
     p.tok_count = sizeof(p.tok_arr) / sizeof(p.tok_arr[0]);
 
