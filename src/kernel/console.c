@@ -9,8 +9,8 @@
 // #include "hid/kbdscan.h"
 
 struct xy2d console_position;
-u8* console_posx = &console_position.x;
-u8* console_posy = &console_position.y;
+    u8* console_posx = &console_position.x;
+    u8* console_posy = &console_position.y;
 
 static u16* const VGA_MEMORY = (u16*) 0xB8000;
 
@@ -200,10 +200,10 @@ void putc(char c) {
 
     console_put(c, console_color, console_position.x, console_position.y);
 
-    if(++console_posx == VGA_WIDTH) {
+    if(console_position.x + 1 == VGA_WIDTH) {
         console_position.x = 0;
 
-        if(++console_posy == VGA_HEIGHT) {
+        if(console_position.y + 1 == VGA_HEIGHT) {
             console_scroll();
             // console_update();
         }

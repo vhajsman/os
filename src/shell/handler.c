@@ -187,7 +187,7 @@ int shell_handleUserInput(char* userInput) {
 
     debug_append("}");
 
-    struct shell_execcall call = shell_genExecutionCall(&p);
+    // struct shell_execcall call = shell_genExecutionCall(&p);
 
     // Assuming some execution logic
     // execute_command(call);
