@@ -69,6 +69,7 @@ void* dumb_kmalloc(u32 size, int align) {
  * */
 void paging_allocate(page_directory_t* dir, u32 virtual_addr, u32 frame, int is_kernel, int is_writable) {
     IGNORE_UNUSED(is_kernel);
+    IGNORE_UNUSED(is_writable);
     
     page_table_t* table = NULL;
 
@@ -131,6 +132,18 @@ void paging_allocateRegion(page_directory_t* dir, u32 start_va, u32 end_va, int 
     }
 }
 
+    void ___free(page_table_t* table, int page_tbl_idx){ 
+        if(table != NULL && page_tbl_idx >= 0) {
+            void* ptr = (void*) table->pages[page_tbl_idx].frame;
+
+            if(ptr == NULL)
+                return;
+
+            free(ptr);
+            table->pages[page_tbl_idx].frame = NULL;
+        }
+    }
+
 /*
  * Find the corresponding page table entry, and set frame to 0
  * Also, clear corresponding bit in pmm bitmap
@@ -158,8 +171,10 @@ void paging_free(page_directory_t* dir, u32 virtual_addr, int _free) {
         return;
     }
 
-    if(_free)
-        free((void*) table->pages[page_tbl_idx].frame);
+    if(_free) {
+        //free((void*) table->pages[page_tbl_idx].frame);
+        ___free(table, page_tbl_idx);
+    }
 
     table->pages[page_tbl_idx].present = 0;
     table->pages[page_tbl_idx].frame = 0;
