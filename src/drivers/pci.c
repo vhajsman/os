@@ -120,9 +120,9 @@ pci_dev_t pci_getDevice(u16 vendorId, u16 deviceId, int device_type) {
 
     if(pci_reachEnd(dev_zero)) {
         debug_message("Failed to get PCI device", "PCI", KERNEL_ERROR);
-        __debug_messagen(" -> vendorId: ", "PCI", KERNEL_ERROR, vendorId, 16);
-        __debug_messagen(" -> vendorId: ", "PCI", KERNEL_ERROR, deviceId, 16);
-        __debug_messagen(" -> device type: ", "PCI", KERNEL_ERROR, DEVICE_PER_BUS, 10);
+        debug_messagen(" -> vendorId: ", "PCI", KERNEL_ERROR, vendorId, 16);
+        debug_messagen(" -> vendorId: ", "PCI", KERNEL_ERROR, deviceId, 16);
+        debug_messagen(" -> device type: ", "PCI", KERNEL_ERROR, DEVICE_PER_BUS, 10);
 
         puts("Failed to get PCI device.\n");
 
