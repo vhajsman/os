@@ -20,7 +20,7 @@ int strchk(const unsigned char* stra, const unsigned char* strb) {
         if(stra[i] != strb[i])
             return 0;
 
-        if(stra[i] == '\0' && strb[i] == '\0');
+        if(stra[i] == '\0' && strb[i] == '\0')
             break;
     }
 

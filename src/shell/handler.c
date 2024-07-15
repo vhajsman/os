@@ -152,7 +152,8 @@ int shell_handleUserInput(char* userInput) {
     debug_append(" Token array[...] = {");
 
     for(size_t i = 0; i < MAX_TOKS; i ++) {
-        if(p.tok_arr[i] == '\0')
+        char* ct = p.tok_arr[i];
+        if(ct == NULL)
             continue;
 
         debug_append("'");
