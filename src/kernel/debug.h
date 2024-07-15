@@ -59,4 +59,7 @@ void debug_number(int number, int base);
                                                                     \
     debug_append(___b_itoa_##number##_);
 
+void debug_messagen(message, interface, level, number, base);
+void debug_messagea(message, interface, level, number, base);
+
 #endif
