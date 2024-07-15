@@ -61,7 +61,7 @@ pci_dev_t pci_scanFunction(u16 vendorId, u16 deviceId, u32 bus, u32 device, u32 
     if(pci_getDeviceType(dev) == PCI_TYPE_BRIDGE)
         pci_scanBus(vendorId, deviceId, pci_bridge(dev), device_type);
 
-    if(device_type == -1 || device_type == pci_getDeviceType(dev)) {    // ? Device found
+    if(device_type == -1 || device_type == (int) pci_getDeviceType(dev)) {    // ? Device found
         u32 _deviceId = pci_read(dev, PCI_DEVICE_ID);
         u32 _vendorId = pci_read(dev, PCI_VENDOR_ID);
 
