@@ -335,7 +335,7 @@ void unsetKeyHandler() {
 // =========================================================
 // ===== KEY BUFFER
 // =========================================================
-#define KEYBUFFER_SIZE_DEFAULT  255
+#define KEYBUFFER_SIZE_DEFAULT  1024
 
 u8 _keyb_enable = 0;
 u8 _keyb_wait = 0;
