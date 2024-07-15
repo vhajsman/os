@@ -138,7 +138,7 @@ void paging_allocateRegion(page_directory_t* dir, u32 start_va, u32 end_va, int 
  *      0: only clear the page table entry, don't actually free the frame
  *      1 : free the frame
  * */
-void paging_free(page_directory_t * dir, u32 virtual_addr, int _free) {
+void paging_free(page_directory_t* dir, u32 virtual_addr, int _free) {
     if(dir == TEMP_PAGE_DIRECTORY) 
         return;
 
@@ -159,7 +159,7 @@ void paging_free(page_directory_t * dir, u32 virtual_addr, int _free) {
     }
 
     if(_free)
-        free(table->pages[page_tbl_idx].frame);
+        free((void*) table->pages[page_tbl_idx].frame);
 
     table->pages[page_tbl_idx].present = 0;
     table->pages[page_tbl_idx].frame = 0;
