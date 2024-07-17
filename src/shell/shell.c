@@ -75,3 +75,21 @@
 //     return _shell;
 // }
 // 
+
+char* shell_prompt;
+
+void shell_displayPrompt() {
+    puts(shell_prompt);
+    putc(' ');
+}
+
+void shell() {
+    static char uinput[SHELL_MAX_BUFFER_SIZE];
+
+    shell_displayPrompt();
+    gets(uinput, SHELL_MAX_BUFFER_SIZE, '\n');
+
+    putc('\n');
+    puts("User input: ");
+    puts(uinput);
+}

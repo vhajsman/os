@@ -36,4 +36,6 @@
 //     int (*X)(const char* callParams, u8* uref)
 // 
 
+void shell();
+
 #endif

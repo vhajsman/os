@@ -223,34 +223,58 @@ char getc() {
     char c;
 
     kbd_discard();
+
     while(1) {
         c = kbd_getLastChar();
 
         if(c != 0x00)
             return c;
     }
-
-    return c;
 }
 
-char* gets(size_t bufferSize, char breaker) {
-    static char* buffer;
-    // buffer = 0;
+void gets(char* buffer, size_t bufferSize, char breaker) {
+//    char l = '\0';
+//    size_t i = 0;
+//
+//    while(i < bufferSize - 1 && l != breaker) {
+//        l = getc();
+//
+//        if(l != '\0') {
+//            putc(l);
+//            buffer[i] = l;
+//
+//            if(l == breaker)
+//                return;
+//
+//            i++;
+//        }
+//    }
+//
+//    buffer[i] = '\0';
 
-    char l = 0;
-
-    for(size_t i = 0; i < bufferSize; i ++) {
-        l = getc();
-
-        putc(l);
-
-        if(l == breaker)
-            break;
-        
-        buffer[i] = l;
+    if (buffer == NULL || bufferSize == 0) {
+        return;
     }
 
-    return buffer;
+    char l = '\0';
+    size_t i = 0;
+
+    while (i < bufferSize - 1 && l != breaker) {
+        l = getc();
+
+        if (l != '\0') {
+            putc(l);
+            buffer[i] = l;
+
+            if (l == breaker) {
+                break;
+            }
+
+            i++;
+        }
+    }
+    
+    buffer[i] = '\0';
 }
 
 void colorPrint(const char* str, u8 color) {

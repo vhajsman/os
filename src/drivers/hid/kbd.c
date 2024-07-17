@@ -353,6 +353,7 @@ static unsigned char* _keyb;
 
 void keybuffer_disable() {
     _keyb_enable = 0;
+    debug_message("Disabled", "keybuffer", KERNEL_MESSAGE);
 }
 
 void keybuffer_enable(u8 printOnAppend) {
@@ -360,13 +361,20 @@ void keybuffer_enable(u8 printOnAppend) {
     _keyb_putc = printOnAppend;
 
     _keyb_color_deleted = vga_entryColor(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
+    
+    debug_message("Enabled", "keybuffer", KERNEL_MESSAGE);
 }
 
 void keybuffer_set(unsigned char* val) {
-    //strcpy(_keyb, val);
+    if (val == NULL) {
+        // Handle error: invalid buffer
+        return;
+    }
 
     _keyb = val;
     _keyb_index = 0;
+
+    memset(_keyb, 0, _keyb_size);
 }
 
 void keybuffer_append(char c) {
@@ -379,62 +387,67 @@ void keybuffer_append(char c) {
 
         // putc('\b');
 
-        _keyb[_keyb_index] = '\0';
         _keyb_index--;
+        _keyb[_keyb_index] = '\0';
 
         console_gotoxy(console_position.x - 1, console_position.y);
         putc(' ');
 
+        debug_message("Backspace insert", "keybuffer", KERNEL_MESSAGE);
+
         return;
     }
 
-    if(_keyb_enable) {
+    if (_keyb_enable && _keyb_index < _keyb_size) {
+
         _keyb[_keyb_index] = c;
         _keyb_index++;
 
-        if(_keyb_putc)
+        if (_keyb_putc) {
             putc(c);
+        }
+        
+        debug_message("Key append", "keybuffer", KERNEL_MESSAGE);
     }
 }
 
 void keybuffer_discard() {
     _keyb_index = 0;
 
-    // for(size_t i = 0; i < _keyb_size; i ++) {
-    //     keybuffer_append('\0');
-    // }
+    if (_keyb != NULL) {
+        memset(_keyb, 0, _keyb_size);
+    }
 
-    for(size_t i = 0; i < _keyb_size; i++)
-        _keyb[i] = '\0';
-
-    _keyb_index = 0;
+    debug_message("Discard", "keybuffer", KERNEL_MESSAGE);
 }
 
 const unsigned char* keybuffer_read() {
-    unsigned char* k = _keyb;
-    k[_keyb_index + 1] = '\0';
+    if (_keyb == NULL) {
+        return NULL;
+    }
 
-    return k;
+    _keyb[_keyb_index] = '\0';
+    return _keyb;
 }
 
 const unsigned char* keybuffer_wait(char breaker) {
     _keyb_wait = 1;
     _ignore = breaker;
 
-    while(1) {
-        if(_keyb_index > 0 && _last_char == breaker) {
+    debug_message("Waiting for breaker character", "keybuffer", KERNEL_MESSAGE);
+
+    while (_keyb_wait) {
+        if (_keyb_index > 0 && _keyb[_keyb_index - 1] == breaker) {
             putc(breaker);
             break;
         }
 
-        if(_keyb_index >= _keyb_size)
+        if (_keyb_index >= _keyb_size) {
             break;
+        }
 
-        if(!_keyb_wait)
-            break;
-
-        if(!_kbd_enable) {
-            puts("Keyboard disabled while keybuffer waiting!! break.\n");
+        if (!_keyb_wait || !_keyb_enable) {
+            puts("Keyboard disabled or wait cancelled while keybuffer waiting!! break.\n");
             break;
         }
     }
@@ -444,5 +457,7 @@ const unsigned char* keybuffer_wait(char breaker) {
 }
 
 void keybuffer_nowait() {
+    debug_message("Escaped breaker character", "keybuffer", KERNEL_MESSAGE);
+
     _keyb_wait = 0;
 }
