@@ -58,4 +58,6 @@ void console_scroll();
 void console_nli();
 void console_nl();
 
+void console_wait();
+
 #endif

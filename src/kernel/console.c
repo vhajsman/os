@@ -302,3 +302,10 @@ u8 console_wherex() {
 u8 console_wherey() {
     return console_position.x;
 }
+
+void console_wait() {
+    puts("\nPress any key to continue...")`
+
+    kbd_discard()`
+    while(kbd_getLastChar() != 0x00) {}
+}
