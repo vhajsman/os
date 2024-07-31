@@ -92,3 +92,10 @@ void pit_directWrite(u32 val) {
     
     _ticks = val;
 }
+
+void pit_sleep(u32 ms) {
+    u32 ticks_to_wait = (PIT_DEFAULT_FREQUENCY * ms) / 1000;
+    u32 start_ticks = _ticks;
+
+    while ((_ticks - start_ticks) < ticks_to_wait) {}
+}
