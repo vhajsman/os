@@ -11,8 +11,11 @@
 INCLUDE_INTERNAL_COMMAND(test);
 INCLUDE_INTERNAL_COMMAND(hwinfo);
 INCLUDE_INTERNAL_COMMAND(echo);
+INCLUDE_INTERNAL_COMMAND(krnldbg);
 
 void shell_registerAll() {
     registerCommand(&command_test);
     registerCommand(&command_hwinfo);
+    registerCommand(&command_echo);
+    registerCommand(&command_krnldbg);
 }
