@@ -133,54 +133,31 @@ void console_nli() {
 // Makes a newline
 void console_nl() {
     console_position.x = 0;
+    console_position.y++;
 
-    if(console_position.y >= VGA_HEIGHT) {
+    if (console_position.y == VGA_HEIGHT) {
         console_scroll();
-        return;
+        
+        console_position.y = VGA_HEIGHT - 1;
     }
-
-    console_position.y ++;
 }
 
 void putc(char c) {
-    if(c == '\n') {
+    if (c == '\n') {
         console_nl();
         return;
     }
 
-	if (++console_position.x == VGA_WIDTH - 1) {
-        if(console_position.y != VGA_HEIGHT) {
-		    console_position.x = 0;
-            console_position.y++;
-        } else {
-            for(size_t i = 0; i < VGA_WIDTH; i++) {
-                console_buffer[i] = console_buffer[i + 1];
-            }
-    
-            console_position.x = 0;
-            console_position.y--;
-        }
-	}
-
-    if(console_position.x == VGA_WIDTH) {
-        if(console_position.y == VGA_HEIGHT) {
-            console_position.x = 0;
-            console_position.y = 0;
-    
-            return;
-        }
-    
-        console_position.x = 0;
-        console_position.y =+ 1;
-    }
-
     console_put(c, console_color, console_position.x, console_position.y);
+    console_position.x++;
 
-    if(console_position.x + 1 == VGA_WIDTH) {
+    if (console_position.x == VGA_WIDTH) {
         console_position.x = 0;
+        console_position.y++;
 
-        if(console_position.y + 1 == VGA_HEIGHT) {
+        if (console_position.y == VGA_HEIGHT) {
             console_scroll();
+            console_position.y = VGA_HEIGHT - 1;
         }
     }
 }
