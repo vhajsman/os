@@ -5,4 +5,29 @@
 
 int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokenCount);
 
+
+// === COMMAND REGISTRY ===
+
+#define MAX_INTERNAL_COMMANDS   256
+
+#define CREATE_INTERNAL_COMMAND(__ARGC_MIN, __ARGC_MAX, __NAME, __ENTRY)    \
+    (struct shell_command) {                                                \
+        .argc_min = (__ARGC_MIN),                                           \
+        .argc_max = (__ARGC_MAX),                                           \
+        .name = (__NAME),                                                   \
+        .entry = (__ENTRY)                                                  \
+    }
+
+struct shell_command {
+    u8 argc_min;    // If 0, no minimum is set
+    u8 argc_max;    // If 0, no maximum is set
+
+    char* name;
+
+    int (*entry)(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc);
+};
+
+void registerCommand(struct shell_command* command);
+struct shell_command* findCommand(char* commandName);
+
 #endif

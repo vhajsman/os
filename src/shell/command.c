@@ -88,3 +88,47 @@ void shell_command_inithandler() {
     shell_errorColor = vga_entryColor(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK);
     shell_hintColor = vga_entryColor(VGA_COLOR_DARK_GREY, VGA_COLOR_BLACK);
 }
+
+// === COMMAND REGISTRY ===
+
+struct shell_command* commandRegistry[MAX_INTERNAL_COMMANDS] = { NULL };
+int _registry_occupied = 0;
+
+void registerCommand(struct shell_command* command) {
+    if(command->entry == NULL) {
+        debug_message("Can't regiser a command with null pointer to command entry: ", "shell", KERNEL_ERROR);
+        debug_append(command->name);
+
+        return;
+    }
+
+    if(_registry_occupied >= MAX_INTERNAL_COMMANDS - 1) {
+        debug_message("Could not register command because of registry overflow: ", "shell", KERNEL_ERROR);
+        debug_append(command->name);
+
+        return;
+    }
+
+    commandRegistry[_registry_occupied] = command;
+
+    debug_message("Added command to registry: ", "shell", KERNEL_OK);
+    debug_append(command->name);
+    debug_append(", @: ");
+    debug_number(_registry_occupied, 16);
+
+    _registry_occupied++;
+}
+
+struct shell_command* findCommand(char* commandName) {
+    if(_registry_occupied == 0)
+        return NULL;
+
+    struct shell_command* command;
+
+    for(int i = 0; i < _registry_occupied; i++) {
+        if(!strcmp(commandName, commandRegistry[i]->name))
+            return commandRegistry[i];
+    }
+
+    return NULL;
+}
