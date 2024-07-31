@@ -73,6 +73,9 @@ void shell() {
     int tokenCount = 0;
 
     while(1) {
+        if(!strcmp("exit\0", tokens[0]))
+            return;
+        
         putc('\n');
 
         shell_displayPrompt();

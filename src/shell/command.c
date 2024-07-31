@@ -4,6 +4,7 @@
 #include "video/vga.h"
 #include "string.h"
 #include "debug.h"
+#include "kernel.h"
 
 #define GET_SELF_ARGUMENT(n) (tokens[n + 1])
 #define GET_COMMAND_NAME() tokens[0]
@@ -57,6 +58,26 @@ int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], 
 
         puts(GET_SELF_ARGUMENT(0));
         return 0;
+    }
+
+    if(!strcmp("hwinfo\0", GET_COMMAND_NAME())) {
+        if(tokenCount > 2) {
+            shell_printError("CommandError", "Too much arguments in call", 0, 0);
+            return 1;
+        }
+
+        if(tokenCount < 2) {
+            shell_printError("CommandError", "Too few arguments in call", 5, 8);
+            return 1;
+        }
+
+        if(!strcmp("cpuid\0", GET_SELF_ARGUMENT(0))) {
+            cpuid_info(1);
+            return 0;
+        }
+
+        shell_printError("Error", "Invalid sub-command", 6, strlen(GET_SELF_ARGUMENT(0)) - 1);
+        return 2;
     }
 
     shell_printError("ParseError", "Internal command not found", 0, strlen(GET_COMMAND_NAME()) - 1);
