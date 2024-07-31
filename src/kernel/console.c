@@ -5,9 +5,6 @@
 #include "hid/kbd.h"
 #include "debug.h"
 
-// #include "hid/kbd.h"
-// #include "hid/kbdscan.h"
-
 struct xy2d console_position;
     u8* console_posx = &console_position.x;
     u8* console_posy = &console_position.y;
@@ -120,8 +117,6 @@ void console_scroll() {
 
 // Makes a newline but keeps current X coordination
 void console_nli() {
-    // console_position.x = 0;
-
     if(console_position.y >= VGA_HEIGHT) {
         console_scroll();
         return;
@@ -137,7 +132,7 @@ void console_nl() {
 
     if (console_position.y == VGA_HEIGHT) {
         console_scroll();
-        
+
         console_position.y = VGA_HEIGHT - 1;
     }
 }
@@ -172,19 +167,6 @@ void puts(const char* data) {
 }
 
 char getc() {
-    /*
-    char c;
-
-    kbd_discard();
-
-    while(1) {
-        c = kbd_getLastChar();
-
-        if(c != 0x00)
-            return c;
-    }
-    */
-
     return console_wait();
 }
 
