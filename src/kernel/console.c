@@ -148,7 +148,7 @@ void putc(char c) {
         return;
     }
 
-	if (++console_position.x == VGA_WIDTH) {
+	if (++console_position.x == VGA_WIDTH - 1) {
         if(console_position.y != VGA_HEIGHT) {
 		    console_position.x = 0;
             console_position.y++;
