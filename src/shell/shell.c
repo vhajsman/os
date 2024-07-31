@@ -76,7 +76,7 @@
 // }
 // 
 
-char* shell_prompt;
+char* shell_prompt = ">";
 
 void shell_displayPrompt() {
     puts(shell_prompt);
@@ -84,12 +84,14 @@ void shell_displayPrompt() {
 }
 
 void shell() {
-    static char uinput[SHELL_MAX_BUFFER_SIZE];
+    while(1) {
+        static char uinput[SHELL_MAX_BUFFER_SIZE];
 
-    shell_displayPrompt();
-    gets(uinput, SHELL_MAX_BUFFER_SIZE, '\n');
+        shell_displayPrompt();
+        gets(uinput, SHELL_MAX_BUFFER_SIZE);
 
-    putc('\n');
-    puts("User input: ");
-    puts(uinput);
+        putc('\n');
+        puts("User input: ");
+        puts(uinput);
+    }
 }

@@ -211,27 +211,32 @@ char getc() {
     return console_wait();
 }
 
-void gets(char* buffer, size_t bufferSize, char breaker) {
+void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
     if (buffer == NULL || bufferSize == 0) {
+        debug_message("Buffer size should not be NULL.", "getc()", KERNEL_ERROR);
         return;
     }
 
     char l = '\0';
     size_t i = 0;
 
-    while (i < bufferSize - 1 && l != breaker) {
+    while (i < bufferSize - 1) {
         l = getc();
 
-        if (l != '\0') {
-            putc(l);
-            buffer[i] = l;
-
-            if (l == breaker) {
-                break;
-            }
-
-            i++;
+        if (l == '\0') {
+            debug_messagen("EOF or string terminator @: ", "getc()", KERNEL_MESSAGE, l, 10);
+            break;
         }
+
+        putc(l);
+        buffer[i] = l;
+        
+        if (l == '\n') {
+            debug_messagen("Breaker char @: ", "getc()", KERNEL_MESSAGE, l, 10);
+            break;
+        }
+
+        i++;
     }
     
     buffer[i] = '\0';

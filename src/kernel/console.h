@@ -44,7 +44,7 @@ void putc(char c);
 void puts(const char* data);
 
 char getc();
-void gets(char* buffer, size_t bufferSize, char breaker);
+void gets(char* buffer, size_t bufferSize);
 
 void colorPrint(const char* str, u8 color);
 
