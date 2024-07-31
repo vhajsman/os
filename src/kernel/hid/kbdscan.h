@@ -93,6 +93,8 @@
 #define SCAN_CODE_KEY_DELETE                0x53
 #define SCAN_CODE_KEY_F11                   0x57
 #define SCAN_CODE_KEY_F12                   0x58
+#define SCAN_CODE_LEFT_SHIFT_RELEASE        0xAA
+#define SCAN_CODE_RIGHT_SHIFT_RELEASE       0xB6
 
 typedef enum {
     KBD_KEY_ESC = 0x01,

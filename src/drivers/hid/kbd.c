@@ -116,8 +116,14 @@ void kbd_irq(REGISTERS* r) {
                 
                 case SCAN_CODE_KEY_LEFT_SHIFT:
                 case SCAN_CODE_KEY_RIGHT_SHIFT:
-                    _shift = 1;
+                    _shift = !_shift;
                     break;
+                
+                // ? idk why but doesnt work lmao
+                //case SCAN_CODE_LEFT_SHIFT_RELEASE:
+                //case SCAN_CODE_RIGHT_SHIFT_RELEASE:
+                //    _shift = 0;
+                //    break;
 
                 case SCAN_CODE_KEY_ALT:
                     _alt = 1;
