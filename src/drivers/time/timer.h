@@ -31,8 +31,7 @@
 #define	PIT_REG_COUNTER2            0x42
 #define	PIT_REG_COMMAND             0x43
 
-#define PIT_CALCULATE_DIVISOR(FREQUENCY)    \
-    (1193180 / FREQUENCY)
+#define PIT_CALCULATE_DIVISOR(frequency) ((1193180 + (frequency) / 2) / (frequency))
 
 u8 pit_addressing(u8 counter);
 void pit_init();
