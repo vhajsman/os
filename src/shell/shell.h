@@ -3,6 +3,10 @@
 
 #include "types.h"
 
+#define SHELL_MAX_BUFFER_SIZE 1024
+#define SHELL_MAX_TOKENS 128
+#define SHELL_MAX_TOKEN_LENGTH 256
+
 // #define MAX_TOKS    30
 // 
 // struct shell_parseout {
