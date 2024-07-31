@@ -7,6 +7,9 @@
 #define SHELL_MAX_TOKENS 128
 #define SHELL_MAX_TOKEN_LENGTH 256
 
+#define GET_SELF_ARGUMENT(n) (tokens[n + 1])
+#define GET_COMMAND_NAME() tokens[0]
+
 // #define MAX_TOKS    30
 // 
 // struct shell_parseout {
