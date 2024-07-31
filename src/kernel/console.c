@@ -142,33 +142,11 @@ void console_nl() {
     console_position.y ++;
 }
 
-// void console_update() {
-//     memmove(VGA_MEMORY, console_buffer);
-// }
-
 void putc(char c) {
     if(c == '\n') {
-        // console_position.x = 0;
-        // console_position.y++;
-
         console_nl();
-
         return;
     }
-
-    // if(c == '\b') {
-    //     console_put(' ', console_color, console_position.x, console_position.y);
-    // 
-    //     if(console_position.x == 0 && console_position.y == 0)
-    //         return;
-    // 
-    //     if(console_position.x == 0 && console_position.y != 0) {
-    //         console_position.x = VGA_WIDTH;
-    //         console_position.y --;
-    //     } else {
-    //         console_position.x--;
-    //     }
-    // }
 
 	if (++console_position.x == VGA_WIDTH) {
         if(console_position.y != VGA_HEIGHT) {
@@ -196,8 +174,6 @@ void putc(char c) {
         console_position.y =+ 1;
     }
 
-	// console_put(c, console_color, console_position.x - 1, console_position.y); 
-
     console_put(c, console_color, console_position.x, console_position.y);
 
     if(console_position.x + 1 == VGA_WIDTH) {
@@ -205,7 +181,6 @@ void putc(char c) {
 
         if(console_position.y + 1 == VGA_HEIGHT) {
             console_scroll();
-            // console_update();
         }
     }
 }
@@ -220,6 +195,7 @@ void puts(const char* data) {
 }
 
 char getc() {
+    /*
     char c;
 
     kbd_discard();
@@ -230,28 +206,12 @@ char getc() {
         if(c != 0x00)
             return c;
     }
+    */
+
+    return console_wait();
 }
 
 void gets(char* buffer, size_t bufferSize, char breaker) {
-//    char l = '\0';
-//    size_t i = 0;
-//
-//    while(i < bufferSize - 1 && l != breaker) {
-//        l = getc();
-//
-//        if(l != '\0') {
-//            putc(l);
-//            buffer[i] = l;
-//
-//            if(l == breaker)
-//                return;
-//
-//            i++;
-//        }
-//    }
-//
-//    buffer[i] = '\0';
-
     if (buffer == NULL || bufferSize == 0) {
         return;
     }
@@ -303,9 +263,16 @@ u8 console_wherey() {
     return console_position.x;
 }
 
-void console_wait() {
-    puts("\nPress any key to continue...")`
+char console_wait() {
+    kbd_discard();
+    char scancode;
 
-    kbd_discard()`
-    while(kbd_getLastChar() != 0x00) {}
+    while(1) {
+            scancode = kbd_getLastChar();
+
+            if(scancode != 0x00)
+                break;
+    }
+
+    return scancode;
 }

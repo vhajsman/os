@@ -58,6 +58,7 @@ void console_scroll();
 void console_nli();
 void console_nl();
 
-void console_wait();
+// Wait for keypress (any key) and returns the scancode
+char console_wait();
 
 #endif
