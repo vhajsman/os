@@ -84,13 +84,14 @@ void shell_displayPrompt() {
 }
 
 void shell() {
+    static char uinput[SHELL_MAX_BUFFER_SIZE];
+
     while(1) {
-        static char uinput[SHELL_MAX_BUFFER_SIZE];
+        putc('\n');
 
         shell_displayPrompt();
         gets(uinput, SHELL_MAX_BUFFER_SIZE);
 
-        putc('\n');
         puts("User input: ");
         puts(uinput);
     }
