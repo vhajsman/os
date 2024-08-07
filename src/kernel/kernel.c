@@ -45,6 +45,13 @@ void kbdEvHandler(char c) {
     putc(c);
 }
 
+void kmain_init_cursor() {
+    console_cursor_enable(13, 15);
+    console_cursor_move(0, 0);
+
+    console_cursor_hide();
+}
+
 void kmain(unsigned long magic, unsigned long addr) {
     IGNORE_UNUSED(magic);
     IGNORE_UNUSED(addr);
@@ -52,6 +59,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     static MULTIBOOT_INFO *mboot_info;
 
     console_initialize();
+    kmain_init_cursor();
 
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
 
@@ -80,7 +88,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     pci_init();
     ata_init();
 
-    //pit_wait(100);
+    pit_wait(1000);
     // sleep(10);
 
     shell();

@@ -61,4 +61,12 @@ void console_nl();
 // Wait for keypress (any key) and returns the scancode
 char console_wait();
 
+#define console_cursor_hide console_cursor_disable
+
+void console_cursor_enable(u8 scanline_start, u8 scanline_end);
+void console_cursor_disable();
+void console_cursor_move(int x, int y);
+u16 console_cursor_locate(void);
+void console_cursor_show();
+
 #endif

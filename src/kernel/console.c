@@ -4,6 +4,7 @@
 #include "video/vga.h"
 #include "hid/kbd.h"
 #include "debug.h"
+#include "ioport.h"
 
 struct xy2d console_position;
     u8* console_posx = &console_position.x;
@@ -239,4 +240,53 @@ char console_wait() {
     }
 
     return scancode;
+}
+
+u8 _cursor_visible = 1;
+u8 _cursor_scanline_start;
+u8 _cursor_scanline_end;
+
+void console_cursor_enable(u8 scanline_start, u8 scanline_end) {
+    _cursor_visible = 1;
+
+    _cursor_scanline_start = scanline_start;
+    _cursor_scanline_end   = scanline_end;
+
+    outportb(0x3D4, 0x0A);
+	outportb(0x3D5, (inportb(0x3D5) & 0xC0) | scanline_start);
+
+	outportb(0x3D4, 0x0B);
+	outportb(0x3D5, (inportb(0x3D5) & 0xE0) | scanline_end);
+}
+
+void console_cursor_disable() {
+    _cursor_visible = 0;
+
+    outportb(0x3D4, 0x0A);
+	outportb(0x3D5, 0x20);
+}
+
+void console_cursor_move(int x, int y) {
+	u16 pos = y * VGA_WIDTH + x;
+
+	outportb(0x3D4, 0x0F);
+	outportb(0x3D5, (u8) (pos & 0xFF));
+	outportb(0x3D4, 0x0E);
+	outportb(0x3D5, (u8) ((pos >> 8) & 0xFF));
+}
+
+u16 console_cursor_locate(void) {
+    u16 pos = 0;
+
+    outportb(0x3D4, 0x0F);
+    pos |= inportb(0x3D5);
+
+    outportb(0x3D4, 0x0E);
+    pos |= ((u16) inportb(0x3D5)) << 8;
+
+    return pos;
+}
+
+void console_cursor_show() {
+    console_cursor_enable(_cursor_scanline_start, _cursor_scanline_end);
 }
