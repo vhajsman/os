@@ -58,7 +58,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     gdt_init();
     idt_init();
     
-    pit_init();
+    pit_init(1000);
     
     kbd_init();
     kbd_enable();
@@ -79,6 +79,9 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     pci_init();
     ata_init();
+
+    //pit_wait(100);
+    sleep(10);
 
     shell();
 }
