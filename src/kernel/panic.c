@@ -47,12 +47,12 @@ void kernel_panic_dumpreg(REGISTERS* reg, signed int exception) {
 
 }
 
-void kernel_panic_delay(u32 __delay) {
-    u32 start = pit_directRead();
-    u32 end = start + __delay;
-
-    while(pit_directRead() < end) {}
-}
+// void kernel_panic_delay(u32 __delay) {
+//     u32 start = pit_directRead();
+//     u32 end = start + __delay;
+// 
+//     while(pit_directRead() < end) {}
+// }
 
 void kernel_panic(REGISTERS* reg, signed int exception) {
 
