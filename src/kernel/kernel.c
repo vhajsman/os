@@ -81,7 +81,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     ata_init();
 
     //pit_wait(100);
-    sleep(10);
+    // sleep(10);
 
     shell();
 }

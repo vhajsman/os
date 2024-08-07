@@ -12,6 +12,7 @@
     char regdump[10];                               \
     itoa(regdump, 16, REGS->REG);                   \
                                                     \
+    debug_append("\n                 --> ");        \
     debug_append(STRINGIFICATE(REG));               \
     debug_append("=0x");                            \
     debug_append(regdump);                          \
