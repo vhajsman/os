@@ -92,6 +92,10 @@ void strcat(char *dest, const char *src) {
     *end = '\0';
 }
 
+int is_digit(char c) {
+    return c >= '0' && c <= '9';
+}
+
 int isspace(char c) {
     return  c == ' '  || 
             c == '\t' || 
@@ -404,4 +408,34 @@ char* linkedlist_toString(linkedlist_t* list, const char* delim) {
     }
 
     return ret;
+}
+
+int atoi(const char *str) {
+    if (str == NULL)
+        return 0;
+
+    int result = 0;
+    int sign = 1;
+    size_t i = 0;
+
+    while (str[i] == ' '  || str[i] == '\t' || str[i] == '\n' || 
+           str[i] == '\r' || str[i] == '\v' || str[i] == '\f') {
+            i++;
+    }
+
+    if (str[i] == '-') {
+        sign = -1;
+        i++;
+    } else if (str[i] == '+') {
+        i++;
+    }
+
+    while (is_digit(str[i])) {
+        int digit = str[i] - '0';
+
+        result = result * 10 + digit;
+        i++;
+    }
+
+    return sign * result;
 }

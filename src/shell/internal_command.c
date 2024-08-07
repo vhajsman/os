@@ -12,10 +12,12 @@ INCLUDE_INTERNAL_COMMAND(test);
 INCLUDE_INTERNAL_COMMAND(hwinfo);
 INCLUDE_INTERNAL_COMMAND(echo);
 INCLUDE_INTERNAL_COMMAND(krnldbg);
+INCLUDE_INTERNAL_COMMAND(sleep);
 
 void shell_registerAll() {
     registerCommand(&command_test);
     registerCommand(&command_hwinfo);
     registerCommand(&command_echo);
     registerCommand(&command_krnldbg);
+    registerCommand(&command_sleep);
 }

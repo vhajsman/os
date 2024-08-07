@@ -33,5 +33,5 @@ char* strsep(char** stringp, const char* delim);
 
 linkedlist_t* string_split(const char* src, const char* delim, unsigned int* tokenCount);
 char* linkedlist_toString(linkedlist_t* list, const char* delim);
-
+int atoi(const char *str);
 #endif
