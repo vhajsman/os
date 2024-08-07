@@ -177,11 +177,15 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
         return;
     }
 
+    console_cursor_show();
+    console_cursor_move(console_position.x, console_position.y);
+
     char l = '\0';
     size_t i = 0;
 
     while (i < bufferSize - 1) {
         l = getc();
+        console_cursor_move(console_position.x + 1, console_position.y);
 
         if (l == '\0') {
             debug_messagen("EOF or string terminator @: ", "getc()", KERNEL_MESSAGE, l, 10);
@@ -200,6 +204,8 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
     }
     
     buffer[i] = '\0';
+
+    console_cursor_hide();
 }
 
 void colorPrint(const char* str, u8 color) {
