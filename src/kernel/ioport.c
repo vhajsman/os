@@ -32,3 +32,9 @@ u32 inportl(u16 port) {
 void outportl(u16 port, u32 data) {
     asm volatile ("outl %%eax, %%dx" : : "dN" (port), "a" (data));
 }
+
+u32 inportsl(u16 port) {
+    u32 result;
+    __asm__ __volatile__ ("inl %1, %0" : "=a"(result) : "dN"(port));
+    return result;
+}

@@ -10,4 +10,6 @@ void    outports(u16 port, u16 data);
 u32     inportl(u16 port);
 void    outportl(u16 port, u32 data);
 
+u32 inportsl(u16 port);
+
 #endif
