@@ -98,4 +98,11 @@ typedef struct {
     MULTIBOOT_MEMORY_TYPE type;
 } MULTIBOOT_MEMORY_MAP;
 
+typedef struct multiboot_module {
+    u32 mod_start;
+    u32 mod_end;
+    u32 string;
+    u32 reserved;
+} multiboot_module_t;
+
 #endif

@@ -1,3 +1,5 @@
+#! /bin/sh
+
 rm $(find ./build/obj/ -type f)
 
 mkdir -p ./build/obj/../bin
@@ -24,6 +26,7 @@ cd ..
 ld -T config/linker.ld -o build/bin/krnl.bin $(find build/obj -name "*.o" -type f) \
     -m elf_i386 -nostdlib
 
+sh ./script/initrd.sh
 sh ./script/imggen.sh
 
 echo "DONE!"

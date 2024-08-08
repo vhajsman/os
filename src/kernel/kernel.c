@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "pci.h"
 #include "ata/ide.h"
+#include "initrd.h"
 
 bool _kernel_exitOk = 0;
 
@@ -56,7 +57,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     IGNORE_UNUSED(magic);
     IGNORE_UNUSED(addr);
 
-    static MULTIBOOT_INFO *mboot_info;
+    MULTIBOOT_INFO* mboot_info = (MULTIBOOT_INFO*) addr;
 
     console_initialize();
     kmain_init_cursor();
@@ -84,6 +85,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     cpuid_info(0);
     memory_init(mboot_info);
 
+    initrd_load(mboot_info);
 
     pci_init();
 
