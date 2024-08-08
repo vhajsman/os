@@ -11,5 +11,6 @@ u32     inportl(u16 port);
 void    outportl(u16 port, u32 data);
 
 u32 inportsl(u16 port);
+void insl(u16 port, unsigned int *addr, u32 count);
 
 #endif

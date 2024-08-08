@@ -38,3 +38,12 @@ u32 inportsl(u16 port) {
     __asm__ __volatile__ ("inl %1, %0" : "=a"(result) : "dN"(port));
     return result;
 }
+
+void insl(u16 port, unsigned int *addr, u32 count) {
+    __asm__ __volatile__ (
+        "cld; rep insl"
+        : "+D"(addr), "+c"(count)
+        : "d"(port)
+        : "memory"
+    );
+}
