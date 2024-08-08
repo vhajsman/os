@@ -9,7 +9,7 @@ struct ide_channelRegisters ide_channels[2];
 struct ide_device ide_devices[4];
 
 u8 ide_buf[2048] = {0};
-volatile static u8 ide_irq_invoked = 0;
+static volatile u8 ide_irq_invoked = 0;
 static u8 atapi_packet[12] = {0xA8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 u8 ide_read(u8 channel, u8 reg) {
@@ -114,7 +114,7 @@ u8 ide_debugerr(unsigned int drive, u8 err) {
     debug_append(" @ ");
     debug_append((const char *[]) {"Primary ", "Secondary "} [ide_devices[drive].channel]);
     debug_append((const char *[]) {"Master ",  "Slave "}     [ide_devices[drive].drive]);
-    debug_append(ide_devices[drive].model);
+    debug_append((const char*) ide_devices[drive].model);
 
     return err;
 }
@@ -211,7 +211,7 @@ void ide_init_debugsummary() {
             debug_append(" bytes) : ");
 
             // Device model
-            debug_append(ide_devices[i].model);
+            debug_append((const char*) ide_devices[i].model);
         }
 }
 
