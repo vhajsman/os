@@ -13,6 +13,7 @@
 #include "multiboot.h"
 #include "debug.h"
 #include "pci.h"
+#include "ata/ide.h"
 
 bool _kernel_exitOk = 0;
 
@@ -86,8 +87,7 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     pci_init();
 
-    pit_wait(1000);
-    // sleep(10);
+    ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
 
     shell();
 }
