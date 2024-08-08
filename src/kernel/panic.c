@@ -57,8 +57,6 @@ void kernel_panic_dumpreg(REGISTERS* reg, signed int exception) {
 
 void kernel_panic(REGISTERS* reg, signed int exception) {
 
-    console_initialize();
-
     debug_separator("KERNEL PANIC");
     debug_message("Kernel panic.", "Kernel panic", KERNEL_FATAL);
 
