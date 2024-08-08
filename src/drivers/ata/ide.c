@@ -157,7 +157,7 @@ void ide_init_detect() {
                 } else if (cl == 0x69 && ch == 0x96) {
                     type = IDE_ATAPI;
                 } else {
-                    // unknown type
+                    debug_message("Unknown IDE device type", "ide", KERNEL_WARNING);
                     continue;
                 }
 
