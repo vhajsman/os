@@ -53,6 +53,40 @@ void kmain_init_cursor() {
     console_cursor_hide();
 }
 
+#define _kmain_debug_multiboot(var, nbase)              \
+    debug_message(#var, "multiboot", KERNEL_MESSAGE);   \
+    debug_append(" = ");                                \
+    debug_number(mbinfo->var, 10);
+
+void kmain_debug_multiboot(MULTIBOOT_INFO* mbinfo) {
+    _kmain_debug_multiboot(flags, 16);
+    _kmain_debug_multiboot(mem_low, 10);
+    _kmain_debug_multiboot(mem_high, 10);
+    _kmain_debug_multiboot(boot_device, 16);
+    _kmain_debug_multiboot(cmdline, 16);
+    _kmain_debug_multiboot(modules_count, 10);
+    _kmain_debug_multiboot(modules_addr, 16);
+    _kmain_debug_multiboot(mmap_length, 10);
+    _kmain_debug_multiboot(mmap_addr, 16);
+    _kmain_debug_multiboot(drives_length, 10);
+    _kmain_debug_multiboot(drives_addr, 16);
+    _kmain_debug_multiboot(config_table, 16);
+    _kmain_debug_multiboot(boot_loader_name, 16);
+    _kmain_debug_multiboot(apm_table, 16);
+    _kmain_debug_multiboot(vbe_control_info, 16);
+    _kmain_debug_multiboot(vbe_mode_info, 16);
+    _kmain_debug_multiboot(vbe_mode, 16);
+    _kmain_debug_multiboot(vbe_interface_seg, 16);
+    _kmain_debug_multiboot(vbe_interface_off, 16);
+    _kmain_debug_multiboot(vbe_interface_len, 10);
+    _kmain_debug_multiboot(framebuffer_addr, 16);
+    _kmain_debug_multiboot(framebuffer_pitch, 10);
+    _kmain_debug_multiboot(framebuffer_width, 10);
+    _kmain_debug_multiboot(framebuffer_height, 10);
+    _kmain_debug_multiboot(framebuffer_bpp, 16);
+    _kmain_debug_multiboot(framebuffer_type, 16);
+}
+
 void kmain(unsigned long magic, unsigned long addr) {
     IGNORE_UNUSED(magic);
     IGNORE_UNUSED(addr);
@@ -90,6 +124,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     pci_init();
 
     ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
+    kmain_debug_multiboot(mboot_info);
 
     shell();
 }
