@@ -87,6 +87,7 @@ void kmain_debug_multiboot(MULTIBOOT_INFO* mbinfo) {
     _kmain_debug_multiboot(framebuffer_type, 16);
 }
 
+
 void kmain(unsigned long magic, unsigned long addr) {
     IGNORE_UNUSED(magic);
     IGNORE_UNUSED(addr);
@@ -97,9 +98,11 @@ void kmain(unsigned long magic, unsigned long addr) {
     kmain_init_cursor();
 
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
+    putc('\n');
 
     gdt_init();
     idt_init();
+
     
     pit_init(1000);
     
@@ -119,12 +122,22 @@ void kmain(unsigned long magic, unsigned long addr) {
     cpuid_info(0);
     memory_init(mboot_info);
 
+    kmain_debug_multiboot(mboot_info);
+    if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
+        puts("Invalid magic number.\n");
+        debug_message("Invalid magic number (not multiboot 1?)", "kmain", KERNEL_ERROR);
+
+        debug_message("Magic number: ", "kmain", KERNEL_MESSAGE);
+        debug_number(magic, 16);
+
+        return;
+    }
+
     initrd_load(mboot_info);
 
     pci_init();
 
     ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
-    kmain_debug_multiboot(mboot_info);
 
     shell();
 }

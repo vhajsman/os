@@ -4,13 +4,17 @@ SECTIONS
 {
     __kernel_section_start = .;
     /* text section */
-    .text 0x0100000 : {
-        __kernel_text_section_start = .;
-        . = ALIGN(4);
+    .multiboot : {
         /* set multiboot header */
         LONG(0x1BADB002)
         LONG(0x00000003)
         LONG(0xE4524FFB)
+    }
+    
+    .text 0x0100000 : {
+        __kernel_text_section_start = .;
+        . = ALIGN(4);
+        
         code = .; _code = .; __code = .;
         *(.text)
         *(.rodata)
