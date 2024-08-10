@@ -58,6 +58,21 @@ void kmain_init_cursor() {
     debug_append(" = ");                                \
     debug_number(mbinfo->var, 10);
 
+#define _kmain_debug_multiboot_module(var, nbase)           \
+    debug_message("  --> ", "multiboot", KERNEL_MESSAGE);   \
+    debug_append(#var);                                     \
+    debug_append(" = ");                                    \
+    debug_number(_mod->var, nbase);
+
+void kernel_debug_multiboot_module(MULTIBOOT_INFO* mbinfo) {
+    multiboot_module_t* _mod = (multiboot_module_t*) mbinfo->modules_addr;
+
+    _kmain_debug_multiboot_module(mod_start, 16);
+    _kmain_debug_multiboot_module(mod_end, 16);
+    _kmain_debug_multiboot_module(string, 16);
+    _kmain_debug_multiboot_module(reserved, 16);
+}
+
 void kmain_debug_multiboot(MULTIBOOT_INFO* mbinfo) {
     _kmain_debug_multiboot(flags, 16);
     _kmain_debug_multiboot(mem_low, 10);
@@ -66,6 +81,9 @@ void kmain_debug_multiboot(MULTIBOOT_INFO* mbinfo) {
     _kmain_debug_multiboot(cmdline, 16);
     _kmain_debug_multiboot(modules_count, 10);
     _kmain_debug_multiboot(modules_addr, 16);
+
+    kernel_debug_multiboot_module(mbinfo);
+    
     _kmain_debug_multiboot(mmap_length, 10);
     _kmain_debug_multiboot(mmap_addr, 16);
     _kmain_debug_multiboot(drives_length, 10);
