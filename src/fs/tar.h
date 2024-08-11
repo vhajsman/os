@@ -1,6 +1,8 @@
 #ifndef __TAR_H
 #define __TAR_H
 
+#include "types.h"
+
 typedef struct tar_header {
     char name[100];       /* Name of the file */
     char mode[8];         /* File mode */
@@ -21,5 +23,8 @@ typedef struct tar_header {
     char pad[12];         /* Padding */
 } tar_header_t;
 
+const char* tar_findf(const char* tar_data, const char* filename);
+size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_t max_size);
+void tar_list(const char* tar_data);
 
 #endif

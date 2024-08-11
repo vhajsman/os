@@ -23,6 +23,11 @@ const char* tar_findf(const char* tar_data, const char* filename) {
             return ptr + 512;
         }
 
+
+        if (strcmp(header->name, filename) == 0) {
+            return ptr + 512;
+        }
+
         ptr += ((size + 511) / 512) * 512 + 512;
     }
 
@@ -46,4 +51,25 @@ size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_
     memcpy(buffer, file_data, to_read);
 
     return to_read;
+}
+
+void tar_list(const char* tar_data) {
+    debug_message("Tar directory listing for '/': ", "tar", KERNEL_MESSAGE);
+
+    const tar_header_t* header;
+    const char* current = tar_data;
+
+    while (1) {
+        header = (const tar_header_t*) current;
+
+        if (header->name[0] == '\0')
+            break;
+
+        debug_append("\n                  ");
+        debug_append(header->name);
+
+        size_t file_size = _oct2dec(header->size, sizeof(header->size));
+        size_t file_blocks = (file_size + 512 - 1) / 512;
+        current += 512 + file_blocks * 512;
+    }
 }

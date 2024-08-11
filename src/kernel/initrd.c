@@ -29,9 +29,25 @@ void initrd_load(MULTIBOOT_INFO* mb_info) {
     } else {
         debug_message("initrd not found", "initrd", KERNEL_FATAL);
 
-        initrd_start    = NULL;
-        initrd_end      = NULL;
-        initrd_size     = NULL;
+        initrd_start    = 0;
+        initrd_end      = 0;
+        initrd_size     = 0;
         initrd_data     = NULL;
+
+        return;
     }
+
+    tar_list(initrd_data);
+
+    // INITRD TEST
+    static char buffer[64];
+    size_t s = tar_readf(initrd_data, "test.txt", buffer, 64);
+
+    if(!s) {
+        debug_message("File not fount", "initrd", KERNEL_ERROR);
+        return;
+    }
+
+    debug_message("test.txt: ", "initrd", KERNEL_MESSAGE);
+    debug_append(buffer);
 }

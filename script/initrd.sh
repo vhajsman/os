@@ -1,2 +1,3 @@
 #! /bin/sh
-tar -cvf build/iso/initrd.tar initrd/*
+cd initrd
+tar -cvf ../build/iso/initrd.tar *
