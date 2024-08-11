@@ -3,6 +3,8 @@
 #include "multiboot.h"
 #include "types.h"
 #include "debug.h"
+#include "kernel.h"
+#include "console.h"
 
 u32 initrd_start;
 u32 initrd_end;
@@ -13,6 +15,13 @@ const char* initrd_data;
 void initrd_load(MULTIBOOT_INFO* mb_info) {
     if (mb_info->modules_count > 0) {
         multiboot_module_t* mod = (multiboot_module_t*) mb_info->modules_addr;
+
+        if (mod->mod_start >= mod->mod_end || mod->mod_start == 0) {
+            debug_message("Invalid initrd module range", "initrd", KERNEL_FATAL);
+            
+            goto loadfail;
+            return;
+        }
 
         initrd_start = mod->mod_start;
         initrd_end = mod->mod_end;
@@ -26,6 +35,16 @@ void initrd_load(MULTIBOOT_INFO* mb_info) {
         debug_number(initrd_start, 16);
         debug_append(" - ");
         debug_number(initrd_end, 16);
+
+        if (initrd_size < 512) {
+            debug_message("initrd size is smaller than a tar header", "initrd", KERNEL_FATAL);
+
+            goto loadfail;
+            return;
+        }
+
+        tar_list(initrd_data);
+        return;
     } else {
         debug_message("initrd not found", "initrd", KERNEL_FATAL);
 
@@ -34,20 +53,11 @@ void initrd_load(MULTIBOOT_INFO* mb_info) {
         initrd_size     = 0;
         initrd_data     = NULL;
 
+        goto loadfail;
         return;
     }
 
-    tar_list(initrd_data);
-
-    // INITRD TEST
-    static char buffer[64];
-    size_t s = tar_readf(initrd_data, "test.txt", buffer, 64);
-
-    if(!s) {
-        debug_message("File not fount", "initrd", KERNEL_ERROR);
-        return;
-    }
-
-    debug_message("test.txt: ", "initrd", KERNEL_MESSAGE);
-    debug_append(buffer);
+loadfail:
+    kout(KERNEL_ERROR, "initrd", "could not initialize initrd,", NULL);
+    return;
 }
