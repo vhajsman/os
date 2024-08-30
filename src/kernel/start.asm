@@ -59,9 +59,16 @@ section .text
     global MAGIC_HEADER
     global BOOTLOADER_MAGIC
 
+; _videoinit:
+;     xor bx, bx
+;     mov ax, 0x0013
+;     int 0x10
+
 _start:
     extern kmain
     extern kernel_exit
+
+    ; call _videoinit
     
     mov esp, stack_top
     mov eax, BOOTLOADER_MAGIC
