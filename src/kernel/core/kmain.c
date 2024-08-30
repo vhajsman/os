@@ -15,6 +15,7 @@
 #include "pci.h"
 #include "ata/ide.h"
 #include "initrd.h"
+#include "modules/interface.h"
 
 void kmain_init_cursor() {
     console_cursor_enable(13, 15);
@@ -106,5 +107,8 @@ void kmain(unsigned long magic, unsigned long addr) {
     ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
 
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
+
+    interface_test();
+
     shell();
 }
