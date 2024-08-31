@@ -8,11 +8,14 @@
 
 #include "command.h"
 
+char WORKDIR[128];
+
 extern void shell_command_inithandler();
 
-char* shell_prompt = ">";
+char* shell_prompt = " >";
 
 void shell_displayPrompt() {
+    puts(WORKDIR);
     puts(shell_prompt);
     putc(' ');
 }
@@ -66,6 +69,9 @@ void shell_parse(const char* input, char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKE
 }
 
 void shell() {
+    WORKDIR[0] = '/';
+    WORKDIR[1] = '\0';
+
     shell_command_inithandler();
     
     static char uinput[SHELL_MAX_BUFFER_SIZE];

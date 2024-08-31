@@ -45,4 +45,6 @@
 
 void shell();
 
+extern char WORKDIR[128];
+
 #endif
