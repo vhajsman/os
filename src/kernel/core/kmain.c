@@ -16,6 +16,16 @@
 #include "ata/ide.h"
 #include "initrd.h"
 #include "modules/interface.h"
+#include "fs/fs.h"
+#include "fs/tar.h"
+
+struct kernel_interface _kmain_rootfs;
+struct kernel_interface_callflags c;
+
+fs_node_t* kmain_rootfs_mount(const char* tar_data);
+void kernel_rootfs_unmount(struct kernel_interface_callflags* callflags);
+void kernel_rootfs_init(struct kernel_interface_callflags* callflags);
+
 
 void kmain_init_cursor() {
     console_cursor_enable(13, 15);
@@ -58,7 +68,6 @@ void kmain_debug_multiboot(MULTIBOOT_INFO* mbinfo) {
     _kmain_debug_multiboot(framebuffer_type, 16);
 }
 
-
 void kmain(unsigned long magic, unsigned long addr) {
     MULTIBOOT_INFO* mboot_info = (MULTIBOOT_INFO*) addr;
 
@@ -70,7 +79,6 @@ void kmain(unsigned long magic, unsigned long addr) {
     gdt_init();
     idt_init();
 
-    
     pit_init(1000);
     
     kbd_init();
@@ -100,15 +108,48 @@ void kmain(unsigned long magic, unsigned long addr) {
         return;
     }
 
+    _kmain_rootfs.name_short = "rootfs";
+    _kmain_rootfs.name_friendly = "root filesystem";
+    _kmain_rootfs.init = &kernel_rootfs_init;
+    _kmain_rootfs.deinit = &kernel_rootfs_unmount;
+    c.flags = 0;
+
+    kernel_interface_load(-1, &_kmain_rootfs);
+    kernel_interface_init(kernel_interface_findByName("rootfs"), &c);
+
     initrd_load(mboot_info);
 
     pci_init();
 
     ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
 
+    putc('\n');
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
 
-    interface_test();
-
     shell();
+}
+
+fs_node_t* kmain_rootfs_mount(const char* tar_data) {
+    fs_root = (fs_node_t*) malloc(sizeof(fs_node_t));
+    memset(fs_root, 0, sizeof(fs_node_t));
+
+    strcpy(fs_root->name, "rootfs");
+    fs_root->flags = FS_DIRECTORY;
+    fs_root->readdir = tar_readdir;
+    fs_root->finddir = tar_finddir;
+    fs_root->inode = 0;
+    fs_root->length = 0;
+
+    fs_root->impl = (u32) tar_data;
+
+    return fs_root;
+}
+
+void kernel_rootfs_init(struct kernel_interface_callflags* callflags) {
+    fs_node_t* _rootfs_dist = kmain_rootfs_mount(initrd_data);
+    callflags->exit_code = _rootfs_dist == NULL ? 3 : 0;
+}
+
+void kernel_rootfs_unmount(struct kernel_interface_callflags* callflags) {
+    callflags->exit_code = 0;
 }

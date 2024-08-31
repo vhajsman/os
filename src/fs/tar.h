@@ -2,6 +2,7 @@
 #define __TAR_H
 
 #include "types.h"
+#include "fs.h"
 
 typedef struct tar_header {
     char name[100];       /* Name of the file */
@@ -26,5 +27,9 @@ typedef struct tar_header {
 const char* tar_findf(const char* tar_data, const char* filename);
 size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_t max_size);
 void tar_list(const char* tar_data);
+
+struct fs_dirent* tar_readdir(fs_node_t* node, u32 index);
+fs_node_t* tar_finddir(fs_node_t* node, char* name);
+u32 tar_read(fs_node_t* node, u32 offset, u32 size, u8* buffer);
 
 #endif

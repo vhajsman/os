@@ -2,6 +2,7 @@
 #include "types.h"
 #include "string.h"
 #include "debug.h"
+#include "memory/memory.h"
 
 size_t _oct2dec(const char* str, size_t size) {
     size_t result = 0;
@@ -11,6 +12,8 @@ size_t _oct2dec(const char* str, size_t size) {
 
     return result;
 }
+
+#define tar_getsize(str) _oct2dec(str, 12)
 
 // const char* tar_findf(const char* tar_data, const char* filename) {
 //     const char *ptr = tar_data;
@@ -82,4 +85,73 @@ void tar_list(const char* tar_data) {
         size_t file_blocks = (file_size + 512 - 1) / 512;
         current += 512 + file_blocks * 512;
     }
+}
+
+struct fs_dirent* tar_readdir(fs_node_t* node, u32 index) {
+    const char* data = (const char*) node->impl;
+    tar_header_t* header = (tar_header_t*) data;
+
+    u32 i = 0;
+    while(header->name[0] != '\0') {
+        if(i == index) {
+            fs_dirent_t* dirent = (fs_dirent_t*) malloc(sizeof(fs_dirent_t));
+            strncpy(dirent->name, header->name, 128);
+
+            dirent->inode = i;
+            return dirent;
+        }
+
+        u32 size = tar_getsize(header->size);
+        header = (tar_header_t*) ((u8*) header + ((size + 511) & -511) + 512);
+
+        i++;
+    }
+
+    return NULL;
+}
+
+fs_node_t* tar_finddir(fs_node_t* node, char* name) {
+    const char* data = (const char*) node->impl;
+    tar_header_t* header = (tar_header_t*) data;
+
+    while(header->name[0] == '\0') {
+        if(strcmp(header->name, name) == 0) {
+            fs_node_t* _node = (fs_node_t*) malloc(sizeof(fs_node_t));
+            memset(_node, 0, sizeof(fs_node_t));
+
+            strcpy(_node->name, header->name);
+            _node->flags = (header->typeflag == '5') ? FS_DIRECTORY : FS_FILE;
+            _node->length = tar_getsize(header->size);
+            _node->inode = node->inode;
+            _node->impl = (u32) header;
+
+            if(_node->flags == FS_DIRECTORY) {
+                _node->readdir = tar_readdir;
+                _node->finddir = tar_finddir;
+            } else {
+                _node->read = tar_read;
+            }
+
+            return _node;
+        }
+
+        u32 size = tar_getsize(header->size);
+        header = (tar_header_t*) ((u8*) header + ((size + 511) & -511) + 512);
+    }
+
+    return NULL;
+}
+
+u32 tar_read(fs_node_t* node, u32 offset, u32 size, u8* buffer) {
+    tar_header_t* header = (tar_header_t*) node->impl;
+    u32 filesize = tar_getsize(header->size);
+
+    if(offset > filesize)
+        return 0;
+
+    if(offset + size > filesize)
+        size = filesize - offset;
+
+    memcpy(buffer, ((u8*) header) - 512 + offset, size);
+    return size;
 }

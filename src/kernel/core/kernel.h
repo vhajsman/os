@@ -3,6 +3,10 @@
 
 #include "types.h"
 #include "debug.h"
+#include "fs/fs.h"
+#include "initrd.h"
+#include "fs/tar.h"
+#include "modules/interface.h"
 
 #define IGNORE_UNUSED(X)    (void)(X)
 
@@ -74,5 +78,6 @@ int cpuid_info(int print);
 void kernel_panic(REGISTERS* reg, signed int exception);
 
 void kout(enum kernel_statusLevels lvl, char* interface, char* message, char* query);
+
 
 #endif

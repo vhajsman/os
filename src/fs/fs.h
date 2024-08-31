@@ -33,7 +33,7 @@ typedef struct fs_node {
     void (*close) (struct fs_node* node);
 
     struct fs_dirent* (*readdir) (struct fs_node* node, u32);
-    struct fs_node* (*finddir) (struct fs_node*, char* name)
+    struct fs_node* (*finddir) (struct fs_node*, char* name);
 
     struct fs_node* nodeptr;
 } fs_node_t;
@@ -47,7 +47,7 @@ void fs_open(fs_node_t* node, u8 read, u8 write);
 void fs_close(fs_node_t* node);
 
 struct fs_dirent* fs_readdir(fs_node_t* node, u32 index);
-fs_node_t* fs_finddir(fs_node_t* node, char* name);
+struct fs_node* fs_finddir(fs_node_t* node, char* name);
 
 
 #endif
