@@ -135,3 +135,45 @@ int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t* target) 
     free(path_copy);
     return 0;
 }
+
+u32 fs_getfilesizen(fs_node_t* filenode) {
+    return filenode->length;
+}
+
+int fs_readfilen(fs_node_t* filenode, char* buffer, u32 buffer_size) {
+    if(filenode == NULL) {
+        debug_message("fs_readfilenode(): invalid file node.", "fs", KERNEL_ERROR);
+        return -1;
+    }
+
+    if(filenode->read == NULL) {
+        debug_message("fs_readfilenode(): read() not supported by target fs.", "fs", KERNEL_ERROR);
+        return -2;
+    }
+
+    if(filenode->length > buffer_size) {
+        debug_message("fs_readfilenode(): not enough memory", "fs", KERNEL_ERROR);
+        return -3;
+    }
+
+    u32 bytesread = filenode->read(filenode, 0, filenode->length, (u8*) buffer);
+
+    if(bytesread != filenode->length) {
+        debug_message("fs_readfilenode(): read incomplete", "fs", KERNEL_ERROR);
+        return -4;
+    }
+
+    return bytesread;
+}
+
+int fs_readfile(const char* path, char* buffer, u32 buffer_size, fs_node_t* currentnode) {
+    fs_node_t* node;
+
+    if(fs_resolvepath(path, currentnode, node) != 0) {
+        return -5;
+    }
+
+    return fs_readfilen(node, buffer, buffer_size);
+}
+
+
