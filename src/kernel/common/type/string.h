@@ -29,6 +29,8 @@ char *strstr(const char *in, const char *str);
 char* strdup(const char* source);
 char* strsep(char** stringp, const char* delim);
 
+char* strtok(char* str, char* delm);
+
 //int snprintf(char* str, size_t size, const char* fmt, int num, const char* strarg);
 
 linkedlist_t* string_split(const char* src, const char* delim, unsigned int* tokenCount);
