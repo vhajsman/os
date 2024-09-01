@@ -49,5 +49,12 @@ void fs_close(fs_node_t* node);
 struct fs_dirent* fs_readdir(fs_node_t* node, u32 index);
 struct fs_node* fs_finddir(fs_node_t* node, char* name);
 
+/*
+    A function to resolve a path from target fs node to path string (char*), defaulting
+    from currentnode. Returns status code.
+
+    If currentnode not specified (= NULL), root filesystem is used instead.
+*/
+int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t* target);
 
 #endif

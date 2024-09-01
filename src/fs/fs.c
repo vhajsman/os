@@ -93,3 +93,45 @@ struct fs_node* fs_finddir(fs_node_t* node, char* name) {
 
     return NULL;
 }
+
+int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t* target) {
+    fs_node_t* current = currentnode == NULL ? fs_root : currentnode;
+    target = NULL;
+
+    char* path_copy = strdup(path);
+    char* token = strtok(path_copy, "/");
+
+    while(token != NULL) {
+        if(!(current->flags & FS_DIRECTORY)) {
+            debug_message("fs_resolvepath(): not a directory: ", "fs", KERNEL_ERROR);
+            debug_append(path);
+
+            free(path_copy);
+            return 1;
+        }
+
+        if(!current->finddir) {
+            debug_message("fs_resolvepath(): finddir() not supported by target fs", "fs", KERNEL_ERROR);
+            
+            free(path_copy);
+            return 2;
+        }
+
+        current = current->finddir(current, token);
+
+        if(current == NULL) {
+            debug_message("fs_resolvepath(): not found: ", "fs", KERNEL_ERROR);
+            debug_append(path);
+
+            free(path_copy);
+            return 3;
+        }
+
+        token = strtok(NULL, "/");
+    }
+
+    target = current;
+
+    free(path_copy);
+    return 0;
+}
