@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "string.h"
 #include "memory/memory.h"
+#include "console.h"
 
 fs_node_t* fs_root = 0;
 
@@ -82,8 +83,13 @@ struct fs_node* fs_finddir(fs_node_t* node, char* name) {
             found_node->inode = dirent->inode;
             found_node->flags = node->flags;
 
-            if((found_node->flags & 0x7) == FS_DIRECTORY)
+            if((found_node->flags & 0x7) == FS_DIRECTORY) {
+                // fs_destroy(found_node);
+
                 return fs_finddir(found_node, name);
+            }
+
+            // fs_destroy(found_node); 
 
             return found_node;
         }
@@ -94,14 +100,38 @@ struct fs_node* fs_finddir(fs_node_t* node, char* name) {
     return NULL;
 }
 
-int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t* target) {
+void fs_destroy(fs_node_t* node) {
+    if(node == NULL)
+        return;
+
+    debug_message("fs_destroy(): destroy node: ", "fs", KERNEL_MESSAGE);
+    debug_append(node->name);
+
+    if(node->nodeptr != NULL) {
+        fs_destroy(node->nodeptr);
+        debug_append(" (nodeptr)");
+    }
+
+    free(node);
+}
+
+int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t** target) {
+    puts(path);
     fs_node_t* current = currentnode == NULL ? fs_root : currentnode;
-    target = NULL;
+    *target = (fs_node_t*) NULL;
+
+    if (path[0] == '/')
+        path++;
 
     char* path_copy = strdup(path);
     char* token = strtok(path_copy, "/");
+    puts(token);
+    puts(path_copy);
 
     while(token != NULL) {
+        debug_message("fs_resolvepath(): Resolving component: ", "fs", KERNEL_MESSAGE);
+        debug_append(token);
+
         if(!(current->flags & FS_DIRECTORY)) {
             debug_message("fs_resolvepath(): not a directory: ", "fs", KERNEL_ERROR);
             debug_append(path);
@@ -130,7 +160,7 @@ int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t* target) 
         token = strtok(NULL, "/");
     }
 
-    target = current;
+    *target = current;
 
     free(path_copy);
     return 0;
@@ -169,11 +199,31 @@ int fs_readfilen(fs_node_t* filenode, char* buffer, u32 buffer_size) {
 int fs_readfile(const char* path, char* buffer, u32 buffer_size, fs_node_t* currentnode) {
     fs_node_t* node;
 
-    if(fs_resolvepath(path, currentnode, node) != 0) {
+    if(fs_resolvepath(path, currentnode, &node) != 0) {
         return -5;
     }
 
     return fs_readfilen(node, buffer, buffer_size);
+}
+
+int fs_cat(fs_node_t* node) {
+    if(node == NULL) {
+        debug_message("fs_cat(): node null", "fs", KERNEL_MESSAGE);
+        return 0;
+    }
+
+    u32 length = node->length + 2;
+
+    char buffer[length];
+    memset(buffer, '\0', length);
+
+    if(fs_readfilen(node, buffer, length) != node->length) {
+        debug_message("fs_cat(): read failed. filesize not equal the excepted.", "fs", KERNEL_ERROR);
+        return 1;
+    }
+
+    puts(buffer);
+    return 0;
 }
 
 

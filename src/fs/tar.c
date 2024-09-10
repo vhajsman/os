@@ -114,8 +114,14 @@ fs_node_t* tar_finddir(fs_node_t* node, char* name) {
     const char* data = (const char*) node->impl;
     tar_header_t* header = (tar_header_t*) data;
 
-    while(header->name[0] == '\0') {
-        if(strcmp(header->name, name) == 0) {
+    debug_message("tar_finddir(): Searching for file: ", "tar", KERNEL_MESSAGE);
+    debug_append(name);
+
+    while(header->name[0] != '\0') {
+        if(! strcmp(header->name, name)) {
+            debug_message("tar_finddir(): File found: ", "tar", KERNEL_MESSAGE);
+            debug_append(header->name);
+
             fs_node_t* _node = (fs_node_t*) malloc(sizeof(fs_node_t));
             memset(_node, 0, sizeof(fs_node_t));
 
@@ -139,6 +145,9 @@ fs_node_t* tar_finddir(fs_node_t* node, char* name) {
         header = (tar_header_t*) ((u8*) header + ((size + 511) & -511) + 512);
     }
 
+    debug_message("tar_finddir(): File not found: ", "tar", KERNEL_MESSAGE);
+    debug_append(name);
+
     return NULL;
 }
 
@@ -152,6 +161,7 @@ u32 tar_read(fs_node_t* node, u32 offset, u32 size, u8* buffer) {
     if(offset + size > filesize)
         size = filesize - offset;
 
-    memcpy(buffer, ((u8*) header) - 512 + offset, size);
+    memcpy(buffer, ((u8*) header) + 512 + offset, size);
+
     return size;
 }

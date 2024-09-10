@@ -22,7 +22,8 @@
 
 #define LOAD_MEMORY_ADDRESS 0xC0000000
 
-#define NULL 0
+#define NULL ((void*)0)
+
 #define TRUE 1
 #define FALSE 0
 

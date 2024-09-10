@@ -31,12 +31,6 @@ void memory_init(MULTIBOOT_INFO* mboot_info) {
 
     memory_start = (u8*) BLOCK_ALIGN(((u32) (bitmap + bitmap_size)));
 
-    __debug_messagen("Total memory:     ", "Memory", KERNEL_MESSAGE, memory_size, 10);
-    __debug_messagen("Total Blocks:     ", "Memory", KERNEL_MESSAGE, memory_blockCount, 10);
-    __debug_messagen("Bitmap address:   ", "Memory", KERNEL_MESSAGE, &bitmap, 16);
-    __debug_messagen("Bitmap size:      ", "Memory", KERNEL_MESSAGE, bitmap_size, 10);
-    __debug_messagen("Memory starts @ ",   "Memory", KERNEL_MESSAGE, &memory_start, 16);
-
     for(u32 i = 0; i < bitmap_size; i ++) {
         if(bitmap[i] != 0) {
             debug_message("Bitmap is not empty", "Memory", KERNEL_WARNING);
@@ -360,7 +354,7 @@ void *malloc(u32 size) {
 noSplit:
         removeNodeFromFreelist(base);
         return base + sizeof(struct memory_block);
-        
+
     } else {
         u32 realsize = blockSize;
         struct memory_block* ret = ksbrk(realsize);

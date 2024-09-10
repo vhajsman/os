@@ -33,6 +33,18 @@ int memcmp(u8 *s1, u8 *s2, u32 n) {
     return 1;
 }
 
+char* strchr(const char* str, int c) {
+    while (*str) {
+        if (*str == (char) c)
+            return (char*) str;
+
+        str++;
+    }
+
+    return NULL;
+}
+
+
 int strlen(const char *s) {
     int len = 0;
     while (*s++)
@@ -289,45 +301,51 @@ int snprintf(char* str, size_t size, const char* fmt, int num, const char* strar
 */
 
 char* strtok(char* str, char* delm) {
-    if(!str || !delm || str[0] == '\0')
+    static char* current = NULL;
+
+    if (str != NULL)
+        current = str;
+    if (current == NULL)
         return NULL;
 
-    static int current = 0;
+    while (*current && strchr(delm, *current)) 
+        current++;
 
-    char* W = (char*) malloc(sizeof(char) * 100);
-    int i = current;
-    int k, j = 0;
-
-    while(str[i] != '\0') {
-        j = 0;
-
-        while(delm[j] != '\0') {
-            if(str[i] != delm[j]) {
-                W[k] = str[i];
-            } else {
-                goto It;
-            }
-
-            j ++;
-        }
-
-        i ++;
-        k ++;
+    if (*current == '\0') {
+        current = NULL;
+        return NULL;
     }
 
-It:
-    W[i] = 0;
-    current = i + 1;
-    
-    return W;
+    char* start = current;
+
+    while (*current && !strchr(delm, *current))
+        current++;
+
+    if (*current) {
+        *current = '\0';
+        current++;
+    }
+
+    return start;
+
+// It:
+//     W[i] = 0;
+//     current = i + 1;
+//     
+//     return W;
 }
 
 char* strdup(const char* source) {
-    int len = strlen(source);
-    char* dest = kmalloc(len);
+    if (source == NULL)
+        return NULL;
+
+    int len = strlen(source) + 1;
+    char* dest = (char*) kmalloc(len);
+
+    if (dest == NULL)
+        return NULL;
 
     memcpy(dest, source, len);
-
     return dest;
 }
 

@@ -140,7 +140,7 @@ void paging_allocateRegion(page_directory_t* dir, u32 start_va, u32 end_va, int 
                 return;
 
             free(ptr);
-            table->pages[page_tbl_idx].frame = NULL;
+            table->pages[page_tbl_idx].frame = (unsigned int) NULL;
         }
     }
 

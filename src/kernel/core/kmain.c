@@ -126,6 +126,10 @@ void kmain(unsigned long magic, unsigned long addr) {
     putc('\n');
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
 
+    fs_node_t* testf = NULL;
+    fs_resolvepath("/test", fs_root, &testf);
+    fs_cat(testf);
+
     shell();
 }
 
