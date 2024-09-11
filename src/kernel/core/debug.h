@@ -62,4 +62,10 @@ void debug_number(int number, int base);
 void debug_messagen(const char* message, const char* interface, enum kernel_statusLevels level, int number, int base);
 void debug_messagea(const char* message, const char* interface, enum kernel_statusLevels level, int number, int base);
 
+#define debug_var(__identifier, __interface, __level, __base) { \
+    debug_message(#__identifier, __interface, __level);         \
+    debug_append(" = ");                                        \
+    debug_number(__identifier, __base);                         \
+}
+
 #endif
