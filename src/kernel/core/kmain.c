@@ -134,6 +134,9 @@ void kmain(unsigned long magic, unsigned long addr) {
 }
 
 fs_node_t* kmain_rootfs_mount(const char* tar_data) {
+    debug_message("Tarball data pointer: ", "kernel", KERNEL_MESSAGE);
+    debug_number((u32) tar_data, 16);
+
     fs_root = (fs_node_t*) malloc(sizeof(fs_node_t));
     memset(fs_root, 0, sizeof(fs_node_t));
 
@@ -150,7 +153,7 @@ fs_node_t* kmain_rootfs_mount(const char* tar_data) {
 }
 
 void kernel_rootfs_init(struct kernel_interface_callflags* callflags) {
-    fs_node_t* _rootfs_dist = kmain_rootfs_mount(initrd_data);
+    fs_node_t* _rootfs_dist = kmain_rootfs_mount((const char*) initrd_data);
     callflags->exit_code = _rootfs_dist == NULL ? 3 : 0;
 }
 

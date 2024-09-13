@@ -3,6 +3,7 @@
 #include "string.h"
 #include "debug.h"
 #include "memory/memory.h"
+#include "console.h"
 
 size_t _oct2dec(const char* str, size_t size) {
     size_t result = 0;
@@ -93,6 +94,11 @@ struct fs_dirent* tar_readdir(fs_node_t* node, u32 index) {
 
     u32 i = 0;
     while(header->name[0] != '\0') {
+        debug_message("tar_readdir(): Index: ", "tar", KERNEL_MESSAGE);
+        debug_number(i, 10);
+        debug_message(" tar_readdir(): File name: ", "tar", KERNEL_MESSAGE);
+        debug_append(header->name);
+
         if(i == index) {
             fs_dirent_t* dirent = (fs_dirent_t*) malloc(sizeof(fs_dirent_t));
             strncpy(dirent->name, header->name, 128);
@@ -111,15 +117,38 @@ struct fs_dirent* tar_readdir(fs_node_t* node, u32 index) {
 }
 
 fs_node_t* tar_finddir(fs_node_t* node, char* name) {
+    if(node->impl == NULL) {
+        debug_message("tar_finddir(): node->impl is NULL.", "tar", KERNEL_ERROR);
+        return NULL;
+    }
+    
     const char* data = (const char*) node->impl;
     tar_header_t* header = (tar_header_t*) data;
 
     debug_message("tar_finddir(): Searching for file: ", "tar", KERNEL_MESSAGE);
     debug_append(name);
 
+    debug_message("tar_finddir(): Searched name (hex): ", "tar", KERNEL_MESSAGE);
+    for (int i = 0; i < strlen(name); i++) {
+        debug_number((u8) name[i], 16);
+        debug_append(" ");
+    }
+
     while(header->name[0] != '\0') {
+        debug_message("tar_finddir(): Checking file: ", "tar", KERNEL_MESSAGE);
+        debug_append(header->name);
+
+        debug_message("tar_finddir(): Header name (hex): ", "tar", KERNEL_MESSAGE);
+        for (int i = 0; i < 100; i++) {
+            if (header->name[i] == '\0')
+                break;
+
+            debug_number((u8) header->name[i], 16);
+            debug_append(" ");
+        }
+
         if(! strcmp(header->name, name)) {
-            debug_message("tar_finddir(): File found: ", "tar", KERNEL_MESSAGE);
+            debug_message("tar_finddir(): File found: ", "tar", KERNEL_MESSAGE);    
             debug_append(header->name);
 
             fs_node_t* _node = (fs_node_t*) malloc(sizeof(fs_node_t));
@@ -131,7 +160,7 @@ fs_node_t* tar_finddir(fs_node_t* node, char* name) {
             _node->inode = node->inode;
             _node->impl = (u32) header;
 
-            if(_node->flags == FS_DIRECTORY) {
+            if(_node->flags == FS_DIRECTORY) { 
                 _node->readdir = tar_readdir;
                 _node->finddir = tar_finddir;
             } else {
@@ -141,8 +170,14 @@ fs_node_t* tar_finddir(fs_node_t* node, char* name) {
             return _node;
         }
 
+        debug_message("tar_finddir(): Header pointer before move: ", "tar", KERNEL_MESSAGE);
+        debug_number((u32) header, 16);
+
         u32 size = tar_getsize(header->size);
         header = (tar_header_t*) ((u8*) header + ((size + 511) & -511) + 512);
+
+        debug_message("tar_finddir(): Header pointer after move: ", "tar", KERNEL_MESSAGE);
+        debug_number((u32) header, 16);
     }
 
     debug_message("tar_finddir(): File not found: ", "tar", KERNEL_MESSAGE);

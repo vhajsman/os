@@ -116,7 +116,6 @@ void fs_destroy(fs_node_t* node) {
 }
 
 int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t** target) {
-    puts(path);
     fs_node_t* current = currentnode == NULL ? fs_root : currentnode;
     *target = (fs_node_t*) NULL;
 
@@ -124,9 +123,7 @@ int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t** target)
         path++;
 
     char* path_copy = strdup(path);
-    char* token = strtok(path_copy, "/");
-    puts(token);
-    puts(path_copy);
+    char* token =     strtok(path_copy, "/");
 
     while(token != NULL) {
         debug_message("fs_resolvepath(): Resolving component: ", "fs", KERNEL_MESSAGE);
