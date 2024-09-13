@@ -92,3 +92,40 @@ void kernel_exit() {
     kout(KERNEL_FATAL, "kernel", "Kernel exited unexceptedly (crashed), call panic.", NULL);
     kernel_panic((REGISTERS*) 0, 6);
 }
+
+#define MULTIBOOT_HEADER_MAGIC      0x1BADB002
+#define MULTIBOOT_HEADER_FLAGS      0x00000003  // Flags pro framebuffer
+#define MULTIBOOT_CHECKSUM          -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
+
+#define FRAMEBUFFER_WIDTH           1280
+#define FRAMEBUFFER_HEIGHT          720
+#define FRAMEBUFFER_BPP             32
+
+__attribute__((section(".multiboot")))
+const struct multiboot_header {
+    u32 magic;
+    u32 flags;
+    u32 checksum;
+    u32 header_addr;
+    u32 load_addr;
+    u32 load_end_addr;
+    u32 bss_end_addr;
+    u32 entry_addr;
+    u32 mode_type;
+    u32 width;
+    u32 height;
+    u32 depth;
+} multiboot __attribute__((used)) = {
+    MULTIBOOT_HEADER_MAGIC,
+    MULTIBOOT_HEADER_FLAGS,
+    MULTIBOOT_CHECKSUM,
+    0,                  
+    0,
+    0,
+    0,
+    0,
+    1,                  // 1 znamená framebuffer mode.
+    FRAMEBUFFER_WIDTH,
+    FRAMEBUFFER_HEIGHT,
+    FRAMEBUFFER_BPP
+};  
