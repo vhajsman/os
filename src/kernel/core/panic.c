@@ -63,7 +63,8 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
     colorPrint("----- KERNEL PANIC -----\n", 128 + 4);
     printf("Kernel panic.\n");
 
-    kernel_panic_dumpreg(reg, exception);
+    if(reg != NULL)
+        kernel_panic_dumpreg(reg, exception);
 
     puts("\n");
     puts("CPU is now halted. If debugging enabled, check debug log for more information.\n");

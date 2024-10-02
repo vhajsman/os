@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "com/serial.h"
 #include "console.h"
-#include "type/string.h"
+#include "string.h"
 
 int _verbose = 0;
 int _timestamp = 0; // UNDONE
