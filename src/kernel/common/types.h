@@ -1,7 +1,10 @@
 #ifndef __TYPES_H
 #define __TYPES_H
 
-#define NULL ((void*)0)
+#ifndef __defined_null
+#define __defined_null 1
+#define NULL ((void*) 0)
+#endif
 
 
 typedef unsigned char   u8;
@@ -34,6 +37,9 @@ typedef enum {
     
     typedef __bool boolean_t;
     typedef __bool bool;
+
+    #define true 1
+    #define false 0
 #endif
 
 #endif
