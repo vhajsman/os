@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "pci.h"
 #include "ata/ide.h"
+#include "ata/ata.h"
 #include "initrd.h"
 #include "modules/interface.h"
 #include "fs/fs.h"
@@ -126,9 +127,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     putc('\n');
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
 
-    fs_node_t* testf = NULL;
-    fs_resolvepath("/test", fs_root, &testf);
-    fs_cat(testf);
+    puts(initrd_test);
 
     shell();
 }

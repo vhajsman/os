@@ -223,4 +223,14 @@ int fs_cat(fs_node_t* node) {
     return 0;
 }
 
+bool fs_isinitrd(const char* path) {
+    if(path[0] != '/')
+        return false;
+
+    if(path[1] == 'm' && path[2] == 'n' && path[3] == 't' && path[4] == '/')
+        return false;
+
+    return true;
+}
+
 

@@ -11,4 +11,6 @@ extern u32 initrd_end;
 extern u32 initrd_size;
 extern const char* initrd_data;
 
+int initrd_read(const char* filename, char* buffer, size_t buffer_size);
+
 #endif

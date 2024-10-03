@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "kernel.h"
 #include "console.h"
+#include "memory/memory.h"
 
 u32 initrd_start;
 u32 initrd_end;
@@ -60,4 +61,8 @@ void initrd_load(MULTIBOOT_INFO* mb_info) {
 loadfail:
     kout(KERNEL_ERROR, "initrd", "could not initialize initrd,", NULL);
     return;
+}
+
+int initrd_read(const char* filename, char* buffer, size_t buffer_size) {
+    return tar_readf(initrd_data, filename, buffer, buffer_size);
 }
