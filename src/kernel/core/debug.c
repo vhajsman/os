@@ -2,6 +2,7 @@
 #include "com/serial.h"
 #include "console.h"
 #include "string.h"
+#include "types.h"
 
 int _verbose = 0;
 int _timestamp = 0; // UNDONE
@@ -257,4 +258,8 @@ void debug_messagen(const char* message, const char* interface, enum kernel_stat
 
 void debug_messagea(const char* message, const char* interface, enum kernel_statusLevels level, int number, int base) {
     __debug_messagea(message, interface, level, number, base);
+}
+
+void debug_putc(char c) {
+    serial_writeByte(_port, c);
 }

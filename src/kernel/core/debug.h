@@ -68,4 +68,6 @@ void debug_messagea(const char* message, const char* interface, enum kernel_stat
     debug_number(__identifier, __base);                         \
 }
 
+void debug_putc(char c);
+
 #endif

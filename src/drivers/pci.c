@@ -58,12 +58,17 @@ pci_dev_t pci_scanFunction(u16 vendorId, u16 deviceId, u32 bus, u32 device, u32 
     dev.device_num = device;
     dev.function_num = function;
 
+    u32 _vendorId = pci_read(dev, PCI_VENDOR_ID);
+
+    if(_vendorId == 0xFFFF)
+        return dev_zero;    
+
     if(pci_getDeviceType(dev) == PCI_TYPE_BRIDGE)
         pci_scanBus(vendorId, deviceId, pci_bridge(dev), device_type);
 
     if(device_type == -1 || device_type == (int) pci_getDeviceType(dev)) {    // ? Device found
         u32 _deviceId = pci_read(dev, PCI_DEVICE_ID);
-        u32 _vendorId = pci_read(dev, PCI_VENDOR_ID);
+        //u32 _vendorId = pci_read(dev, PCI_VENDOR_ID);
 
         if(_deviceId == deviceId && _vendorId == vendorId)
             return dev;
@@ -121,7 +126,7 @@ pci_dev_t pci_getDevice(u16 vendorId, u16 deviceId, int device_type) {
     if(pci_reachEnd(dev_zero)) {
         debug_message("Failed to get PCI device", "PCI", KERNEL_ERROR);
         debug_messagen(" -> vendorId: ", "PCI", KERNEL_ERROR, vendorId, 16);
-        debug_messagen(" -> vendorId: ", "PCI", KERNEL_ERROR, deviceId, 16);
+        debug_messagen(" -> deviceId: ", "PCI", KERNEL_ERROR, deviceId, 16);
         debug_messagen(" -> device type: ", "PCI", KERNEL_ERROR, DEVICE_PER_BUS, 10);
 
         puts("Failed to get PCI device.\n");

@@ -51,9 +51,10 @@ typedef union pci_dev {
 #define PCI_TYPE_SATA           0x0106
 #define PCI_NONE                0xFFFF
 
-
 #define DEVICE_PER_BUS           32
 #define FUNCTION_PER_DEVICE      32
+
+#define PCI_VENDOR_ID_ANY 0xFFFF
 
 
 
