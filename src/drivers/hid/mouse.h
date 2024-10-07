@@ -1,11 +1,10 @@
 #ifndef __MOUSE_H
 #define __MOUSE_H
 
-#include "types.h"
+#include "ioport.h"
 
-#define MOUSE_COMMAND_DEFAULT   0xF6
-#define MOUSE_COMMAND_ENABLE    0xF4
-
+void mouse_write(u8 command);
+u8 mouse_read();
 void mouse_init();
 
 #endif
