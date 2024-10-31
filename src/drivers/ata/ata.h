@@ -1,6 +1,8 @@
 #ifndef __ATA_H
 #define __ATA_H
 
+#include "types.h"
+
 #define ATA_SR_BSY                  0x80    // Busy
 #define ATA_SR_DRDY                 0x40    // Drive ready
 #define ATA_SR_DF                   0x20    // Drive write fault
@@ -73,5 +75,8 @@
 #define ATA_SECONDARY               0x01
 #define ATA_READ                    0x00
 #define ATA_WRITE                   0x01
+
+int ata_readSector(unsigned int drive, u32 lba, const u8* buffer);
+void ata_dumpsect(unsigned int drive, u32 lba);
 
 #endif

@@ -18,8 +18,8 @@ int hook_register(struct kernel_hook_list* list, hook_callback_t callback, unsig
     if(name == NULL)
         name = "(null)";
 
-    if(list->count < MAX_HOOKS) {
-        list->hooks[list->count].handler = handler;
+    if(list->count < HOOKS_MAX) {
+        list->hooks[list->count].callback = callback;
         list->hooks[list->count].arg = arg;
         list->hooks[list->count].name = name;
 
@@ -76,7 +76,7 @@ int hook_call(struct kernel_hook_list* list) {
         }
 
         puts("\n--> executing hook: ");
-        puts(list->hooks[i]->name);
+        puts(list->hooks[i].name);
         puts("... ");
 
         status = list->hooks[i].callback(list->hooks[i].arg);

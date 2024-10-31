@@ -2,10 +2,6 @@
 #include "ioport.h"
 #include "types.h"
 
-// =========================================================
-// ===== VGA ENTRIES
-// =========================================================
-
 u8 vga_entryColor(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
 }
@@ -14,50 +10,55 @@ u16 vga_entry(unsigned char uc, u8 color) {
 	return (u16) uc | (u16) color << 8;
 }
 
+u16 vga_cw; // VGA Character-meassured width
+u16 vga_ch; // VGA Character-meassured height
+u16 vga_pw; // VGA Pixel-meassured width
+u16 vga_ph; // VGA Pixel-meassured height
 
-// =========================================================
-// ===== VGA CURSOR
-// =========================================================
+u16 vga_glyph_width;
+u16 vga_glyph_height;
 
-/*
-u8 _cursor_start = 0;
-u8 _cursor_end = 15;
+volatile u8* vga_vmem;
 
-coords _cursor_pos;
+void vga_setVgaMode(    u16 width, u16 height, u16 glyph_width, u16 glyph_height, u32 vmem_addr) {
+//    mode->width             = width;
+//    mode->height            = height;
+//
+//    mode->vga_glyph_width   = vga_glyph_width;
+//    mode->vga_glyph_height  = vga_glyph_height;
+//
+//    mode->vmem = (volatile u8*) vmem_addr;
 
-void cursor_set(u8 start, u8 end) {
-	outportb(0x3D4, 0x0A);
-	outportb(0x3D5, (inportb(0x3D5) & 0xC0) | start);
+    vga_pw = width;
+    vga_ph = height;
+    vga_glyph_width  = glyph_width;
+    vga_glyph_height = glyph_height;
 
-	outportb(0x3D4, 0x0B);
-	outportb(0x3D5, (inportb(0x3D5) & 0xE0) | start);
+    vga_cw = vga_pw / vga_glyph_width;
+    vga_ch = vga_ph / vga_glyph_height;
 
-	_cursor_start = start;
-	_cursor_end = end;
+    vga_vmem = (volatile u8*) vmem_addr;
 }
 
-void cursor_enable() {
-	cursor_set(_cursor_start, _cursor_end);
+void vga_setVideoMode(u8 mode) {
+    asm volatile ("int $0x10" : : "a"(0x00 | mode));
 }
 
-void cursor_disable() {
-	outportb(0x3D4, 0x0A);
-	outportb(0x3D5, 0x0B);
+void vga_setTextMode() {
+    vga_setVideoMode(0x03);
 }
 
-void cursor_update(coords pos) {
-	u16 _pos = pos.y * VGA_WIDTH + pos.x;
+void vga_plot(unsigned int x, unsigned int y, u8 color) {
+    if(x > vga_pw || y > vga_ph) // OVERFLOW
+        return;
 
-	outportb(0x3D4, 0x0F);
-	outportb(0x3D5, (u8) (_pos & 0xFF));
-
-	outportb(0x3D4, 0x0E);
-	outportb(0x3D5, (u8) ((_pos >> 8) & 0xFF));
-
-	_cursor_pos = pos;
+    vga_vmem[y * vga_pw + x] = color;
 }
 
-coords cursor_get() {
-	return _cursor_pos;
-}s
-*/
+void vga_fill(u8 color) {
+    for(unsigned int iy = 0; iy < vga_ph; iy++) {
+        for(unsigned int ix = 0; ix < vga_pw; ix++) {
+            vga_plot(ix, iy, color);
+        }
+    }
+}

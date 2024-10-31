@@ -19,6 +19,13 @@
 #include "modules/interface.h"
 #include "fs/fs.h"
 #include "fs/tar.h"
+#include "ahci.h"
+#include "hid/mouse.h"
+#include "hook.h"
+
+MULTIBOOT_INFO* mboot_info;
+
+struct kernel_hook_list kmain_hooks;
 
 struct kernel_interface _kmain_rootfs;
 struct kernel_interface_callflags c;
@@ -69,24 +76,55 @@ void kmain_debug_multiboot(MULTIBOOT_INFO* mbinfo) {
     _kmain_debug_multiboot(framebuffer_type, 16);
 }
 
-void kmain(unsigned long magic, unsigned long addr) {
-    MULTIBOOT_INFO* mboot_info = (MULTIBOOT_INFO*) addr;
 
-    console_initialize();
-    kmain_init_cursor();
-
-    putc('\n');
-
-    gdt_init();
-    idt_init();
-
-    pit_init(1000);
-    
+int kmain_initperipherial(void* context) {
     kbd_init();
     kbd_enable();
 
-    serial_init();
+    return 0;
+}
 
+int kmain_cpuid(void* context) {
+    cpuid_info(0);
+}
+
+int kmain_initrd(void* context) {
+    _kmain_rootfs.name_short = "rootfs";
+    _kmain_rootfs.name_friendly = "root filesystem";
+    _kmain_rootfs.init = &kernel_rootfs_init;
+    _kmain_rootfs.deinit = &kernel_rootfs_unmount;
+    c.flags = 0;
+
+    kernel_interface_load(-1, &_kmain_rootfs);
+    kernel_interface_init(kernel_interface_findByName("rootfs"), &c);
+
+    initrd_load(mboot_info);
+
+    puts("\n");
+
+    return 0;
+}
+
+void kmain_setuphooks() {
+    kmain_hooks.name = "startup";
+    kmain_hooks.count = 0;
+
+    hook_register(&kmain_hooks, kmain_initperipherial, "peripherial init", NULL);
+    hook_register(&kmain_hooks, kmain_cpuid, "CPUID", NULL);
+    hook_register(&kmain_hooks, kmain_initrd, "initrd", NULL);
+}
+
+
+void kmain(unsigned long magic, unsigned long addr) {
+    mboot_info = (MULTIBOOT_INFO*) addr;
+
+    console_initialize();
+    kmain_init_cursor();
+    gdt_init();
+    idt_init();
+
+    pit_init(1000); 
+    serial_init();
 
     debug_setPort(COM1);
     debug_setVerbose(0);
@@ -95,8 +133,10 @@ void kmain(unsigned long magic, unsigned long addr) {
     debug_message("Debug enabled.", "Kernel main", KERNEL_MESSAGE);
     debug_message("CubeBox OS! v 0.0.1 kernel! (test)", 0, KERNEL_IMPORTANT);
 
-    cpuid_info(0);
     memory_init(mboot_info);
+
+    kmain_setuphooks();
+    hook_call(&kmain_hooks);
 
     kmain_debug_multiboot(mboot_info);
     if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
@@ -109,25 +149,15 @@ void kmain(unsigned long magic, unsigned long addr) {
         return;
     }
 
-    _kmain_rootfs.name_short = "rootfs";
-    _kmain_rootfs.name_friendly = "root filesystem";
-    _kmain_rootfs.init = &kernel_rootfs_init;
-    _kmain_rootfs.deinit = &kernel_rootfs_unmount;
-    c.flags = 0;
-
-    kernel_interface_load(-1, &_kmain_rootfs);
-    kernel_interface_init(kernel_interface_findByName("rootfs"), &c);
-
-    initrd_load(mboot_info);
-
     pci_init();
 
-    ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
+    // ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
 
     putc('\n');
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
 
-    puts(initrd_test);
+    //ahci_init();
+    mouse_init();
 
     shell();
 }

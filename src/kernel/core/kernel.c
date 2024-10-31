@@ -31,17 +31,6 @@ void __stack_chk_fail_local(void) {
     while(1);
 }
 
-void shutdown() {
-    int brand = cpuid_info(0);
-    
-    if (brand == BRAND_QEMU) {
-        outports(0x604, 0x2000);
-        return;
-    }
-    
-    outports(0x4004, 0x3400);
-}
-
 extern char* _levelsStrings[10];
 
 u8 _levelColors[10] = {
@@ -129,3 +118,4 @@ const struct multiboot_header {
     FRAMEBUFFER_HEIGHT,
     FRAMEBUFFER_BPP
 };  
+
