@@ -383,25 +383,42 @@ void keybuffer_set(unsigned char* val) {
     memset(_keyb, 0, _keyb_size);
 }
 
+void keybuffer_backspace(int pos) {
+    IGNORE_UNUSED(pos);
+    
+    // TODO: Make use of pos argument
+
+    if(_keyb_index == 0)
+        return;
+    
+    _keyb_index = _keyb_index - 1;
+    _keyb[_keyb_index] = '\0';
+
+    console_gotoxy(console_position.x - 1, console_position.y);
+    putc('\0');
+
+    return;
+}
+
 void keybuffer_append(char c) {
     if(_ignore == c)
         return;
 
     if(c == '\b') {
-        if(_keyb_index == 0)
-            return;
+//        if(_keyb_index == 0)
+//            return;
+//
+//        _keyb_index--;
+//        _keyb[_keyb_index] = '\0';
+//
+//        console_gotoxy(console_position.x - 1, console_position.y);
+//        putc(' ');
+//
+//        debug_message("Backspace insert", "keybuffer", KERNEL_MESSAGE);
+//
+//        return;
 
-        // putc('\b');
-
-        _keyb_index--;
-        _keyb[_keyb_index] = '\0';
-
-        console_gotoxy(console_position.x - 1, console_position.y);
-        putc(' ');
-
-        debug_message("Backspace insert", "keybuffer", KERNEL_MESSAGE);
-
-        return;
+        keybuffer_backspace(0);
     }
 
     if (_keyb_enable && _keyb_index < _keyb_size) {
