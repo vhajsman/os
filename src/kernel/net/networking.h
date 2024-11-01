@@ -11,6 +11,7 @@ typedef struct {
 } tx_packet_t;
 
 u16 ntohs(u16 netshort);
+#define htons ntohs
 
 void packet_init();
 
