@@ -14,4 +14,5 @@ qemu-system-x86_64                                          \
     -device intel-iommu                                     \
     -cdrom build/*.iso                                      \
     -chardev stdio,id=char0,logfile=serial.log,signal=off   \
-    -serial chardev:char0
+    -serial chardev:char0                                   \
+    -device rtl8139,netdev=n0
