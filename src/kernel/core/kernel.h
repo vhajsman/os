@@ -8,21 +8,29 @@
 #include "fs/tar.h"
 #include "modules/interface.h"
 
+#ifndef IGNORE_UNUSED
 #define IGNORE_UNUSED(X)    (void)(X)
+#endif
 
 #define BRAND_QEMU  1
 #define BRAND_VBOX  2
 
+#ifndef ALIGN
 #define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1)
 #define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
+#endif
 
 // #define PANIC(msg) panic(msg, __FILE__, __LINE__)
 
+#ifndef ASSERT
 #define ASSERT(b)
+#endif
 
 #define LOAD_MEMORY_ADDRESS 0xC0000000
 
+#ifndef NULL
 #define NULL ((void*)0)
+#endif
 
 #define TRUE 1
 #define FALSE 0

@@ -14,21 +14,21 @@ enum kernel_hook_type {
 struct kernel_hook_entry {
     // enum kernel_hook_type type;
 
-    unsigned char* name;
+    char* name;
 
     hook_callback_t callback;
     void* arg;
 };
 
 struct kernel_hook_list {
-    unsigned char* name;
+    char* name;
     
     struct kernel_hook_entry hooks[HOOKS_MAX];
     int count;
 };
 
 // Registers a new hook. Returns its index in list or -1 if not enough space.
-int hook_register(struct kernel_hook_list* list, hook_callback_t callback, unsigned char* name, void* arg);
+int hook_register(struct kernel_hook_list* list, hook_callback_t callback, char* name, void* arg);
 
 int hook_call(struct kernel_hook_list* list);
 

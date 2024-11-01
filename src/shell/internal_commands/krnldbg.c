@@ -3,10 +3,13 @@
 #include "debug.h"
 #include "string.h"
 #include "com/serial.h"
+#include "kernel.h"
 
 extern void shell_printError(char* kind, char* message, int start, int end);
 
 int __krnldbg(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc) {
+    IGNORE_UNUSED(tokc);
+    
     if(!strcmp("--insert-breakpoint\0", tokens[1])) {
         debug_breakpoint();
         return 0;

@@ -2,8 +2,8 @@
 #include "debug.h"
 #include "console.h"
 
-int hook_register(struct kernel_hook_list* list, hook_callback_t callback, unsigned char* name, void* arg) {
-    unsigned char* error_message;
+int hook_register(struct kernel_hook_list* list, hook_callback_t callback, char* name, void* arg) {
+    char* error_message;
 
     if(callback == NULL) {
         error_message = "invalid callback function";
@@ -101,4 +101,6 @@ int hook_call(struct kernel_hook_list* list) {
     debug_append(" errors in total ");
     debug_number(list->count, 10);
     debug_append(" of executed callbacks.");
+
+    return 0;
 }

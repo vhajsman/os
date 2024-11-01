@@ -102,7 +102,7 @@ struct shell_command* findCommand(char* commandName) {
     if(_registry_occupied == 0)
         return NULL;
 
-    struct shell_command* command;
+    // struct shell_command* command;
 
     for(int i = 0; i < _registry_occupied; i++) {
         if(!strcmp(commandName, commandRegistry[i]->name))

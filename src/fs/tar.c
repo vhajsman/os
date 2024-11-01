@@ -16,28 +16,6 @@ size_t _oct2dec(const char* str, size_t size) {
 
 #define tar_getsize(str) _oct2dec(str, 12)
 
-// const char* tar_findf(const char* tar_data, const char* filename) {
-//     const char *ptr = tar_data;
-// 
-//     while (*ptr) {
-//         tar_header_t* header = (tar_header_t*) ptr;
-// 
-//         if(header->name[0] == '\0')
-//             return NULL;
-// 
-//         size_t size = _oct2dec(header->size, sizeof(header->size));
-// 
-//         if (strcmp(header->name, filename) == 0) {
-//             return ptr + 512;
-//         }
-// 
-//         size_t file_blocks = (size + 511) / 512;
-//         ptr += 512 + file_blocks * 512;
-//     }
-// 
-//     return NULL;
-// }
-
 size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_t max_size) {
     const char* ptr = tar_data;
     const tar_header_t* header;
@@ -46,7 +24,7 @@ size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_
         header = (const tar_header_t*) ptr;
         size_t fsize = _oct2dec(header->size, sizeof(header->size));
         
-        if (strcmp(header->name, filename) == 0) {
+        if (strcmp(header->name, (char*) filename) == 0) {
             if (fsize <= max_size) {
                 memcpy(buffer, ptr + sizeof(tar_header_t), fsize);
                 buffer[fsize] = '\0';
@@ -117,7 +95,7 @@ struct fs_dirent* tar_readdir(fs_node_t* node, u32 index) {
 }
 
 fs_node_t* tar_finddir(fs_node_t* node, char* name) {
-    if(node->impl == NULL) {
+    if(node->impl == 0) {
         debug_message("tar_finddir(): node->impl is NULL.", "tar", KERNEL_ERROR);
         return NULL;
     }

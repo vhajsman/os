@@ -78,6 +78,8 @@ void kmain_debug_multiboot(MULTIBOOT_INFO* mbinfo) {
 
 
 int kmain_initperipherial(void* context) {
+    IGNORE_UNUSED(context);
+
     kbd_init();
     kbd_enable();
 
@@ -85,10 +87,16 @@ int kmain_initperipherial(void* context) {
 }
 
 int kmain_cpuid(void* context) {
+    IGNORE_UNUSED(context);
+
     cpuid_info(0);
+
+    return 0;
 }
 
 int kmain_initrd(void* context) {
+    IGNORE_UNUSED(context);
+
     _kmain_rootfs.name_short = "rootfs";
     _kmain_rootfs.name_friendly = "root filesystem";
     _kmain_rootfs.init = &kernel_rootfs_init;

@@ -3,6 +3,7 @@
 #include "string.h"
 #include "memory/memory.h"
 #include "console.h"
+#include "kernel.h"
 
 fs_node_t* fs_root = 0;
 
@@ -25,6 +26,9 @@ u32 fs_write(fs_node_t* node, u32 offset, u32 size, u8* buffer) {
 }
 
 void fs_open(fs_node_t* node, u8 read, u8 write) {
+    IGNORE_UNUSED(read);
+    IGNORE_UNUSED(write);
+
     // TODO: handle the access
 
     if(!node->open) {
@@ -214,7 +218,7 @@ int fs_cat(fs_node_t* node) {
     char buffer[length];
     memset(buffer, '\0', length);
 
-    if(fs_readfilen(node, buffer, length) != node->length) {
+    if(fs_readfilen(node, buffer, length) != (int) node->length) {
         debug_message("fs_cat(): read failed. filesize not equal the excepted.", "fs", KERNEL_ERROR);
         return 1;
     }

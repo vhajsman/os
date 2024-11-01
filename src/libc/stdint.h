@@ -13,20 +13,20 @@
 #define __uint_32t  unsigned int
 #define __uint_64t  unsigned long int
 
-typedef uint8_t __uint_8t;
-typedef uint16_t __uint_16t;
-typedef uint32_t __uint_32t;
-typedef uint64_t __uint_64t;
+typedef __uint_8t uint8_t;
+typedef __uint_16t uint16_t;
+typedef __uint_32t uint32_t;
+typedef __uint_64t uint64_t;
 
 #define __int_8t   signed char
 #define __int_16t  signed short
 #define __int_32t  signed int
 #define __int_64t  signed long int
 
-typedef int8_t __int_8t;
-typedef int16_t __int_16t;
-typedef int32_t __int_32t;
-typedef int64_t __int_64t;
+typedef __int_8t int8_t;
+typedef __int_16t int16_t;
+typedef __int_32t int32_t;
+typedef __int_64t int64_t;
 
 #define __size_t __uint_64t
 typedef __size_t size_t;

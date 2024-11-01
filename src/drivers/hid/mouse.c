@@ -73,6 +73,8 @@ void mouse_installEventHandler(void(*mouseEventHandler)(struct mouse_event* even
 }
 
 void mouse_irq(REGISTERS* r) {
+    IGNORE_UNUSED(r);
+    
     switch(mouse_cycle) {
         case 0:
             mouse_byte[0] = inportb(0x60);

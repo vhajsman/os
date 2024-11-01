@@ -10,7 +10,7 @@ struct xy2d console_position;
     u8* console_posx = &console_position.x;
     u8* console_posy = &console_position.y;
 
-static u16* const VGA_MEMORY = (u16*) 0xB8000;
+u16* const VGA_MEMORY = (u16*) 0xB8000;
 
 void printf(const char *format, ...) {
     char **arg = (char **)&format;

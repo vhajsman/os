@@ -21,7 +21,7 @@ void shell_displayPrompt() {
 }
 
 void shell_parse(const char* input, char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int* tokenCount) {
-    const char* start = input;
+    // const char* start = input;
     
     int inQuotes = 0;
     int tokenIndex = 0;
