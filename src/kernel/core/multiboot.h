@@ -105,4 +105,9 @@ typedef struct multiboot_module {
     u32 reserved;
 } multiboot_module_t;
 
+#ifdef __mboot_info__needed_explicite
+// ? mboot_info is defined in kmain.c
+extern MULTIBOOT_INFO* mboot_info;
+#endif
+
 #endif
