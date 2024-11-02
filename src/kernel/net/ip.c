@@ -24,7 +24,7 @@ const char* ipaddr_str(ipaddr_t* ip) {
     int pos = 0;
 
     for(int i = 0; i < 4; i++) {
-        itoa(buff[i], 10, temp);
+        itoa(temp, 10, ip->addr[i]);
         int len = strlen(temp);
 
         memcpy(buff + pos, temp, len);
