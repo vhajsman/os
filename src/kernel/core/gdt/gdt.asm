@@ -22,10 +22,13 @@ far_jump:
     ret
 
 section .data
-align 8
+    global gdt_descriptor
+    align 8
+    
 gdt_start:
-    ; Null segment (0x00)
     dq 0x0000000000000000
+    dq 0x00CF9A000000FFFF
+    dq 0x00CF92000000FFFF
 
     ; Code segment descriptor (0x08)
     dw 0xFFFF
