@@ -10,10 +10,13 @@
 fb_t framebuffer_header;
 
 void framebuffer_constructHeader(fb_t* header) {
+    if(mboot_info == NULL)
+        return;
+    
     header->addr = (u32*)     mboot_info->framebuffer_addr;
     header->width =           mboot_info->framebuffer_width;
     header->height =          mboot_info->framebuffer_height;
-    header->bytes_per_pixel = (mboot_info->framebuffer_bpp - 1) / 8; // idk why, but bpp from multiboot is somehow incremented by 1
+    header->bytes_per_pixel = (mboot_info->framebuffer_bpp) / 8; // idk why, but bpp from multiboot is somehow incremented by 1
     header->pitch =           mboot_info->framebuffer_pitch == 0 ? header->width * (header->bytes_per_pixel / 8) : mboot_info->framebuffer_pitch;
 
     header->length = header->width * header->height;
