@@ -30,3 +30,9 @@ sh ./script/initrd.sh
 sh ./script/imggen.sh
 
 echo "DONE!"
+
+
+# rm -rf build/*
+# 
+# cmake .
+# make
