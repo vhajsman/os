@@ -22,6 +22,7 @@
 #include "ahci.h"
 #include "hid/mouse.h"
 #include "hook.h"
+#include "video/fb.h"
 
 MULTIBOOT_INFO* mboot_info;
 
@@ -166,6 +167,8 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     //ahci_init();
     mouse_init();
+
+    framebuffer_init();
 
     shell();
 }
