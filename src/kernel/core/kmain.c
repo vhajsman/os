@@ -168,7 +168,7 @@ void kmain(unsigned long magic, unsigned long addr) {
     //ahci_init();
     mouse_init();
 
-    framebuffer_init();
+    //framebuffer_init();
 
     shell();
 }
