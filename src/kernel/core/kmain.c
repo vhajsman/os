@@ -23,6 +23,7 @@
 #include "hid/mouse.h"
 #include "hook.h"
 #include "video/fb.h"
+#include "time/rtc.h"
 
 MULTIBOOT_INFO* mboot_info;
 
@@ -83,6 +84,8 @@ int kmain_initperipherial(void* context) {
 
     kbd_init();
     kbd_enable();
+
+    rtc_init();
 
     return 0;
 }
