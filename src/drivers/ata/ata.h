@@ -76,7 +76,10 @@
 #define ATA_READ                    0x00
 #define ATA_WRITE                   0x01
 
-int ata_readSector(unsigned int drive, u32 lba, const u8* buffer);
-void ata_dumpsect(unsigned int drive, u32 lba);
+int ata_readSector(u8 drive, u32 lba, char* buffer);
+
+#define ATAPI_CMD_READ              0xA8;
+
+int atapi_readSector(u8 drive, u32 lba, char* buffer);
 
 #endif
