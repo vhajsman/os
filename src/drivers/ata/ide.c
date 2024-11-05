@@ -4,6 +4,9 @@
 #include "ata.h"
 #include "debug.h"
 #include "time/timer.h"
+#include "irq/isr.h"
+#include "irq/irqdef.h"
+#include "kernel.h"
 
 struct ide_channelRegisters ide_channels[2];
 struct ide_device ide_devices[4];
@@ -11,6 +14,9 @@ struct ide_device ide_devices[4];
 u8 ide_buf[2048] = {0};
 static volatile u8 ide_irq_invoked = 0;
 static u8 atapi_packet[12] = {0xA8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+void ide_irq(REGISTERS* r);
+void ide_irqwait();
 
 u8 ide_read(u8 channel, u8 reg) {
     u8 result;
@@ -230,4 +236,16 @@ void ide_init(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, unsigned 
 
     ide_init_detect();
     ide_init_debugsummary();
+
+    isr_registerInterruptHandler(IRQ14_HARD_DISK, ide_irq);
+}
+
+void ide_irqwait() {
+    while(!ide_irq_invoked);
+    ide_irq_invoked = 0;
+}
+
+void ide_irq(REGISTERS* r) {
+    IGNORE_UNUSED(r);
+    ide_irq_invoked = 1;
 }
