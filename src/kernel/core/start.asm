@@ -53,6 +53,18 @@ section .text
     global MAGIC_HEADER
     global BOOTLOADER_MAGIC
 
+    mov ax, 0x0003
+    int 0x10
+
+    mov dx, 0x3D4
+    mov al, 0x09
+    out dx, al
+    inc dx
+    in al, dx
+    and al, 0xE0
+    or al, 0x00
+    out dx, al
+
     _start:
         extern kmain
         extern kernel_exit
