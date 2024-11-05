@@ -67,6 +67,30 @@ void fncache_free(struct CacheFn* cache) {
 }
 
 void* fncache_call(struct CacheFn* cache, void* (*func)(size_t*, va_list), size_t* result_size, int argc, ...) {
+    /*
+        Function execution diagram:
+
+        +-----------------------+
+        | Search function cache |
+        +-----------------------+
+                      |
+                      | Found?     No
+                      +----------------------+
+                Yes   |                      |
+                      |                      |
+            +----------------------+ +--------------+
+            | Return cached result | | Run function |
+            +----------------------+ +--------------+
+                                        |
+                                Results |        +---------------+
+                                        +------- | Save to cache |
+                                        |        +---------------+
+                                        |
+                                        |        +---------------+
+                                        +------- | Return result |
+                                                 +---------------+
+    */
+   
     if(cache == NULL || func == NULL)
         return NULL;
 
@@ -137,22 +161,21 @@ void* fncache_call(struct CacheFn* cache, void* (*func)(size_t*, va_list), size_
     va_end(args_copy);
 
     if(cache->count < cache->cache_size) {
-        cache->entries[cache->count].hash = hash;
-        cache->entries[cache->count].result_size = *result_size;
-
         cache->entries[cache->count].result = malloc(*result_size);
         if(cache->entries[cache->count].result == NULL) {
-            return result;
+            // Not enough memory to save to cache, but function was ran successfully
+            return result; // (Returns the result anyways)
         }
-        
+
         memcpy(cache->entries[cache->count].result, result, *result_size);
 
+        cache->entries[cache->count].hash = hash;
+        cache->entries[cache->count].result_size = *result_size;
         cache->entries[cache->count].args = arguments;
         cache->entries[cache->count].argc = argc;
         cache->entries[cache->count].cached = 1;
         
         cache->count++;
-        
         return result;
     }
 
