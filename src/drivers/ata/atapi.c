@@ -1,9 +1,6 @@
 #include "ata.h"
 #include "ide.h"
 
-extern int ide_irq_invoked; // ide.c
-extern void ide_irqwait();
-
 u8 ide_atapi_read(u8 drive, u32 lba, u8 numsects, u16 selector, u32 edi) {
     u32 channel     = ide_devices[drive].channel;
     u32 slavebit    = ide_devices[drive].drive;

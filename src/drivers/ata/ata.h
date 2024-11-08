@@ -67,6 +67,7 @@
 
 #define IDE_ATA                     0x00
 #define IDE_ATAPI                   0x01
+#define IDE_UNKNOWN                 0xAF
 
 #define ATA_MASTER                  0x00
 #define ATA_SLAVE                   0x01

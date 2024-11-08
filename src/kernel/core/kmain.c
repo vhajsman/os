@@ -24,6 +24,7 @@
 #include "hook.h"
 #include "video/fb.h"
 #include "time/rtc.h"
+#include "floppy.h"
 
 MULTIBOOT_INFO* mboot_info;
 
@@ -163,7 +164,8 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     pci_init();
 
-    // ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
+    ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
+    floppy_init();
 
     putc('\n');
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");

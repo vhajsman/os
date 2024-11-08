@@ -4,8 +4,6 @@
 #include "types.h"
 #include "ioport.h"
 
-extern int ide_irq_invoked; // ide.c
-
 bool checkDriverLbaSupport(u8 drive) {
     return ide_devices[drive].capabilities & 0x0200;
 }

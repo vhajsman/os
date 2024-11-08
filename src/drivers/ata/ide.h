@@ -27,8 +27,12 @@ extern struct ide_device ide_devices[4];
 
 u8 ide_read(u8 channel, u8 reg);
 void ide_write(u8 channel, u8 reg, u8 data);
-void ide_readbuffer(u8 channel, u8 reg, unsigned int buffer, unsigned int quads);
+void ide_readbuffer(u8 channel, u8 reg, u32* buffer, unsigned int quads);
 u8 ide_polling(u8 channel, unsigned int advanced_check);
 void ide_init(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, unsigned int BAR3, unsigned int BAR4);
+
+
+extern volatile u8 ide_irq_invoked; // ide.c
+extern void ide_irqwait();
 
 #endif
