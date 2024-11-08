@@ -4,10 +4,17 @@
 #include "types.h"
 
 #define VGA_ADDRESS         0xB8000
+#define VGA_GFXCTRL_ADDRESS 0xA0000
 #define VGA_TOTAL_ITEMS     2200
 
 #define VGA_WIDTH           80
 #define VGA_HEIGHT          24
+
+// #define VGA_SEQ_INDEX       0x3C4
+// #define VGA_SEQ_DATA        0x3C5
+// #define VGA_GC_INDEX        0x3CE
+// #define VGA_GC_DATA         0x3CF
+
 
 extern u16 vga_cw; // VGA Character-meassured width
 extern u16 vga_ch; // VGA Character-meassured height
@@ -197,5 +204,20 @@ extern void cursor_locate(coords* pos);
 // 
 //     volatile u8* vmem;
 // };
+
+
+// ===========================================================================================================================================================================
+// ===== CHARACTER SETS, FONTS
+// ===========================================================================================================================================================================
+//
+
+#define VGA_CHARSET_LENGTH              256
+#define VGA_CHARSET_BANK_SIZE           1024
+
+typedef struct _vga_charset_bank {
+    u8* data;
+} vga_charset_bank;
+
+
 
 #endif

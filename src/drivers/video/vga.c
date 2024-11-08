@@ -1,6 +1,8 @@
 #include "video/vga.h"
 #include "ioport.h"
 #include "types.h"
+#include "memory/memory.h"
+#include "linkedlist.h"
 
 u8 vga_entryColor(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
@@ -61,4 +63,84 @@ void vga_fill(u8 color) {
             vga_plot(ix, iy, color);
         }
     }
+}
+
+
+// ===========================================================================================================================================================================
+// ===== LOW-LEVEL IO
+// ===========================================================================================================================================================================
+//
+
+void vga_writeReg(u16 port, u8 idx, u8 value) {
+    outportb(port, idx);
+    outportb(port + 1, value);
+}
+
+// ===========================================================================================================================================================================
+// ===== CHARACTER SETS, FONTS
+// ===========================================================================================================================================================================
+//
+
+void vga_charset_load(u8* charset, u16 bank) {
+    vga_writeReg(VGA_SEQ_INDEX, 0x02, 0x04);
+    vga_writeReg(VGA_SEQ_INDEX, 0x04, 0x07);
+    vga_writeReg(VGA_GC_INDEX,  0x04, 0x02);
+    vga_writeReg(VGA_GC_INDEX,  0x05, 0x00);
+
+    u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS + bank * 4096;
+
+    for(int i = 0; i < VGA_CHARSET_LENGTH * 16; i++) 
+        fontmem[i] = charset[i];
+    
+    vga_writeReg(VGA_SEQ_INDEX, 0x02, 0x03);
+    vga_writeReg(VGA_SEQ_INDEX, 0x04, 0x03);
+    vga_writeReg(VGA_GC_INDEX,  0x04, 0x00);
+}
+
+void vga_charset_read(u8* charset, u16 bank) {
+    vga_writeReg(VGA_SEQ_INDEX, 0x04, 0x02);
+    vga_writeReg(VGA_GC_INDEX,  0x05, 0x00);
+
+    u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS + bank * 4096;
+
+    for(int i = 0; i < VGA_CHARSET_LENGTH * 16; i++)
+        charset[i] = fontmem[i];
+}
+
+vga_charset_bank* vga_charset_createBank() {
+    vga_charset_bank* nbank = (vga_charset_bank*) malloc(sizeof(vga_charset_bank));
+    if(nbank == NULL)
+        return NULL;
+    
+    nbank->data = (u8*) malloc(VGA_CHARSET_BANK_SIZE);
+    if(nbank->data == NULL) {
+        free(nbank);
+        return NULL;
+    }
+
+    return nbank;
+}
+
+void vga_charset_import(vga_charset_bank* bank, u8* charset) {
+    if(bank == NULL || bank->data == NULL)
+        return;
+    
+    for(int i = 0; i < VGA_CHARSET_BANK_SIZE; i++)
+        bank->data[i] = charset[i];
+}
+
+void vga_charset_addBankToList(linkedlist_t* list, vga_charset_bank* bank) {
+    linkedlist_push(list, (void*) bank);
+}
+
+void vga_charset_removeBankFromList(linkedlist_t* list, vga_charset_bank* bank) {
+    linkedlist_removeNode(list, (linkedlist_node_t*) bank);
+}
+
+void vga_charset_loadFromBank(vga_charset_bank* bank) {
+
+}
+
+void vga_charset_selectBank(u8 bank) {
+    vga_writeReg(VGA_SEQ_INDEX, 0x03, bank & 0x03);
 }
