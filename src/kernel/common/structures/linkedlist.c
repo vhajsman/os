@@ -210,26 +210,26 @@ void linkedlist_node_debug(linkedlist_node_t* node, int idx, const char* prefix)
     }
 
     debug_append("ADDRESS ");
-    debug_number(node, 16);
+    debug_number((int) node, 16);
 
     debug_append(", HEX: ");
-    debug_number(node->val, 16);
+    debug_number((int) node->val, 16);
 
     debug_append(", DEC: ");
-    debug_number(node->val, 10);
+    debug_number((int) node->val, 10);
 
     debug_append(" ( previous node: ");
     if(node->prev == NULL) {
         debug_append("NULL");
     } else {
-        debug_number(node->prev, 16);
+        debug_number((int) node->prev, 16);
     }
 
     debug_append(", next node: ");
     if(node->prev == NULL) {
         debug_append("NULL");
     } else {
-        debug_number(node->next, 16);
+        debug_number((int) node->next, 16);
     }
 
     debug_append(")");
@@ -241,7 +241,7 @@ void linkedlist_debug(linkedlist_t* list) {
     unsigned int len = linkedlist_size(list);
 
     debug_message("list length:       ", "linkedlist", KERNEL_MESSAGE);  debug_number(len, 10);
-    debug_message("list base pointer: ", "linkedlist", KERNEL_MESSAGE);  debug_number(list, 16);
+    debug_message("list base pointer: ", "linkedlist", KERNEL_MESSAGE);  debug_number((int) list, 16);
     
     if(len == 0) {
         debug_message("list contains no elements.", "linkedlist", KERNEL_MESSAGE);
