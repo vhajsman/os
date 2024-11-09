@@ -3,6 +3,7 @@
 #include "types.h"
 #include "memory/memory.h"
 #include "linkedlist.h"
+#include "string.h"
 
 u8 vga_entryColor(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
@@ -81,66 +82,76 @@ void vga_writeReg(u16 port, u8 idx, u8 value) {
 // ===========================================================================================================================================================================
 //
 
-void vga_charset_load(u8* charset, u16 bank) {
-    vga_writeReg(VGA_SEQ_INDEX, 0x02, 0x04);
-    vga_writeReg(VGA_SEQ_INDEX, 0x04, 0x07);
-    vga_writeReg(VGA_GC_INDEX,  0x04, 0x02);
-    vga_writeReg(VGA_GC_INDEX,  0x05, 0x00);
+linkedlist_t* vga_charset_list;
 
-    u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS + bank * 4096;
-
-    for(int i = 0; i < VGA_CHARSET_LENGTH * 16; i++) 
-        fontmem[i] = charset[i];
+int vga_charset_import(vga_charset_t* charset, unsigned int idx) {
+    if(charset == NULL)
+        return -1;
     
-    vga_writeReg(VGA_SEQ_INDEX, 0x02, 0x03);
-    vga_writeReg(VGA_SEQ_INDEX, 0x04, 0x03);
-    vga_writeReg(VGA_GC_INDEX,  0x04, 0x00);
-}
-
-void vga_charset_read(u8* charset, u16 bank) {
-    vga_writeReg(VGA_SEQ_INDEX, 0x04, 0x02);
-    vga_writeReg(VGA_GC_INDEX,  0x05, 0x00);
-
-    u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS + bank * 4096;
-
-    for(int i = 0; i < VGA_CHARSET_LENGTH * 16; i++)
-        charset[i] = fontmem[i];
-}
-
-vga_charset_bank* vga_charset_createBank() {
-    vga_charset_bank* nbank = (vga_charset_bank*) malloc(sizeof(vga_charset_bank));
-    if(nbank == NULL)
-        return NULL;
-    
-    nbank->data = (u8*) malloc(VGA_CHARSET_BANK_SIZE);
-    if(nbank->data == NULL) {
-        free(nbank);
-        return NULL;
+    if(idx < 0) {
+        linkedlist_insertFront(vga_charset_list, (vga_charset_t*) charset);
+        return linkedlist_size(vga_charset_list) - 1;
     }
 
-    return nbank;
+    linkedlist_node_t* node = linkedlist_getNodeByIndex(vga_charset_list, idx);
+    if(node == NULL /*|| (node->next == NULL && node->prev == NULL)*/)
+        return -2;
+
+    node->val = (vga_charset_t*) charset;
+    return 0;
 }
 
-void vga_charset_import(vga_charset_bank* bank, u8* charset) {
-    if(bank == NULL || bank->data == NULL)
+void vga_charset_export(vga_charset_t* charset, unsigned int idx) {
+    if(charset == NULL)
         return;
     
-    for(int i = 0; i < VGA_CHARSET_BANK_SIZE; i++)
-        bank->data[i] = charset[i];
+    const linkedlist_node_t* node = linkedlist_getNodeByIndex(vga_charset_list, idx);
+    if(linkedlist_size(vga_charset_list) < idx || node->val == NULL) {
+        charset = NULL;
+        return;
+    }
+
+    memcpy((vga_charset_t*) charset, node->val, sizeof(vga_charset_t));
 }
 
-void vga_charset_addBankToList(linkedlist_t* list, vga_charset_bank* bank) {
-    linkedlist_push(list, (void*) bank);
+void vga_charset_write(unsigned int charset_idx) {
+    vga_charset_t* cs = (vga_charset_t*) malloc(sizeof(vga_charset_t));
+    if(cs == NULL)
+        return;
+    
+    vga_charset_export(cs, charset_idx);
+    if(cs == NULL) {
+        free(cs);
+        return;
+    }
+    
+    u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS;
+    memcpy(fontmem, cs->glpyhs, sizeof(cs->glpyhs));
+
+    free(cs);
 }
 
-void vga_charset_removeBankFromList(linkedlist_t* list, vga_charset_bank* bank) {
-    linkedlist_removeNode(list, (linkedlist_node_t*) bank);
+void vga_charset_read(vga_charset_t* charset) {
+    if(charset == NULL)
+        return;
+    
+    u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS;
+    memcpy(charset->glpyhs, fontmem, sizeof(charset->glpyhs));
 }
 
-void vga_charset_loadFromBank(vga_charset_bank* bank) {
+// ===========================================================================================================================================================================
+// ===== INIT
+// ===========================================================================================================================================================================
+//
 
-}
+void vga_init() {
+    vga_charset_list = linkedlist_create();
+    
+    vga_charset_t* cs = (vga_charset_t*) malloc(sizeof(vga_charset_t));
+    if(cs != NULL) {
+        vga_charset_read(cs);
+        vga_charset_import(cs, 0);
+    }
 
-void vga_charset_selectBank(u8 bank) {
-    vga_writeReg(VGA_SEQ_INDEX, 0x03, bank & 0x03);
+    linkedlist_debug(vga_charset_list);
 }

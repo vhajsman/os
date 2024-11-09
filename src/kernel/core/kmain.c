@@ -23,6 +23,7 @@
 #include "hid/mouse.h"
 #include "hook.h"
 #include "video/fb.h"
+#include "video/vga.h"
 #include "time/rtc.h"
 #include "floppy.h"
 
@@ -161,6 +162,8 @@ void kmain(unsigned long magic, unsigned long addr) {
 
         return;
     }
+
+    vga_init();
 
     pci_init();
 

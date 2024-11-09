@@ -2,6 +2,7 @@
 #define __VGA_H
 
 #include "types.h"
+#include "linkedlist.h"
 
 #define VGA_ADDRESS         0xB8000
 #define VGA_GFXCTRL_ADDRESS 0xA0000
@@ -9,6 +10,9 @@
 
 #define VGA_WIDTH           80
 #define VGA_HEIGHT          24
+
+#define VGA_GLYPH_HEIGHT    16
+#define VGA_GLYPH_WIDTH     8
 
 // #define VGA_SEQ_INDEX       0x3C4
 // #define VGA_SEQ_DATA        0x3C5
@@ -23,6 +27,8 @@ extern u16 vga_ph; // VGA Pixel-meassured height
 
 extern u16 vga_glyph_width;
 extern u16 vga_glyph_height;
+
+void vga_init();
 
 
 // | Register name	                port	index	mode 3h (80x25 text mode)	mode 12h (640x480 planar 16 color mode)	mode 13h (320x200 linear 256-color mode)	mode X (320x240 planar 256 color mode)
@@ -212,12 +218,19 @@ extern void cursor_locate(coords* pos);
 //
 
 #define VGA_CHARSET_LENGTH              256
-#define VGA_CHARSET_BANK_SIZE           1024
 
-typedef struct _vga_charset_bank {
-    u8* data;
-} vga_charset_bank;
+typedef struct {
+    u8 glpyhs[VGA_CHARSET_LENGTH][VGA_GLYPH_HEIGHT];
+} vga_charset_t;
 
+#ifdef __vga_charset_list__explicite_request
+    extern linkedlist_t* vga_charset_list;
+#endif
 
+int vga_charset_import(vga_charset_t* charset, unsigned int idx);
+void vga_charset_export(vga_charset_t* charset, unsigned int idx);
+
+void vga_charset_write(unsigned int charset_idx);
+void vga_charset_read(vga_charset_t* charset);
 
 #endif
