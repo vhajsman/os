@@ -45,4 +45,7 @@ int linkedlist_contain(linkedlist_t* list, void* val);
 linkedlist_node_t* linkedlist_getNodeByIndex(linkedlist_t* list, u32 index);
 void* linkedlist_removeByIndex(linkedlist_t* list, int index);
 
+void linkedlist_node_debug(linkedlist_node_t* node, int idx, const char* prefix);
+void linkedlist_debug(linkedlist_t* list);
+
 #endif

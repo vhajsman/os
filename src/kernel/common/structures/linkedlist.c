@@ -1,6 +1,8 @@
 #include "linkedlist.h"
 #include "memory/memory.h"
 #include "kernel.h"
+#include "string.h"
+#include "debug.h"
 
 #define list_size linkedlist_size
 
@@ -186,6 +188,71 @@ void linkedlist_destroy(linkedlist_t* list) {
 	free(list);
 }
 
-void linkedlist_destroyNode(linkedlist_node_t * node) {
+void linkedlist_destroyNode(linkedlist_node_t* node) {
 	free(node);
+}
+
+void linkedlist_node_debug(linkedlist_node_t* node, int idx, const char* prefix) {
+    debug_message("", "linkedlist", KERNEL_MESSAGE);
+    
+    if(prefix != NULL)
+        debug_append(prefix);
+    
+    if(idx > 0) {
+        debug_append("[at ");
+        debug_number(idx, 10);
+        debug_append("] ");
+    }
+
+    if(node == NULL) {
+        debug_append("node is null");
+        return;
+    }
+
+    debug_append("ADDRESS ");
+    debug_number(node, 16);
+
+    debug_append(", HEX: ");
+    debug_number(node->val, 16);
+
+    debug_append(", DEC: ");
+    debug_number(node->val, 10);
+
+    debug_append(" ( previous node: ");
+    if(node->prev == NULL) {
+        debug_append("NULL");
+    } else {
+        debug_number(node->prev, 16);
+    }
+
+    debug_append(", next node: ");
+    if(node->prev == NULL) {
+        debug_append("NULL");
+    } else {
+        debug_number(node->next, 16);
+    }
+
+    debug_append(")");
+}
+
+void linkedlist_debug(linkedlist_t* list) {
+    debug_message("--- BEGIN LINKED LIST DEBUG DUMP ---", "linkedlist", KERNEL_MESSAGE);
+
+    unsigned int len = linkedlist_size(list);
+
+    debug_message("list length:       ", "linkedlist", KERNEL_MESSAGE);  debug_number(len, 10);
+    debug_message("list base pointer: ", "linkedlist", KERNEL_MESSAGE);  debug_number(list, 16);
+    
+    if(len == 0) {
+        debug_message("list contains no elements.", "linkedlist", KERNEL_MESSAGE);
+        goto endm;
+    }
+
+    for(unsigned int i = 0; i < len; i++)
+        linkedlist_node_debug(linkedlist_getNodeByIndex(list, i), i, " --> ");
+
+endm:
+    debug_message("--- END LINKED LIST DEBUG DUMP ---", "linkedlist", KERNEL_MESSAGE);;
+    return;
+
 }
