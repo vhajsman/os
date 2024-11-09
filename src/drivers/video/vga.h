@@ -233,4 +233,6 @@ void vga_charset_export(vga_charset_t* charset, unsigned int idx);
 void vga_charset_write(unsigned int charset_idx);
 void vga_charset_read(vga_charset_t* charset);
 
+unsigned int vga_charset_what();
+
 #endif
