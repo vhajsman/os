@@ -8,6 +8,12 @@
 
 linkedlist_t* linkedlist_create() {
     linkedlist_t* list = malloc(sizeof(linkedlist_t));
+
+    list->head = NULL;
+    list->tail = NULL;
+
+    list->size = 0;
+
     return list;
 }
 
@@ -198,7 +204,7 @@ void linkedlist_node_debug(linkedlist_node_t* node, int idx, const char* prefix)
     if(prefix != NULL)
         debug_append(prefix);
     
-    if(idx > 0) {
+    if(idx >= 0) {
         debug_append("[at ");
         debug_number(idx, 10);
         debug_append("] ");
@@ -238,18 +244,25 @@ void linkedlist_node_debug(linkedlist_node_t* node, int idx, const char* prefix)
 void linkedlist_debug(linkedlist_t* list) {
     debug_message("--- BEGIN LINKED LIST DEBUG DUMP ---", "linkedlist", KERNEL_MESSAGE);
 
-    unsigned int len = linkedlist_size(list);
+    // unsigned int len = linkedlist_size(list);
 
-    debug_message("list length:       ", "linkedlist", KERNEL_MESSAGE);  debug_number(len, 10);
+    debug_message("list length:       ", "linkedlist", KERNEL_MESSAGE);  debug_number(list->size, 10);
     debug_message("list base pointer: ", "linkedlist", KERNEL_MESSAGE);  debug_number((int) list, 16);
     
-    if(len == 0) {
+    if(list->size == 0) {
         debug_message("list contains no elements.", "linkedlist", KERNEL_MESSAGE);
         goto endm;
     }
 
-    for(unsigned int i = 0; i < len; i++)
-        linkedlist_node_debug(linkedlist_getNodeByIndex(list, i), i, " --> ");
+    for(unsigned int i = 0; i < list->size; i++) {
+        linkedlist_node_t* node = linkedlist_getNodeByIndex(list, i);
+
+        linkedlist_node_debug(node, i, " --> ");
+        
+        if(node->val == NULL || node->next->val == NULL)
+            break;
+
+    }
 
 endm:
     debug_message("--- END LINKED LIST DEBUG DUMP ---", "linkedlist", KERNEL_MESSAGE);;
