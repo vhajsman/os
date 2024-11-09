@@ -4,6 +4,8 @@
 #include "memory/memory.h"
 #include "linkedlist.h"
 #include "string.h"
+#include "console.h"
+#include "chunk.h"
 
 u8 vga_entryColor(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
@@ -137,6 +139,16 @@ void vga_charset_read(vga_charset_t* charset) {
     
     u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS;
     memcpy(charset->glpyhs, fontmem, sizeof(charset->glpyhs));
+}
+
+void vga_putqchar(qchar qc) {
+    int chunk;
+    int chunk_idx;
+
+    chunk_findchild(VGA_CHARSET_LENGTH, qc, &chunk, &chunk_idx);
+
+    vga_charset_write(chunk);
+    putc((char) chunk_idx);
 }
 
 // ===========================================================================================================================================================================
