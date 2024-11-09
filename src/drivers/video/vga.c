@@ -85,6 +85,7 @@ void vga_writeReg(u16 port, u8 idx, u8 value) {
 //
 
 linkedlist_t* vga_charset_list;
+unsigned int vga_charset_current = 0;
 
 int vga_charset_import(vga_charset_t* charset, unsigned int idx) {
     if(charset == NULL)
@@ -117,6 +118,10 @@ void vga_charset_export(vga_charset_t* charset, unsigned int idx) {
 }
 
 void vga_charset_write(unsigned int charset_idx) {
+    // Prevent from uselessly overwriting the charset on the VGA driver chip memory
+    if(vga_charset_what() == charset_idx)
+        return;
+
     vga_charset_t* cs = (vga_charset_t*) malloc(sizeof(vga_charset_t));
     if(cs == NULL)
         return;
@@ -131,6 +136,8 @@ void vga_charset_write(unsigned int charset_idx) {
     memcpy(fontmem, cs->glpyhs, sizeof(cs->glpyhs));
 
     free(cs);
+
+    vga_charset_current = charset_idx;
 }
 
 void vga_charset_read(vga_charset_t* charset) {
@@ -139,6 +146,10 @@ void vga_charset_read(vga_charset_t* charset) {
     
     u8* fontmem = (u8*) VGA_GFXCTRL_ADDRESS;
     memcpy(charset->glpyhs, fontmem, sizeof(charset->glpyhs));
+}
+
+unsigned int vga_charset_what() {
+    return vga_charset_current;
 }
 
 void vga_putqchar(qchar qc) {
@@ -158,6 +169,7 @@ void vga_putqchar(qchar qc) {
 
 void vga_init() {
     vga_charset_list = linkedlist_create();
+    vga_charset_current = 0;
     
     vga_charset_t* cs = (vga_charset_t*) malloc(sizeof(vga_charset_t));
     if(cs != NULL) {
