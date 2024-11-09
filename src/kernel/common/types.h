@@ -42,4 +42,8 @@ typedef enum {
     #define false 0
 #endif
 
+typedef unsigned short      wchar;
+typedef unsigned int        dchar;
+typedef unsigned long int   qchar;
+
 #endif
