@@ -18,7 +18,7 @@
 
 bool _kernel_exitOk = 0;
 
-#define STACK_CHK_GUARD 0xe2dee396
+#include "stack.h"
 u32 __stack_chk_guard = STACK_CHK_GUARD;
 
 __attribute__((noreturn))
