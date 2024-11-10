@@ -53,20 +53,20 @@ void vga_setTextMode() {
     vga_setVideoMode(0x03);
 }
 
-void vga_plot(unsigned int x, unsigned int y, u8 color) {
-    if(x > vga_pw || y > vga_ph) // OVERFLOW
-        return;
-
-    vga_vmem[y * vga_pw + x] = color;
-}
-
-void vga_fill(u8 color) {
-    for(unsigned int iy = 0; iy < vga_ph; iy++) {
-        for(unsigned int ix = 0; ix < vga_pw; ix++) {
-            vga_plot(ix, iy, color);
-        }
-    }
-}
+// void vga_plot(unsigned int x, unsigned int y, u8 color) {
+//     if(x > vga_pw || y > vga_ph) // OVERFLOW
+//         return;
+// 
+//     vga_vmem[y * vga_pw + x] = color;
+// }
+// 
+// void vga_fill(u8 color) {
+//     for(unsigned int iy = 0; iy < vga_ph; iy++) {
+//         for(unsigned int ix = 0; ix < vga_pw; ix++) {
+//             vga_plot(ix, iy, color);
+//         }
+//     }
+// }
 
 
 // ===========================================================================================================================================================================
@@ -162,12 +162,61 @@ void vga_putqchar(qchar qc) {
     putc((char) chunk_idx);
 }
 
+
+// ===========================================================================================================================================================================
+// ===== GRAPHICS
+// ===========================================================================================================================================================================
+//
+
+unsigned char* vga = (unsigned char*) VGA_GFXMEM;
+
+void vga_pallete_setColor(int idx, u8 r, u8 g, u8 b) {
+    outportb(VGA_PALLETE_IDX, idx);
+    outportb(VGA_PALLETE_COLOR, r / 4);
+    outportb(VGA_PALLETE_COLOR, g / 4);
+    outportb(VGA_PALLETE_COLOR, b / 4);
+}
+
+void vga_plot(unsigned int x, unsigned int y, u8 color) {
+    // unsigned offset = y * 320 + x;
+    // vga[offset] = color;
+
+    unsigned int offset = y * 320 + x;
+    *((unsigned char*) VGA_GFXMEM + offset) = color;
+}
+
+void vga_square(unsigned int x, unsigned int y, unsigned int a, u8 color) {
+    for(int i = 0; i < a; i++) {
+        for(int ii = 0; ii < a; ii++) {
+            vga_plot(x + i, y + ii, color);
+        }
+    }
+}
+
+void vga_fill(u8 color) {
+    for(unsigned int i = 0; i < 320 * 200; i++) {
+        vga[i] = color;
+    }
+}
+
 // ===========================================================================================================================================================================
 // ===== INIT
 // ===========================================================================================================================================================================
 //
 
 void vga_init() {
+    outportb(0x3C2, 0x63);
+    outportb(0x3D4, 0x0C);
+    outportb(0x3D5, 0x00);
+    outportb(0x3D4, 0x0D);
+    outportb(0x3D5, 0x00);
+
+    vga_pallete_setColor(0, 0, 0, 0);
+    vga_pallete_setColor(1, 63, 0, 0);
+    vga_pallete_setColor(2, 0, 63, 0);
+    vga_pallete_setColor(3, 0, 0, 63);
+    vga_pallete_setColor(4, 63, 63, 63);
+
     vga_charset_list = linkedlist_create();
     vga_charset_current = 0;
     
@@ -178,4 +227,6 @@ void vga_init() {
     }
 
     linkedlist_debug(vga_charset_list);
+
+    //vga_square(20, 20, 40, 1);
 }
