@@ -12,7 +12,7 @@ VIDEO           equ  1<<11
 VIDEO_FRAMEBUF  equ  1<<12
 MAGIC_HEADER    equ  0x1BADB002
 
-FLAGS           equ  MEMINFO | BOOTDEVICE | CMDLINE | MODULECOUNT | SYMT | MEMMAP | DRIVE | CONFIGT | BOOTLDNAME | VIDEO_FRAMEBUF
+FLAGS           equ  MEMINFO | BOOTDEVICE | CMDLINE | MODULECOUNT | SYMT | MEMMAP | DRIVE | CONFIGT | BOOTLDNAME | VIDEO | VIDEO_FRAMEBUF
 CHECKSUM        equ -(MAGIC_HEADER + FLAGS)
 
 VM_BASE         equ 0xC0000000
@@ -53,7 +53,10 @@ section .text
     global MAGIC_HEADER
     global BOOTLOADER_MAGIC
 
-    mov ax, 0x0003
+    ; mov ax, 0x0003
+    ; int 0x10
+
+    mov ax, 0x13
     int 0x10
 
     mov dx, 0x3D4

@@ -1,4 +1,5 @@
 #include "gdt.h"
+#include "tss.h"
 
 GDT g_gdt[NO_GDT_DESCRIPTORS];
 GDT_PTR g_gdt_ptr;
@@ -29,5 +30,10 @@ void gdt_init() {
     gdt_setEntry(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);    // user code segment
     gdt_setEntry(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);    // user data segment
 
+    gdt_setEntry(5, (u32)  &kernel_tss, sizeof(kernel_tss) - 1, 0x89, 0x40);
+
     gdt_load((u32) &g_gdt_ptr);
+
+    tss_init();
+    tss_load();
 }

@@ -163,8 +163,6 @@ void kmain(unsigned long magic, unsigned long addr) {
         return;
     }
 
-    vga_init();
-
     pci_init();
 
     ide_init(0x1f0, 0x3f6, 0x170, 0x376, 0xf0);
