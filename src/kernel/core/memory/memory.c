@@ -13,6 +13,8 @@ u8* memory_start;
 u32 memory_size;
 u32 memory_blockCount;
 
+size_t memory_used = 0;
+
 void memory_init(MULTIBOOT_INFO* mboot_info) {
     // _mem_low = mboot_info->mem_low;
     // _mem_high = mboot_info->mem_high;
@@ -303,6 +305,8 @@ void *malloc(u32 size) {
 
         ptr = (void*)(trailingSize + 1);
 
+        memory_size += blockSize;
+
         if(rest < 8 + OVERHEAD) 
             goto noSplit;
             
@@ -360,6 +364,8 @@ noSplit:
         struct memory_block* ret = ksbrk(realsize);
         
         ASSERT(ret != NULL && "Heap is running out of space\n");
+
+        memory_used += realsize;
         
         if(!head) 
             head = ret;
@@ -384,6 +390,9 @@ void free(void *ptr) {
     struct memory_block* curr = ptr - sizeof(struct memory_block);
     struct memory_block* prev = getPrevBlock(curr);
     struct memory_block* next = getNextBlock(curr);
+
+    u32 block_size = getRealSize(curr->size) + OVERHEAD;
+    memory_used -= block_size;
 
     if(isFree(prev) && isFree(next)) {
         prev->size = getRealSize(prev->size) + 2 * OVERHEAD + 
@@ -542,4 +551,12 @@ void* realloc(void *ptr, u32 size) {
 
         return ptr;
     }
+}
+
+u32 memory_getUsed() {
+    return memory_used;
+}
+
+u32 memory_getFree() {
+    return memory_size - memory_used;
 }

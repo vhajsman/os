@@ -126,4 +126,6 @@ extern u8* memory_start;
 extern u32 memory_size;
 extern u32 memory_blockCount;
 
+u32 memory_getUsed();
+u32 memory_getFree();
 #endif
