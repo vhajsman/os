@@ -37,6 +37,9 @@ int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], 
         return 0;
     }
 
+    if(tokens[0][0] == '#')
+        return 0;
+
     debug_message("Executing: ", "shell", KERNEL_MESSAGE);
     debug_append(GET_COMMAND_NAME());
     debug_append(" with argc=");
