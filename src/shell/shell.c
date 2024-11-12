@@ -78,7 +78,9 @@ void shell() {
 
     char autorun[10240] = { 0 };
     if(tar_readf(initrd_data, "etc/shrc", autorun, 10240) > 0) {
+        setColor(VGA_COLOR_LIGHT_BLUE);
         script_run(autorun);
+        setColor(7);
     }
     
     static char uinput[SHELL_MAX_BUFFER_SIZE];
