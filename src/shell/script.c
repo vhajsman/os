@@ -68,7 +68,7 @@ int script_run(const char* script) {
         char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH];
         int tokenCount = 0;
 
-        shell_parse(commands[i], tokens, tokenCount);
+        shell_parse(commands[i], tokens, &tokenCount);
         exitcode = shell_command_handle(tokens, tokenCount);
     }
 
