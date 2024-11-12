@@ -5,8 +5,10 @@
 #include "console.h"
 #include "hid/kbd.h"
 #include "debug.h"
-
+#include "fs/tar.h"
 #include "command.h"
+#include "initrd.h"
+#include "script.h"
 
 char WORKDIR[128];
 
@@ -73,6 +75,11 @@ void shell() {
     WORKDIR[1] = '\0';
 
     shell_command_inithandler();
+
+    char autorun[10240] = { 0 };
+    if(tar_readf(initrd_data, "etc/shrc", autorun, 10240) > 0) {
+        script_run(autorun);
+    }
     
     static char uinput[SHELL_MAX_BUFFER_SIZE];
     char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH];
