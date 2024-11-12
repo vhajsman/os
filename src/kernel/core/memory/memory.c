@@ -560,3 +560,80 @@ u32 memory_getUsed() {
 u32 memory_getFree() {
     return memory_size - memory_used;
 }
+
+#include "memory/paging.h"
+
+void unmap(page_directory_t* dir, u32 addr_virt, int free_frame) {
+    u32 didx = PAGEDIR_INDEX(addr_virt);
+    u32 tidx = PAGETBL_INDEX(addr_virt);
+
+    page_table_t* table = dir->ref_tables[didx];
+    if(!table)
+        return;
+    
+    page_table_entry_t* entry = &table->pages[tidx];
+
+    if(free_frame && entry->present) {
+        u32 frame = entry->frame * PAGE_SIZE;
+        u32 fidx = frame / PAGE_SIZE;
+
+        if(fidx < bitmap_size)
+            bitmap[fidx / 8] &= ~(1 << (fidx % 8));
+    }
+
+    memset(entry, 0, sizeof(page_table_entry_t));
+    asm volatile("invlpg (%0)" :: "r" (addr_virt) : "memory");
+}
+
+void* mmap(page_directory_t* dir, u32 start_va, u32 size, int prot) {
+    u32 align_start = PAGE_ALIGN(start_va);
+    u32 align_size  = PAGE_ALIGN(size + PAGE_SIZE - 1);
+
+    for(u32 addr = align_start; addr < align_start + align_size; addr += PAGE_SIZE) {
+        u32 frame = memory_allocateBlk();
+        if(frame == (u32) -1)
+            return NULL;
+
+        int iskernel   = (prot & PROT_USER)  ? 0 : 1;
+        int iswritable = (prot & PROT_WRITE) ? 1 : 1;
+
+        paging_allocate(dir, addr, frame, iskernel, iswritable);
+    }
+
+    return (void*) align_start;
+}
+
+int munmap(page_directory_t* dir, u32 start_va, u32 size) {
+    u32 align_start = PAGE_ALIGN(start_va);
+    u32 align_size  = PAGE_ALIGN(size + PAGE_SIZE - 1);
+
+    for(u32 addr = align_start; addr < align_start + align_size; addr += PAGE_SIZE)
+        paging_free(dir, addr, 1);
+    
+    return 0;
+}
+
+int mprotect(page_directory_t* dir, u32 start_va, u32 size, int prot) {
+    u32 align_start = PAGE_ALIGN(start_va);
+    u32 align_size  = PAGE_ALIGN(size + PAGE_SIZE - 1);
+
+    for(u32 addr = align_start; addr < align_start + align_size; addr += PAGE_SIZE) {
+        u32 didx = PAGEDIR_INDEX(addr);
+        u32 tidx = PAGETBL_INDEX(addr);
+
+        page_table_t* table = dir->ref_tables[didx];
+        if(!table)
+            continue;
+        
+        page_table_entry_t* entry = &table->pages[tidx];
+        if(!entry->present)
+            continue;
+        
+        entry->rw   = (prot & PROT_WRITE) ? 1 : 0;
+        entry->user = (prot & PROT_USER)  ? 1 : 0;
+
+        asm volatile("invlpg (%0)" :: "r" (addr) : "memory");
+    }
+
+    return 0;
+}

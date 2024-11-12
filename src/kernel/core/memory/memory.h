@@ -30,6 +30,13 @@
 #define BLOCK_ALIGN(addr) \
     (((addr) & 0xFFFFF000) + 0x1000)
 
+
+#define PROT_EXEC  0x1
+#define PROT_WRITE 0x2
+#define PROT_READ  0x4
+#define PROT_NONE  0x0
+#define PROT_USER  0x8
+
 /*
 struct memory_block {
     u8 used;
@@ -128,4 +135,7 @@ extern u32 memory_blockCount;
 
 u32 memory_getUsed();
 u32 memory_getFree();
+
+void* mmap(void* addr, size_t len, int prot, int flags);
+
 #endif
