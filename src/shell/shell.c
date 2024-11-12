@@ -9,6 +9,7 @@
 #include "command.h"
 #include "initrd.h"
 #include "script.h"
+#include "memory/memory.h"
 
 char WORKDIR[128];
 
@@ -76,7 +77,12 @@ void shell() {
 
     shell_command_inithandler();
 
-    char autorun[10240] = { 0 };
+    char* autorun = malloc(10240);
+    if(autorun == NULL)
+        return;
+
+    memset(autorun, 0, 10240);
+
     if(tar_readf(initrd_data, "etc/shrc", autorun, 10240) > 0) {
         setColor(VGA_COLOR_LIGHT_BLUE);
         script_run(autorun);
@@ -87,9 +93,14 @@ void shell() {
     char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH];
     int tokenCount = 0;
 
+    char* script = malloc(10240);
+    if(script == NULL)
+        goto sh_exit;
+
     while(1) {
-        if(!strcmp("exit\0", tokens[0]))
-            return;
+        if(!strcmp("exit\0", tokens[0])) {
+            goto sh_exit;
+        }
         
         putc('\n');
 
@@ -99,7 +110,24 @@ void shell() {
         //puts("User input: ");
         //puts(uinput);
 
+        memset(script, 0, 10240);
+        if(tar_readf(initrd_data, uinput, script, 10240) > 0) {
+            int s = script_run(autorun);
+            if(s == -1)
+                puts("invalid signature.\n");
+                
+            continue;
+        }
+
         shell_parse(uinput, tokens, &tokenCount);
         shell_command_handle(tokens, tokenCount);
     }
+
+    goto sh_exit;
+
+sh_exit:
+    free(autorun);
+    free(script);
+
+    return;
 }
