@@ -27,6 +27,9 @@ struct shell_command {
     int (*entry)(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc);
 };
 
+extern struct shell_command* commandRegistry[MAX_INTERNAL_COMMANDS];
+extern int _registry_occupied;
+
 void registerCommand(struct shell_command* command);
 struct shell_command* findCommand(char* commandName);
 
