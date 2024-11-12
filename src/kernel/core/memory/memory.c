@@ -595,7 +595,7 @@ void* mmap(page_directory_t* dir, u32 start_va, u32 size, int prot) {
             return NULL;
 
         int iskernel   = (prot & PROT_USER)  ? 0 : 1;
-        int iswritable = (prot & PROT_WRITE) ? 1 : 1;
+        int iswritable = (prot & PROT_WRITE) ? 1 : 0;
 
         paging_allocate(dir, addr, frame, iskernel, iswritable);
     }
