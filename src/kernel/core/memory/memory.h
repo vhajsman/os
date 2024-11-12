@@ -136,6 +136,14 @@ extern u32 memory_blockCount;
 u32 memory_getUsed();
 u32 memory_getFree();
 
-void* mmap(void* addr, size_t len, int prot, int flags);
+// void* mmap(void* addr, size_t len, int prot, int flags);
+
+#include "memory/paging.h"
+
+void unmap(page_directory_t* dir, u32 addr_virt, int free_frame);
+void* mmap(page_directory_t* dir, u32 start_va, u32 size, int prot);
+int munmap(page_directory_t* dir, u32 start_va, u32 size);
+
+int mprotect(page_directory_t* dir, u32 start_va, u32 size, int prot);
 
 #endif
