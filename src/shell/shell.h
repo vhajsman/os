@@ -11,6 +11,7 @@
 #define GET_COMMAND_NAME() tokens[0]
 
 void shell();
+void shell_parse(const char* input, char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int* tokenCount);
 
 extern char WORKDIR[128];
 
