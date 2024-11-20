@@ -76,13 +76,16 @@ void kbd_irq(REGISTERS* r) {
 
     if(kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF) {
         scancode = kbd_readEncBuffer();
-        c = kbd_toChar(scancode, _shift, _alt);
+        c = kbd_toChar(scancode, _capslock || _shift, _alt);
 
         if(scancode > 0x58)
             return;
 
         _scan = scancode;
         _last_char = c;
+
+        if(_shift == 1)
+            _shift = 0;
 
         if(scancode & 0x80) {
             scancode -= 0x80;
@@ -115,8 +118,8 @@ void kbd_irq(REGISTERS* r) {
                     break;
                 
                 case SCAN_CODE_KEY_LEFT_SHIFT:
-                case SCAN_CODE_KEY_RIGHT_SHIFT:
-                    _shift = !_shift;
+                    puts("S");
+                    _shift = 1;
                     break;
                 
                 // ? idk why but doesnt work lmao
@@ -209,8 +212,17 @@ void kbd_disable() {
 }
 
 char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
-    #define ___K(n, u, alt) \
-    return altgr ? alt : (uppercase ? u : n)
+    #define ___K(n, u, alt)         \
+        if(altgr) {                 \
+            return alt;             \
+        }                           \
+                                    \
+        if(_capslock || _shift) {   \
+            return u;               \
+        }                           \
+                                    \
+        return n;
+    
     switch (scancode) {
         case SCAN_CODE_KEY_0:       return '0'; break;
         case SCAN_CODE_KEY_1:       return '1'; break;
@@ -293,7 +305,7 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_ENTER:
             return '\n';
             break;
-        
+    
         default:
             // Invalid scancode
             return 0x00;
