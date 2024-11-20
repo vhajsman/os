@@ -51,11 +51,11 @@ void tar_list(const char* tar_data) {
     const tar_header_t* header;
     const char* current = tar_data;
 
-    while (1) {
+    while(header != NULL && header->name[0] != '\n') {
         header = (const tar_header_t*) current;
 
-        if (header->name[0] == '\0')
-            return;
+        // if(header->name[0] == '\0')
+        //     return;
 
         debug_append("\n                  ");
         debug_append(header->name);

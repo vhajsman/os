@@ -44,7 +44,7 @@ void initrd_load(MULTIBOOT_INFO* mb_info) {
             return;
         }
 
-        tar_list(initrd_data);
+        //tar_list(initrd_data);
         return;
     } else {
         debug_message("initrd not found", "initrd", KERNEL_FATAL);
