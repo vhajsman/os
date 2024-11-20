@@ -31,7 +31,7 @@ void shell_printError(char* kind, char* message, int start, int end) {
     colorPrint(message, shell_errorColor);
 }
 
-int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokenCount) {
+int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokenCount, void (*callback_stdout) (char*), char* (*callback_stdin) (void)) {
     if(!tokenCount) {
         debug_message("Empty command not handled", "shell", KERNEL_MESSAGE);
         return 0;
@@ -57,7 +57,7 @@ int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], 
             return 1;
         }
 
-        return cmd->entry(tokens, tokenCount);
+        return cmd->entry(tokens, tokenCount, (void (*)(char *))puts, NULL);
     }
 
     shell_printError("ParseError", "Command not registered or not present in search path or working directory.", 0, strlen(GET_COMMAND_NAME()) - 1);

@@ -7,7 +7,7 @@
 
 extern void shell_printError(char* kind, char* message, int start, int end);
 
-int __krnldbg(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc) {
+int __krnldbg(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, void (*callback_stdout) (char*), char* (*callback_stdin) (void)) {
     IGNORE_UNUSED(tokc);
     
     if(!strcmp("--insert-breakpoint\0", tokens[1])) {

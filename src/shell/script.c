@@ -2,6 +2,7 @@
 #include "shell.h"
 #include "string.h"
 #include "command.h"
+#include "console.h"
 
 int script_parse(const char* script, char** commands) {
     int cmd_count = 0;
@@ -69,7 +70,7 @@ int script_run(const char* script) {
         int tokenCount = 0;
 
         shell_parse(commands[i], tokens, &tokenCount);
-        exitcode = shell_command_handle(tokens, tokenCount);
+        exitcode = shell_command_handle(tokens, tokenCount, (void (*)(char*)) puts, NULL);
     }
 
     return exitcode;

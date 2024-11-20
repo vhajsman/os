@@ -3,7 +3,7 @@
 
 #include "shell.h"
 
-int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokenCount);
+int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokenCount, void (*callback_stdout) (char*), char* (*callback_stdin) (void));
 
 
 // === COMMAND REGISTRY ===
@@ -24,7 +24,12 @@ struct shell_command {
 
     char* name;
 
-    int (*entry)(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc);
+    int (*entry)(
+        char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], 
+        int tokc,
+        void (*callback_stdout) (char*),
+        char* (callback_stdin) (void)
+    );
 };
 
 extern struct shell_command* commandRegistry[MAX_INTERNAL_COMMANDS];

@@ -5,9 +5,9 @@
 
 extern void shell_printError(char* kind, char* message, int start, int end);
 
-int __cd(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc) {
+int __cd(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, void (*callback_stdout) (char*), char* (*callback_stdin) (void)) {
     if(tokc == 1) {
-        puts(WORKDIR);
+        callback_stdout(WORKDIR);
         return 0;
     }
 

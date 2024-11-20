@@ -71,6 +71,10 @@ void shell_parse(const char* input, char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKE
     }
 }
 
+void _puts(const char* c) {
+    puts(c);
+}
+
 void shell() {
     WORKDIR[0] = '/';
     WORKDIR[1] = '\0';
@@ -120,7 +124,7 @@ void shell() {
         }
 
         shell_parse(uinput, tokens, &tokenCount);
-        shell_command_handle(tokens, tokenCount);
+        shell_command_handle(tokens, tokenCount, (void (*)(char*)) puts, NULL);
     }
 
     goto sh_exit;
