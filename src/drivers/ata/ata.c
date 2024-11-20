@@ -150,3 +150,6 @@ int ata_writeSector(u8 drive, u32 lba, char* buffer) {
     return status ? 1 : 0;
 }
 
+void ata_init() {
+    
+}
