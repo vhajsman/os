@@ -46,7 +46,8 @@ u8 ide_atapi_read(u8 drive, u32 lba, u8 numsects, u16 selector, u32 edi) {
     for(int i = 0; i < numsects; i++) {
         ide_irqwait();
 
-        if(err = ide_polling(channel, 1))
+        err = ide_polling(channel, 1);
+        if(err)
             return err;
         
         asm("pushw %es");

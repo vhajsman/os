@@ -5,7 +5,7 @@
 #include "ioport.h"
 
 bool checkDriverLbaSupport(u8 drive) {
-    return ide_devices[drive].capabilities & 0x0200;
+    return (ide_devices[drive].capabilities & 0x0200) != 0;
 }
 
 u8 ide_ata_access(u8 direction, u8 drive, u32 lba, u8 numsects, u16 selector, u32 edi) {
@@ -15,7 +15,7 @@ u8 ide_ata_access(u8 direction, u8 drive, u32 lba, u8 numsects, u16 selector, u3
     u32 slavebit    = ide_devices[drive].drive;
     u32 bus         = ide_channels[channel].base;
     u32 words       = 256;
-    u16 cyl, i;
+    u16 cyl;
     u8 head, sect, err;
     u8 dma, cmd;
 
@@ -89,9 +89,10 @@ u8 ide_ata_access(u8 direction, u8 drive, u32 lba, u8 numsects, u16 selector, u3
     if(dma) {
         // TODO
     } else {
-        if (direction == 0) {
-            for (int i = 0; i < numsects; i++) {
-                if (err = ide_polling(channel, 1)) 
+        if(direction == 0) {
+            for(int i = 0; i < numsects; i++) {
+                err = ide_polling(channel, 1);
+                if(err)
                     return 1;
 
                 asm("pushw %es");

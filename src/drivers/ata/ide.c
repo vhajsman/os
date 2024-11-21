@@ -14,7 +14,7 @@ struct ide_device ide_devices[4];
 
 u8 ide_buf[2048] = {0};
 volatile u8 ide_irq_invoked = 0;
-static u8 atapi_packet[12] = {0xA8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+u8 atapi_packet[12] = {0xA8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 void ide_irq(REGISTERS* r);
 void ide_irqwait();
