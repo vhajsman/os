@@ -314,7 +314,7 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
 }
 
 void kbd_init() {
-    isr_registerInterruptHandler(IRQ1_KEYBOARD, kbd_irq);
+    isr_registerInterruptHandler(IRQ_BASE + IRQ1_KEYBOARD, kbd_irq);
 
     while(inportb(0x64) & 1)
         inportb(0x60);
