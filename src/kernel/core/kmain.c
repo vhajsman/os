@@ -132,10 +132,14 @@ void kmain_setuphooks() {
 void kmain(unsigned long magic, unsigned long addr) {
     mboot_info = (MULTIBOOT_INFO*) addr;
 
+    asm volatile("cli");
+
     console_initialize();
     kmain_init_cursor();
     gdt_init();
     idt_init();
+
+    asm volatile("sti");
 
     pit_init(1000); 
     serial_init();

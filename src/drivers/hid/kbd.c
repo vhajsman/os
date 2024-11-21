@@ -61,6 +61,7 @@ void kbd_setLeds(int n, int c, int s) {
 }
 
 void kbd_irq(REGISTERS* r) {
+    puts("kbdirq");
     IGNORE_UNUSED(r);
 
     //asm("add esp, 12");
@@ -313,13 +314,16 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
 }
 
 void kbd_init() {
-    isr_registerInterruptHandler(IRQ_BASE + IRQ1_KEYBOARD, kbd_irq);
+    isr_registerInterruptHandler(IRQ1_KEYBOARD, kbd_irq);
+
+    while(inportb(0x64) & 1)
+        inportb(0x60);
 
     kbd_enable();
 
-    // puts("Waiting for KBD to respond...\n");
-
+    debug_message("waiting for keyboard", "ps2kbd", KERNEL_MESSAGE);
     
+    kbd_sendCommand(KEYBOARD_COMMAND_RESET);
     kbd_sendCommand(KEYBOARD_COMMAND_ECHO);
     for(int i = 0; i < 10000; i ++) {
         if(kbd_readStatus() == KEYBOARD_RESPONSE_ECHO) {
