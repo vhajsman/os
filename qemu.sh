@@ -1,6 +1,6 @@
 #! /bin/sh
 qemu-system-x86_64                                              \
-    -M q35                                                      \
+    -M pc                                                       \
     -cpu pentium                                                \
     -smp sockets=1,cores=1,threads=1                            \
     -m 256                                                      \
@@ -10,9 +10,9 @@ qemu-system-x86_64                                              \
     -device rtl8139,netdev=n0                                   \
     -accel tcg,thread=multi,tb-size=2048                        \
     -boot d                                                     \
-    -device intel-iommu                                         \
     -cdrom build/*.iso                                          \
     -chardev stdio,id=char0,logfile=serial.log,signal=off       \
     -serial chardev:char0                                       \
-    -drive file=build/cubebox.iso,media=cdrom,if=ide,index=1    \
-    -fda floppy.img
+    -fda floppy.img                                             \
+    -drive id=disk,file=harddisk.img,if=none                    \
+    -device ide-hd,drive=disk,bus=ide.0
