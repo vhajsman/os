@@ -257,7 +257,7 @@ void ide_init(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, unsigned 
     ide_init_detect();
     ide_init_debugsummary();
 
-    isr_registerInterruptHandler(IRQ14_HARD_DISK, ide_irq);
+    isr_registerInterruptHandler(IRQ_BASE + IRQ14_HARD_DISK, ide_irq);
 }
 
 void ide_irqwait() {

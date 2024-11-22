@@ -61,7 +61,7 @@ void kbd_setLeds(int n, int c, int s) {
 }
 
 void kbd_irq(REGISTERS* r) {
-    puts("kbdirq");
+    //puts("kbdirq");
     IGNORE_UNUSED(r);
 
     //asm("add esp, 12");
@@ -119,7 +119,7 @@ void kbd_irq(REGISTERS* r) {
                     break;
                 
                 case SCAN_CODE_KEY_LEFT_SHIFT:
-                    puts("S");
+                    //puts("S");
                     _shift = 1;
                     break;
                 
