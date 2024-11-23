@@ -6,7 +6,7 @@
 #define MAX_STORAGE_DEVICES 16
 
 extern struct device_storage* storage_devices[MAX_STORAGE_DEVICES];
-extern size_t storage_device_count = 0;
+extern size_t storage_device_count;
 
 struct device_storage {
     char name[8];
@@ -21,6 +21,7 @@ struct device_storage {
 
 int addStorageDevice(struct device_storage* dev);
 struct device_storage* getStorageDeviceByName(const char* dev_name);
+void __debugStorageDevices();
 
 // int mountStorageDevice(const char* dev_name, const char* fs_type);
 

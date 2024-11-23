@@ -26,6 +26,7 @@
 #include "video/vga.h"
 #include "time/rtc.h"
 #include "floppy.h"
+#include "device.h"
 
 MULTIBOOT_INFO* mboot_info;
 
@@ -179,6 +180,8 @@ void kmain(unsigned long magic, unsigned long addr) {
     mouse_init();
 
     //framebuffer_init();
+
+    __debugStorageDevices();
 
     shell();
 }

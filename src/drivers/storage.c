@@ -1,8 +1,9 @@
 #include "device.h"
 #include "string.h"
 #include "memory/memory.h"
+#include "console.h"
 
-struct device_storage* storage_devices[MAX_STORAGE_DEVICES];
+struct device_storage* storage_devices[MAX_STORAGE_DEVICES] = {NULL};
 size_t storage_device_count = 0;
 
 int addStorageDevice(struct device_storage* dev) {
@@ -23,4 +24,18 @@ struct device_storage* getStorageDeviceByName(const char* dev_name) {
     }
 
     return NULL;
+}
+
+
+void __debugStorageDevices() {
+    for(int i = 0; i < MAX_STORAGE_DEVICES; i++) {
+        debug_message("storage device ", "device", KERNEL_MESSAGE);
+        debug_number(i, 10);
+        debug_append(": ");
+
+        if(storage_devices[i] == NULL)
+            continue;
+
+        debug_append(storage_devices[i]->name);
+    }
 }
