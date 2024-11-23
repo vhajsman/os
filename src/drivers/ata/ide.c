@@ -8,6 +8,8 @@
 #include "irq/irqdef.h"
 #include "kernel.h"
 #include "console.h"
+#include "device.h"
+#include "memory/memory.h"
 
 struct ide_channelRegisters ide_channels[2];
 struct ide_device ide_devices[4];
@@ -209,9 +211,54 @@ void ide_init_detect() {
                 ide_devices[count].model[k + 1] = ide_buf[ATA_IDENT_MODEL + k];
             }
 
+            for(int kk = 0; kk < 40; kk++) {
+                if(ide_devices[count].model[kk] == ' ' && ide_devices[count].model[kk + 1] == ' ')
+                    ide_devices[count].model[kk] = '\0';
+            }
+
             ide_devices[count].model[40] = '\0';
             count++;
         }
+    }
+}
+
+int _ide_frontend_readSector(void* ctx, u32 sector, void* buffer) {
+    ata_readSector((u8) &ctx, sector, buffer);
+}
+
+int _ide_frontend_writeSector(void* ctx, u32 sector, void* buffer) {
+    ata_readSector((u8) &ctx, sector, buffer);
+}
+
+void ide_bind() {
+    for(int i = 0; i < 4; i++) {
+        if(!ide_devices[i].model[0])
+            break;
+
+        struct device_storage* dev = (struct device_storage*) malloc(sizeof(struct device_storage));
+        memset(dev, 0, sizeof(struct device_storage));
+
+        dev->name[0] = 's';
+        dev->name[1] = 'd';
+        dev->name[2] = 'a' + i;
+        dev->name[4] = '\0';
+
+        dev->capacity = ide_devices[i].size;
+        dev->sector_size = 512;
+        
+        //dev->ctx = malloc(sizeof(ide_devices[i].drive));
+        memcpy(dev->ctx, &ide_devices[i].drive, sizeof(ide_devices[i].drive));
+
+        dev->callback_readSector  = _ide_frontend_readSector;
+        dev->callback_writeSector = _ide_frontend_writeSector;
+
+        if(0 != addStorageDevice(dev))
+            return;
+
+        debug_message("device bind ", "fs", KERNEL_MESSAGE);
+        debug_append(ide_devices[i].model);
+        debug_append(" -> ");
+        debug_append(dev->name);
     }
 }
 
@@ -258,6 +305,8 @@ void ide_init(unsigned int BAR0, unsigned int BAR1, unsigned int BAR2, unsigned 
     ide_init_debugsummary();
 
     isr_registerInterruptHandler(IRQ_BASE + IRQ14_HARD_DISK, ide_irq);
+
+    ide_bind();
 }
 
 void ide_irqwait() {
