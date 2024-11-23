@@ -23,22 +23,27 @@ typedef u32 bios_dword;
 #define BIOS_BPB_LARGESECT  0x20
 
 struct bios_bpb {
-    bios_byte  jump[3];
-    bios_byte  oem[8];
-    bios_word  sectorSize;
-    bios_byte  sectorsPerCluster;
-    bios_word  reserved;
-    bios_byte  tableCount;
-    bios_word  entryCount;
-    bios_word  sectorsPerVolume;
-    bios_byte  mediaDescriptorType;
-    bios_word  sectorsPerTable;
-    bios_word  sectorsPerTrack;
-    bios_word  headsCount;
-    bios_dword hiddenCount;
-    bios_dword largeCount;
-};
+    bios_word   bytes_per_sector;
+    bios_byte   sectors_per_cluster;
+    bios_word   reserved_sectors;
+    bios_byte   fat_count;
+    bios_word   root_entry_count;
+    bios_word   total_sectors_16;
+    bios_byte   media_type;
+    bios_word   fat_size_16;
+    bios_word   sectors_per_track;
+    bios_word   num_heads;
+    bios_dword  hidden_sectors;
+    bios_dword  total_sectors_32;
 
-
+    // FAT32
+    bios_dword  fat_size_32;
+    bios_word   ext_flags;
+    bios_word   fs_version;
+    bios_dword  root_cluster;
+    bios_word   fs_info;
+    bios_word   backup_boot_sector;
+    bios_byte   reserved[12];
+} __attribute__((packed));
 
 #endif
