@@ -5,6 +5,9 @@
 
 #define MAX_STORAGE_DEVICES 16
 
+extern struct device_storage* storage_devices[MAX_STORAGE_DEVICES];
+extern size_t storage_device_count = 0;
+
 struct device_storage {
     char name[8];
     u64  capacity;
