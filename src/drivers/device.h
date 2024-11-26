@@ -18,8 +18,17 @@ typedef struct kernel_device {
     char* model;
     device_type_t type;
 
-    int (*mReadSector) (void* context, u32 sector, void* buffer);
-    int (*mWriteSector) (void* context, u32 sector, void* buffer);
+    u32 capacity;
+    union {
+        u32 sectorSize;
+        size_t blockSize;
+    };
+    
+    void* context;
+    size_t context_size;
+
+    int (*mReadSector) (device_t* dev, void* context, u32 sector, void* buffer);
+    int (*mWriteSector) (device_t* dev, void* context, u32 sector, void* buffer);
 } device_t;
 
 int device_findByFilename(const char* filename);

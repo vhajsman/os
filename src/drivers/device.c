@@ -40,6 +40,7 @@ int device_append(device_t* dev) {
         return 1;
     
     kernel_deviceList[slot] = dev;
+    return 0;
 }
 
 void device_remove(int index) {
