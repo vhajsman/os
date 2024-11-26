@@ -223,42 +223,46 @@ void ide_init_detect() {
 }
 
 int _ide_frontend_readSector(void* ctx, u32 sector, void* buffer) {
-    ata_readSector((u8) &ctx, sector, buffer);
+    u8 drive = (u8) &ctx;
+    return ata_readSector(drive, sector, buffer);
 }
 
 int _ide_frontend_writeSector(void* ctx, u32 sector, void* buffer) {
-    ata_readSector((u8) &ctx, sector, buffer);
+    //return ata_writeSector((u8) &ctx, sector, buffer);
+    IGNORE_UNUSED(ctx);
+    IGNORE_UNUSED(sector);
+    IGNORE_UNUSED(buffer);
+
+    return 1;
 }
 
 void ide_bind() {
     for(int i = 0; i < 4; i++) {
-        if(!ide_devices[i].model[0])
-            break;
-
-        struct device_storage* dev = (struct device_storage*) malloc(sizeof(struct device_storage));
-        memset(dev, 0, sizeof(struct device_storage));
-
-        dev->name[0] = 's';
-        dev->name[1] = 'd';
-        dev->name[2] = 'a' + i;
-        dev->name[4] = '\0';
-
-        dev->capacity = ide_devices[i].size;
-        dev->sector_size = 512;
+        if(!ide_devices[i].reserved)
+            continue;
         
-        //dev->ctx = malloc(sizeof(ide_devices[i].drive));
-        memcpy(dev->ctx, &ide_devices[i].drive, sizeof(ide_devices[i].drive));
+        device_t dev;
+        char filename[16] = "/devices/sda\0";
+        device_uniquify(filename, 16);
 
-        dev->callback_readSector  = _ide_frontend_readSector;
-        dev->callback_writeSector = _ide_frontend_writeSector;
+        strcpy(dev.filename, filename);
+        strcpy(dev.model, ide_devices[i].model);
 
-        if(0 != addStorageDevice(dev))
-            return;
+        dev.type = DEVICE_STORAGE;
+        dev.capacity = ide_devices[i].size;
+        dev.sectorSize = 512;
 
-        debug_message("device bind ", "fs", KERNEL_MESSAGE);
-        debug_append(ide_devices[i].model);
+        dev.context = (void*) ide_devices[i].drive;
+        dev.context_size = sizeof(ide_devices[i].drive);
+
+        if(device_append(&dev)) {
+            debug_message("ide_bind(): device bind failed.", "ide", KERNEL_ERROR);
+        }
+
+        debug_message("ide_bind(): ", "ide", KERNEL_OK);
+        debug_append(dev.model);
         debug_append(" -> ");
-        debug_append(dev->name);
+        debug_append(dev.filename);
     }
 }
 

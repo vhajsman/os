@@ -6,6 +6,8 @@
 #define MAX_DEVICES          32
 #define DEVICE_NAME_MAX_SIZE 64
 
+typedef struct kernel_device device_t;
+
 typedef enum kernel_device_type {
     DEVICE_NULL,
     DEVICE_RAW,

@@ -21,6 +21,7 @@ INCLUDE_INTERNAL_COMMAND(exp)
 // INCLUDE_INTERNAL_COMMAND(sleep);
 
 INCLUDE_INTERNAL_COMMAND(cd);
+INCLUDE_INTERNAL_COMMAND(df);
 
 void shell_registerAll() {
     registerCommand(&command_test);
@@ -30,4 +31,5 @@ void shell_registerAll() {
     registerCommand(&command_cd);
     registerCommand(&command_help);
     registerCommand(&command_exp);
+    registerCommand(&command_df);
 }

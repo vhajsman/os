@@ -4,6 +4,7 @@
 #include "memory/memory.h"
 #include "console.h"
 #include "kernel.h"
+#include "device.h"
 
 fs_node_t* fs_root = 0;
 

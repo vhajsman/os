@@ -2,6 +2,7 @@
 #define __FS_H
 
 #include "types.h"
+#include "device.h"
 
 #define FS_FILE        0x01
 #define FS_DIRECTORY   0x02

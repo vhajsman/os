@@ -13,9 +13,6 @@ int device_findfreeslot() {
 }
 
 int device_findByFilename(const char* filename) {
-    if(filename == NULL)
-        return -1;
-
     for(int i = 0; i < MAX_DEVICES; i++) {
         if(kernel_deviceList[i] == NULL)
             continue;
@@ -49,7 +46,7 @@ void device_remove(int index) {
 
 void device_uniquify(char* filename, size_t buffer_size) {
     if(filename == NULL || buffer_size <= strlen(filename) + 1)
-        return NULL;
+        return;
 
     char suffix = 'a';
     size_t olen = strlen(filename);

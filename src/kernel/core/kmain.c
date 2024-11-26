@@ -181,8 +181,6 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     //framebuffer_init();
 
-    __debugStorageDevices();
-
     shell();
 }
 

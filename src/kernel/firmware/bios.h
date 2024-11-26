@@ -46,4 +46,6 @@ struct bios_bpb {
     bios_byte   reserved[12];
 } __attribute__((packed));
 
+void bios_bpb_load(struct bios_bpb* bpb, void* fat);
+
 #endif
