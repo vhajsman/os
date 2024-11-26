@@ -3,26 +3,22 @@
 
 #include "types.h"
 
-#define MAX_STORAGE_DEVICES 16
+#define MAX_DEVICES          32
+#define DEVICE_NAME_MAX_SIZE 64
 
-extern struct device_storage* storage_devices[MAX_STORAGE_DEVICES];
-extern size_t storage_device_count;
+typedef enum kernel_device_type {
+    DEVICE_NULL,
+    DEVICE_RAW,
+    DEVICE_PORT,
+    DEVICE_STORAGE
+} device_type_t;
 
-struct device_storage {
-    char name[8];
-    u64  capacity;
-    u32  sector_size;
+typedef struct kernel_device {
+    char filename[DEVICE_NAME_MAX_SIZE];
+    device_type_t type;
 
-    void* ctx;
-
-    int(*callback_readSector)(void* ctx, u32 sector, void* buffer);
-    int(*callback_writeSector)(void* ctx, u32 sector, void* buffer);
-};
-
-int addStorageDevice(struct device_storage* dev);
-struct device_storage* getStorageDeviceByName(const char* dev_name);
-void __debugStorageDevices();
-
-// int mountStorageDevice(const char* dev_name, const char* fs_type);
+    int (*mReadSector) (void* context, u32 sector, void* buffer);
+    int (*mWriteSector) (void* context, u32 sector, void* buffer);
+} device_t;
 
 #endif
