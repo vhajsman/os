@@ -22,4 +22,10 @@ typedef struct kernel_device {
     int (*mWriteSector) (void* context, u32 sector, void* buffer);
 } device_t;
 
+int device_findByFilename(const char* filename);
+device_t* device_get(int index);
+int device_append(device_t* dev);
+void device_remove(int index);
+void device_uniquify(char* filename, size_t buffer_size);
+
 #endif
