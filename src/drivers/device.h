@@ -15,6 +15,7 @@ typedef enum kernel_device_type {
 
 typedef struct kernel_device {
     char filename[DEVICE_NAME_MAX_SIZE];
+    char* model;
     device_type_t type;
 
     int (*mReadSector) (void* context, u32 sector, void* buffer);
