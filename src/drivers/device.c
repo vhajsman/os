@@ -1,5 +1,6 @@
 #include "device.h"
 #include "string.h"
+#include "debug.h"
 
 device_t* kernel_deviceList[MAX_DEVICES] = {NULL};
 
@@ -45,21 +46,30 @@ void device_remove(int index) {
 }
 
 void device_uniquify(char* filename, size_t buffer_size) {
-    if(filename == NULL || buffer_size <= strlen(filename) + 1)
+    if(filename == NULL || buffer_size < 2)
         return;
+    
+    size_t base_len = strlen(filename);
+    if(base_len + 2 >= buffer_size) {
+        debug_message("Filename buffer too small in device_uniquify.", "device", KERNEL_ERROR);
+        return;
+    }
 
-    char suffix = 'a';
-    size_t olen = strlen(filename);
+    for(char suffix = 'a'; suffix <= 'z'; suffix++) {
+        filename[base_len - 1] = suffix;
+        filename[base_len] = '\0';
 
-    for(int i = 0; i < MAX_DEVICES; i++) {
-        if(kernel_deviceList[i] != NULL && (strcmp(filename, kernel_deviceList[i]->filename) != 0)) {
-            if(olen + 2 >= buffer_size)
-                return;
-            
-            filename[olen] = suffix++;
-            filename[olen + 1] = '\0';
-            
-            i = -1;
+        int unique = 1;
+        for(int i = 0; i < MAX_DEVICES; i++) {
+            if(kernel_deviceList[i] != NULL && strcmp(filename, kernel_deviceList[i]->filename) == 0) {
+                unique = 0;
+                break;
+            }
         }
+
+        if(unique)
+            return;
+        
+        //debug_message("Failed to uniquify filename. Too many conflicts.", "device", KERNEL_ERROR);
     }
 }

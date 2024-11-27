@@ -236,33 +236,37 @@ int _ide_frontend_writeSector(void* ctx, u32 sector, void* buffer) {
     return 1;
 }
 
+device_t idekrnldev[4];
+
 void ide_bind() {
     for(int i = 0; i < 4; i++) {
         if(!ide_devices[i].reserved)
             continue;
         
-        device_t dev;
-        char filename[16] = "/devices/sda\0";
-        device_uniquify(filename, 16);
+        static char fn[DEVICE_NAME_MAX_SIZE] = "/device/sdX";
+        strncpy(idekrnldev[i].filename, fn, DEVICE_NAME_MAX_SIZE - 1);
+        idekrnldev[i].filename[DEVICE_NAME_MAX_SIZE - 1] = '\0';
+        device_uniquify(idekrnldev[i].filename, DEVICE_NAME_MAX_SIZE);
 
-        strcpy(dev.filename, filename);
-        strcpy(dev.model, ide_devices[i].model);
+        idekrnldev[i].sectorSize = 512;
+        idekrnldev[i].capacity = ide_devices[i].size;
+        idekrnldev[i].type = DEVICE_STORAGE;
+        idekrnldev[i].context = (void*) &ide_devices[i].drive;
+        idekrnldev[i].context_size = sizeof(ide_devices[i].drive);
+        idekrnldev[i].mReadSector = NULL;
+        idekrnldev[i].mWriteSector = NULL;
 
-        dev.type = DEVICE_STORAGE;
-        dev.capacity = ide_devices[i].size;
-        dev.sectorSize = 512;
-
-        dev.context = (void*) ide_devices[i].drive;
-        dev.context_size = sizeof(ide_devices[i].drive);
-
-        if(device_append(&dev)) {
-            debug_message("ide_bind(): device bind failed.", "ide", KERNEL_ERROR);
+        if(device_append(&idekrnldev[i])) {
+            debug_message("ide_bind(): bind failed: ", "ide", KERNEL_ERROR);
+            debug_append(idekrnldev[i].model);
+            
+            return;
         }
 
-        debug_message("ide_bind(): ", "ide", KERNEL_OK);
-        debug_append(dev.model);
+        debug_message("ide_bind(): bind device ", "ide", KERNEL_OK);
+        debug_append(idekrnldev[i].model);
         debug_append(" -> ");
-        debug_append(dev.filename);
+        debug_append(idekrnldev[i].filename);
     }
 }
 

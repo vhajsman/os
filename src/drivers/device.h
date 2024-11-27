@@ -21,10 +21,10 @@ typedef struct kernel_device {
     device_type_t type;
 
     u32 capacity;
-    union {
+    //union {
         u32 sectorSize;
-        size_t blockSize;
-    };
+        //size_t blockSize;
+    //};
     
     void* context;
     size_t context_size;
