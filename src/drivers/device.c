@@ -28,8 +28,16 @@ int device_findByFilename(const char* filename) {
 device_t* device_get(int index) {
     if(index < 0 || index >= MAX_DEVICES)
         return NULL;
+    
+    device_t* dev = kernel_deviceList[index];
 
-    return kernel_deviceList[index];
+    if(dev == NULL)
+        return NULL;
+
+    debug_message("found device: ", "device", KERNEL_MESSAGE);
+    debug_append(dev->filename);
+
+    return dev;
 }
 
 int device_append(device_t* dev) {
@@ -38,6 +46,9 @@ int device_append(device_t* dev) {
         return 1;
     
     kernel_deviceList[slot] = dev;
+    debug_message("registered device: ", "device", KERNEL_OK);
+    debug_append(dev->filename);
+    
     return 0;
 }
 
@@ -69,7 +80,7 @@ void device_uniquify(char* filename, size_t buffer_size) {
 
         if(unique)
             return;
-        
-        //debug_message("Failed to uniquify filename. Too many conflicts.", "device", KERNEL_ERROR);
     }
+    
+    debug_message("Failed to uniquify filename. Too many conflicts.", "device", KERNEL_ERROR);
 }

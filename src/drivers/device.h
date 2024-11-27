@@ -4,7 +4,7 @@
 #include "types.h"
 
 #define MAX_DEVICES          32
-#define DEVICE_NAME_MAX_SIZE 64
+#define DEVICE_NAME_MAX_SIZE 512
 
 typedef struct kernel_device device_t;
 
