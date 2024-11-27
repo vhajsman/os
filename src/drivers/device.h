@@ -39,4 +39,6 @@ int device_append(device_t* dev);
 void device_remove(int index);
 void device_uniquify(char* filename, size_t buffer_size);
 
+extern device_t* kernel_deviceList[MAX_DEVICES];
+
 #endif
