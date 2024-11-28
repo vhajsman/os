@@ -75,4 +75,20 @@ int fs_readfile(const char* path, char* buffer, u32 buffer_size, fs_node_t* curr
 
 int fs_cat(fs_node_t* node);
 
+typedef u8 file_permissions_t;
+
+struct fs_mnt {
+    device_t* dev;
+
+    char mountpoint[256];
+    char fs_type[8];
+    file_permissions_t permission;
+
+    struct fs_mnt* next;
+};
+
+int fs_mount(device_t* dev, char* mnt, char* fs_type, file_permissions_t permissions);
+int fs_unmount(char* mnt);
+struct fs_mnt* fs_findmnt(char* mnt);
+
 #endif
