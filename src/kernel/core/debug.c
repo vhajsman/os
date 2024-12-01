@@ -125,10 +125,18 @@ void debug_separator(const  char* title) {
     debug_append("\n\r");
 }
 
+int breakpoints_count = 0;
+
 void debug_breakpoint() {
     // __check_debug;
 
-    asm volatile("1: jmp 1b");
+    //asm volatile("1: jmp 1b");
+
+    debug_append("\n ------------------ BREAKPOINT INSERTED: ");
+    debug_number(breakpoints_count, 10);
+    debug_append(" ------------------\n");
+
+    breakpoints_count++;
 }
 
 void debug_number(int number, int base) {
