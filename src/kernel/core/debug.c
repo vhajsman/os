@@ -128,7 +128,7 @@ void debug_separator(const  char* title) {
 int breakpoints_count = 0;
 
 void debug_breakpoint() {
-    // __check_debug;
+    __check_debug;
 
     //asm volatile("1: jmp 1b");
 
