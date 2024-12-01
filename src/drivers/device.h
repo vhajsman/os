@@ -29,6 +29,8 @@ typedef struct kernel_device {
     void* context;
     size_t context_size;
 
+    int mount_count;
+
     int (*mReadSector) (device_t* dev, void* context, u32 sector, void* buffer);
     int (*mWriteSector) (device_t* dev, void* context, u32 sector, void* buffer);
 } device_t;

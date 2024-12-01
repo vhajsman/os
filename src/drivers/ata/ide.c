@@ -264,8 +264,12 @@ void ide_bind() {
         }
 
         debug_message("ide_bind(): bind device ", "ide", KERNEL_OK);
-        debug_append(idekrnldev[i].model);
-        debug_append(" -> ");
+        
+        if(idekrnldev[i].model != NULL) {
+            debug_append(idekrnldev[i].model);
+            debug_append(" -> ");
+        }
+
         debug_append(idekrnldev[i].filename);
     }
 }
