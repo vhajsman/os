@@ -77,6 +77,9 @@ int fs_cat(fs_node_t* node);
 
 typedef u8 file_permissions_t;
 
+
+#define MAX_MOUNT_POINTS 16
+
 struct fs_mnt {
     device_t* dev;
 
@@ -84,11 +87,22 @@ struct fs_mnt {
     char fs_type[8];
     file_permissions_t permission;
 
-    struct fs_mnt* next;
+    // struct fs_mnt* next;
 };
 
-int fs_mount(device_t* dev, char* mnt, char* fs_type, file_permissions_t permissions);
-int fs_unmount(char* mnt);
-struct fs_mnt* fs_findmnt(char* mnt);
+// int fs_mount(device_t* dev, char* mnt, char* fs_type, file_permissions_t permissions);
+// int fs_unmount(char* mnt);
+// struct fs_mnt* fs_findmnt(char* mnt);
+// bool fs_ismounted(device_t* dev);
+// char* fs_findmntpath(device_t* dev);
+
+int fs_mount(device_t* dev, const char* mnt, const char* fs_type, file_permissions_t permissions);
+int fs_unmount(const char* mnt);
+
+int findFreeMntField();
+struct fs_mnt* findMntByName(const char* mnt);
+
+bool fs_ismounted(device_t* dev);
+char* fs_findMntByDevice(device_t* dev);
 
 #endif
