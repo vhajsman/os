@@ -105,4 +105,6 @@ struct fs_mnt* findMntByName(const char* mnt);
 bool fs_ismounted(device_t* dev);
 char* fs_findMntByDevice(device_t* dev);
 
+void fs_mounts_debug();
+
 #endif

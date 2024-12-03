@@ -413,6 +413,8 @@ int fs_mount(device_t* dev, const char* mnt, const char* fs_type, file_permissio
     debug_append(mnt);
 
     dev->mount_count++;
+
+    fs_mounts_debug();
     return 0;
 }
 
@@ -453,7 +455,7 @@ char* fs_findMntByDevice(device_t* dev) {
     const char* desired_filename = dev->filename;
     
     for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
-        if(&fs_mounts[i] == NULL)
+        if(fs_mounts[i]->mountpoint == NULL)
             continue;
 
         if(strcmp(fs_mounts[i]->dev->filename, desired_filename) == 0) {
@@ -467,5 +469,29 @@ char* fs_findMntByDevice(device_t* dev) {
     }
 
     return 0;
+}
+
+void fs_mounts_debug() {
+    debug_message("Mount point list dump: ", "fs", KERNEL_MESSAGE);
+
+    for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
+        debug_message(" --> ", "fs", KERNEL_MESSAGE);
+        debug_number(i, 10);
+        debug_append(": ");
+
+        if(fs_mounts[i]->mountpoint == NULL) {
+            debug_append("mount->mountpoint is NULL");
+            continue;
+        }
+
+        debug_append("mountpoint: ");
+        debug_append(fs_mounts[i]->mountpoint);
+
+        debug_append(", permissions: ");
+        debug_number(fs_mounts[i]->permission, 16);
+
+        debug_append(", dev: ");
+        debug_append(fs_mounts[i]->dev->filename);
+    }
 }
 
