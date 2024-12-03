@@ -19,6 +19,7 @@ typedef struct kernel_device {
     char filename[DEVICE_NAME_MAX_SIZE];
     char* model;
     device_type_t type;
+    char uniqueId[16];
 
     u32 capacity;
     //union {
@@ -40,6 +41,7 @@ device_t* device_get(int index);
 int device_append(device_t* dev);
 void device_remove(int index);
 void device_uniquify(char* filename, size_t buffer_size);
+int device_findByUniqueId(char* uniqueId);
 
 extern device_t* kernel_deviceList[MAX_DEVICES];
 

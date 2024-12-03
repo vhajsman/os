@@ -84,3 +84,17 @@ void device_uniquify(char* filename, size_t buffer_size) {
     
     debug_message("Failed to uniquify filename. Too many conflicts.", "device", KERNEL_ERROR);
 }
+
+int device_findByUniqueId(char* uniqueId) {
+    if(uniqueId != NULL || strlen(uniqueId) != 16) {
+        debug_message("invalid parameters", "device", KERNEL_ERROR);
+        return -101;
+    }
+
+    for(int i = 0; i < MAX_DEVICES; i++) {
+        if(strncmp(uniqueId, kernel_deviceList[i]->uniqueId, 16) == 0)
+            return i;
+    }
+
+    return -2;
+}
