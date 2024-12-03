@@ -361,7 +361,9 @@ bool fs_isinitrd(const char* path) {
 // }
 // 
 
+//struct fs_mnt* fs_mounts[MAX_MOUNT_POINTS] __attribute__((section(".data"))) = { NULL };
 struct fs_mnt* fs_mounts[MAX_MOUNT_POINTS] = { NULL };
+static struct fs_mnt mnt_storage[MAX_MOUNT_POINTS] __attribute__((section(".data"))) = {0};
 
 int findFreeMntField() {
     for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
@@ -396,6 +398,7 @@ int fs_mount(device_t* dev, const char* mnt, const char* fs_type, file_permissio
         return 2;
     }
 
+    fs_mounts[mntpoint_idx] = &mnt_storage[mntpoint_idx];
     struct fs_mnt* mntpoint = fs_mounts[mntpoint_idx];
 
     strncpy(mntpoint->mountpoint, mnt, sizeof(mntpoint->mountpoint) - 1);
@@ -414,7 +417,6 @@ int fs_mount(device_t* dev, const char* mnt, const char* fs_type, file_permissio
 
     dev->mount_count++;
 
-    fs_mounts_debug();
     return 0;
 }
 
