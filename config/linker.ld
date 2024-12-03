@@ -22,6 +22,14 @@ SECTIONS
         __kernel_text_section_end = .;
     }
 
+    .middlestack : {
+        __kernel_middlestack_section_start = .;
+        middlestack = .; _middlestack = .; __middlestack = .;
+        *(.middlestack)
+        . = ALIGN(4096);
+        __kernel_middlestack_section_end = .;
+    }
+
     /* initialized data section */
     .data : {
         __kernel_data_section_start = .;
