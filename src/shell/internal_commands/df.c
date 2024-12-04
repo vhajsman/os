@@ -24,7 +24,24 @@ int __df(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, void (
         itoa(c, 10, dev->capacity);
         callback_stdout(c);
         callback_stdout(" bytes, ");
-        callback_stdout("not mounted\n");
+        
+        //callback_stdout("not mounted\n");
+
+        if(fs_ismounted(dev)) {
+            char* mount = fs_findMntByDevice(dev);
+
+            if(mount == NULL) {
+                callback_stdout("mount point not valid\n");
+                continue;
+            }
+
+            callback_stdout("mount point: ");
+            callback_stdout(mount);
+        } else {
+            callback_stdout("not mounted");
+        }
+
+        callback_stdout("\n");
     }
 
 
