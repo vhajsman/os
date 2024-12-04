@@ -238,8 +238,8 @@ bool fs_isinitrd(const char* path) {
     return true;
 }
 
-struct fs_mnt* fs_mounts[MAX_MOUNT_POINTS] __attribute__((section(".middlestack"))) = { NULL };
-static struct fs_mnt mnt_storage[MAX_MOUNT_POINTS] __attribute__((section(".middlestack"))) = {0};
+struct fs_mnt* fs_mounts[MAX_MOUNT_POINTS] SECTION_MID = { NULL };
+static struct fs_mnt mnt_storage[MAX_MOUNT_POINTS] SECTION_MID = {0};
 
 int findFreeMntField() {
     for(int i = 0; i < MAX_MOUNT_POINTS; i++) {

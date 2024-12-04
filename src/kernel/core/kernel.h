@@ -20,6 +20,8 @@
 #define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
 #endif
 
+#define SECTION_MID __attribute__((section(".middlestack")))
+
 // #define PANIC(msg) panic(msg, __FILE__, __LINE__)
 
 #ifndef ASSERT
