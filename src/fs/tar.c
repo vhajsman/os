@@ -31,7 +31,11 @@ size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_
 
                 return fsize;
             } else {
-                debug_message("tar_readf(): insufficent buffer size", "tar", KERNEL_ERROR);
+                debug_message("tar_readf(): insufficent buffer size: allocated", "tar", KERNEL_ERROR);
+                debug_number(max_size, 10);
+                debug_append(", needed ");
+                debug_number(fsize, 10);
+
                 return 0;
             }
         }
@@ -40,7 +44,9 @@ size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_
         ptr += 512 + file_blocks * 512;
     }
     
-    debug_message("tar_readf(): file not found", "tar", KERNEL_ERROR);
+    debug_message("tar_readf(): file not found: ", "tar", KERNEL_ERROR);
+    debug_append(filename);
+    
     return 0;
 }
 
