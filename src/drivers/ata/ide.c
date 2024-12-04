@@ -255,6 +255,23 @@ void ide_bind() {
         idekrnldev[i].context_size = sizeof(ide_devices[i].drive);
         idekrnldev[i].mReadSector = NULL;
         idekrnldev[i].mWriteSector = NULL;
+        
+        // static char id[16] = "deviceatacx";
+        // id[15] = '0' + ide_devices[i].channel;
+        // strncpy(idekrnldev->uniqueId, id, 16);
+        
+        static char id[16] = "deviceatacx";
+        char chan = '0' + ide_devices[i].channel;
+        if (ide_devices[i].channel < 0 || ide_devices[i].channel > 9) {
+            debug_message("ide_bind(): invalid channel for device", "ide", KERNEL_ERROR);
+            continue;
+        }
+
+        size_t blen = 10;
+        id[blen] = chan;
+        id[blen + 1] = '\0';
+
+        strncpy(idekrnldev[i].uniqueId, id, sizeof(idekrnldev->uniqueId));
 
         if(device_append(&idekrnldev[i])) {
             debug_message("ide_bind(): bind failed: ", "ide", KERNEL_ERROR);
