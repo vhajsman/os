@@ -1,6 +1,7 @@
 #include "device.h"
 #include "string.h"
 #include "debug.h"
+#include "console.h"
 
 device_t* kernel_deviceList[MAX_DEVICES] = {NULL};
 
@@ -86,10 +87,15 @@ void device_uniquify(char* filename, size_t buffer_size) {
 }
 
 int device_findByUniqueId(char* uniqueId) {
-    if(uniqueId != NULL || strlen(uniqueId) != 16) {
-        debug_message("invalid parameters", "device", KERNEL_ERROR);
+    if(uniqueId == NULL) {
+        debug_message("device_findByUniqueId(): invalid parameters", "device", KERNEL_ERROR);
         return -101;
     }
+
+    char s[17];
+    strncpy(s, uniqueId, 16);
+    s[16] = '\0';
+    puts(s);
 
     for(int i = 0; i < MAX_DEVICES; i++) {
         if(strncmp(uniqueId, kernel_deviceList[i]->uniqueId, 16) == 0)
@@ -97,4 +103,24 @@ int device_findByUniqueId(char* uniqueId) {
     }
 
     return -2;
+}
+
+void device_debug() {
+    debug_message("Device list dump: ", "device", KERNEL_MESSAGE);
+    for(int i = 0; i < MAX_DEVICES; i++) {
+        debug_message(" --> ", "device", KERNEL_MESSAGE);
+        debug_number(i, 10);
+        debug_append(": ");
+        
+        if(kernel_deviceList[i] == NULL) {
+            debug_append("device is NULL");
+            continue;
+        }
+
+        device_t* dev = kernel_deviceList[i];
+
+        debug_append(dev->filename);
+        debug_append(": ");
+        debug_append(dev->uniqueId);
+    }
 }
