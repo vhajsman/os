@@ -92,11 +92,6 @@ int device_findByUniqueId(char* uniqueId) {
         return -101;
     }
 
-    char s[17];
-    strncpy(s, uniqueId, 16);
-    s[16] = '\0';
-    puts(s);
-
     for(int i = 0; i < MAX_DEVICES; i++) {
         if(strncmp(uniqueId, kernel_deviceList[i]->uniqueId, 16) == 0)
             return i;

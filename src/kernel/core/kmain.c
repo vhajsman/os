@@ -27,6 +27,7 @@
 #include "time/rtc.h"
 #include "floppy.h"
 #include "device.h"
+#include "util/fstab.h"
 
 MULTIBOOT_INFO* mboot_info;
 
@@ -120,6 +121,23 @@ int kmain_initrd(void* context) {
     return 0;
 }
 
+int kmain_automount(void* context) {
+    IGNORE_UNUSED(context);
+
+    device_debug();
+
+    char buffer[4096];
+    int read = initrd_read("etc/fstab", buffer, 4096);
+
+    if(read == 0) {
+        debug_message("failed to read fstab", "kmain", KERNEL_ERROR);
+        return 300;
+    }
+
+    debug_message("attemping automount...", "kmain", KERNEL_ERROR);
+    return fstab_mount(buffer);
+}
+
 void kmain_setuphooks() {
     kmain_hooks.name = "startup";
     kmain_hooks.count = 0;
@@ -178,6 +196,9 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     //ahci_init();
     mouse_init();
+    
+    kmain_automount(NULL);
+    fs_mounts_debug();
 
     //framebuffer_init();
 
