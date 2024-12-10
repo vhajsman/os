@@ -75,6 +75,17 @@ int fs_readfile(const char* path, char* buffer, u32 buffer_size, fs_node_t* curr
 
 int fs_cat(fs_node_t* node);
 
+
+#define FILE_PERMISSION_READ    (1 << 0)
+#define FILE_PERMISSION_WRITE   (1 << 1)
+#define FILE_PERMISSION_EXECUTE (1 << 2)
+#define FILE_PERMISSION_SPECIAL (1 << 3)
+
+#define FILE_PERMISSION_SET(PERMISSIONS, FLAG)      ((PERMISSIONS) |=  (FLAG))
+#define FILE_PERMISSION_CLEAR(PERMISSIONS, FLAG)    ((PERMISSIONS) &= ~(FLAG))
+#define FILE_PERMISSION_TOGGLE(PERMISSIONS, FLAG)   ((PERMISSIONS) ^=  (FLAG))
+#define FILE_PERMISSION_CHECK(PERMISSIONS, FLAG)    (((PERMISSIONS) &  (FLAG)) != 0)
+
 typedef u8 file_permissions_t;
 
 
