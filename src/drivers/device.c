@@ -2,8 +2,9 @@
 #include "string.h"
 #include "debug.h"
 #include "console.h"
+#include "kernel.h"
 
-device_t* kernel_deviceList[MAX_DEVICES] = {NULL};
+device_t* kernel_deviceList[MAX_DEVICES] SECTION_MID = {NULL};
 
 int device_findfreeslot() {
     for(int i = 0; i < MAX_DEVICES; i++) {
