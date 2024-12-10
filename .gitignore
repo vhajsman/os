@@ -9,3 +9,5 @@ GTAGS
 .git
 *.tar
 initrd/usr
+.clangd
+*.img
