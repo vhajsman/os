@@ -19,13 +19,11 @@
 #include "modules/interface.h"
 #include "fs/fs.h"
 #include "fs/tar.h"
-#include "ahci.h"
 #include "hid/mouse.h"
 #include "hook.h"
 #include "video/fb.h"
 #include "video/vga.h"
 #include "time/rtc.h"
-#include "floppy.h"
 #include "device.h"
 #include "util/fstab.h"
 

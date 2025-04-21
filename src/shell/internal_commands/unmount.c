@@ -54,7 +54,7 @@ int unmountByDevicePath(char* path, void (*callback_stdout) (char*)) {
         }
     }
 
-    return;
+    return 0;
 }
 
 int __unmount(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, void (*callback_stdout) (char*), char* (*callback_stdin) (void)) {

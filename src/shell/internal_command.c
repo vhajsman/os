@@ -17,12 +17,10 @@ INCLUDE_INTERNAL_COMMAND(hwinfo);
 INCLUDE_INTERNAL_COMMAND(echo);
 INCLUDE_INTERNAL_COMMAND(krnldbg);
 INCLUDE_INTERNAL_COMMAND(help);
-INCLUDE_INTERNAL_COMMAND(exp);
 INCLUDE_INTERNAL_COMMAND(cd);
 INCLUDE_INTERNAL_COMMAND(df);
 INCLUDE_INTERNAL_COMMAND(mount);
 INCLUDE_INTERNAL_COMMAND(unmount);
-INCLUDE_INTERNAL_COMMAND(var);
 
 void shell_registerAll() {
     registerCommand(&command_test);
@@ -31,9 +29,7 @@ void shell_registerAll() {
     registerCommand(&command_krnldbg);
     registerCommand(&command_cd);
     registerCommand(&command_help);
-    registerCommand(&command_exp);
     registerCommand(&command_df);
     registerCommand(&command_mount);
     registerCommand(&command_unmount);
-    registerCommand(&command_var);
 }
