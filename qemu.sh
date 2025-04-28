@@ -3,7 +3,7 @@ qemu-system-x86_64                                              \
     -M pc                                                       \
     -cpu pentium                                                \
     -smp sockets=1,cores=1,threads=1                            \
-    -m 256                                                      \
+    -m 128                                                      \
     -vga std                                                    \
     -device ac97                                                \
     -netdev user,id=n0                                          \

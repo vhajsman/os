@@ -1,3 +1,5 @@
+#define __REQ_ALL
+
 #include "paging.h"
 #include "debug.h"
 #include "math.h"
@@ -49,10 +51,6 @@ void* virtual2phys(page_directory_t* dir, void* virtual_addr) {
     return (void*) t;
 }
 
-/*
- * A dumb malloc, just to help building the paging data structure for the first 4mb that our kernel uses
- * It only manages memory from the end of pmm bitmap, to 0xC0400000, approximately 2mb.
- * */
 void* dumb_kmalloc(u32 size, int align) {
     void * ret = temp_mem;
 
@@ -63,10 +61,6 @@ void* dumb_kmalloc(u32 size, int align) {
     return ret;
 }
 
-/*
- * Allocate a frame from pmm, write frame number to the page structure
- * You may notice that we've set the both the PDE and PTE as user-accessible with r/w permissions, because..... we don't care security
- * */
 void paging_allocate(page_directory_t* dir, u32 virtual_addr, u32 frame, int is_kernel, int is_writable) {
     IGNORE_UNUSED(is_kernel);
     IGNORE_UNUSED(is_writable);
@@ -105,7 +99,7 @@ void paging_allocate(page_directory_t* dir, u32 virtual_addr, u32 frame, int is_
     }
 
     if(!table->pages[page_tbl_idx].present) {
-        u32 t = frame ? frame : memory_allocateBlk();
+        u32 t = frame ? frame : (u32) memory_block_alloc();
 
         table->pages[page_tbl_idx].frame = t;
         table->pages[page_tbl_idx].present = 1;
@@ -387,3 +381,4 @@ void paging_fault(REGISTERS* reg) {
 } 
 
 #undef __REQ_ALL_ADDRESS
+#undef __REQ_ALL

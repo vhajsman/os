@@ -22,6 +22,10 @@ INCLUDE_INTERNAL_COMMAND(df);
 INCLUDE_INTERNAL_COMMAND(mount);
 INCLUDE_INTERNAL_COMMAND(unmount);
 
+#ifdef _BUILD_INSIDERS
+INCLUDE_INTERNAL_COMMAND(mmdu);
+#endif
+
 void shell_registerAll() {
     registerCommand(&command_test);
     registerCommand(&command_hwinfo);
@@ -32,4 +36,8 @@ void shell_registerAll() {
     registerCommand(&command_df);
     registerCommand(&command_mount);
     registerCommand(&command_unmount);
+
+    #ifdef _BUILD_INSIDERS
+    registerCommand(&command_mmdu);
+    #endif
 }

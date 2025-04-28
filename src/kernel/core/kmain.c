@@ -159,6 +159,9 @@ void kmain(unsigned long magic, unsigned long addr) {
     asm volatile("sti");
 
     pit_init(1000); 
+
+    // DO NOT initialize debugging on your own if not insiders build
+    #ifdef _BUILD_INSIDERS
     serial_init();
 
     debug_setPort(COM1);
@@ -166,7 +169,12 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     debug_separator("START OF THE DEBUG LOG");
     debug_message("Debug enabled.", "Kernel main", KERNEL_MESSAGE);
-    debug_message("CubeBox OS! v 0.0.1 kernel! (test)", 0, KERNEL_IMPORTANT);
+    debug_message("CubeBox OS! v 0.0.1 kernel!", 0, KERNEL_IMPORTANT);
+    #endif
+
+    #ifdef _BUILD_INSIDERS
+        debug_message("insiders build - testing-purpose functionality included.", 0, KERNEL_MESSAGE);
+    #endif
 
     memory_init(mboot_info);
 
@@ -191,6 +199,11 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     putc('\n');
     printf("CubeBox OS! v 0.0.1 kernel! (test)\n");
+
+    #ifdef _BUILD_INSIDERS
+        printf("insiders build - testing-purpose functionality included.\n");
+        printf("Insiders build functions could possibly put your computer on security risk! Test purposes only!\n");
+    #endif
 
     //ahci_init();
     mouse_init();

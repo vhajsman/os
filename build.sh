@@ -18,6 +18,7 @@ for fc in $(find -name "*.c" -type f); do
     gcc -I kernel -I drivers -I kernel/common/structures -I kernel/common -I libc -I kernel/core -I shell -I fs -I . \
         -m32 -std=gnu99 -ffreestanding -c \
         -Wall -Wextra \
+        -D _BUILD_INSIDERS \
         $fc -o ../build/obj/$fc.o
 done
 
