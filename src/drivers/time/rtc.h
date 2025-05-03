@@ -10,7 +10,7 @@ struct rtc_time {
     u8 day;
     u8 mon;
     u16 year;
-};
+} __attribute__((packed)); // 7 bytes
 
 int rtc_isupdating();
 void rtc_wait();
