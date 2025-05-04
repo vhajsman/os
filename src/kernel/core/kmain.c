@@ -27,6 +27,21 @@
 #include "device.h"
 #include "util/fstab.h"
 
+#include "random.h"
+struct rng_ctx kernel_seed_ctx;
+
+rng_seed_t kernel_seed_v = {
+    0x12, 0x34, 0x56, 0x78,
+    0x9A, 0xBC, 0xDE, 0xF0,
+    0x01, 0x23, 0x45, 0x67,
+    0x89, 0xAB, 0xCD, 0xEF,
+    0xFE, 0xDC, 0xBA, 0x98,
+    0x76, 0x54, 0x32, 0x10,
+    0x00, 0x11, 0x22, 0x33,
+    0x44, 0x55, 0x66, 0x77
+};
+
+
 MULTIBOOT_INFO* mboot_info;
 
 struct kernel_hook_list kmain_hooks;
@@ -136,6 +151,26 @@ int kmain_automount(void* context) {
     return fstab_mount(buffer);
 }
 
+int kmain_seed(void* context) {
+    IGNORE_UNUSED(context);
+
+    rng_init(&kernel_seed_ctx, kernel_seed_v);
+    
+    debug_message("RNG testing", "RNG", KERNEL_MESSAGE);
+    u8 t[4];
+    for(int i = 0; i < 10; i++) {
+        debug_message("  --> ", "RNG", KERNEL_MESSAGE);
+
+        rng(&kernel_seed_ctx, t, 4);
+
+        u32 val; 
+        memcpy(&val, t , 4);
+        debug_number(val, 10);
+    }
+
+    return 0;
+}
+
 void kmain_setuphooks() {
     kmain_hooks.name = "startup";
     kmain_hooks.count = 0;
@@ -143,6 +178,7 @@ void kmain_setuphooks() {
     hook_register(&kmain_hooks, kmain_initperipherial, "peripherial init", NULL);
     hook_register(&kmain_hooks, kmain_cpuid, "CPUID", NULL);
     hook_register(&kmain_hooks, kmain_initrd, "initrd", NULL);
+    hook_register(&kmain_hooks, kmain_seed, "get seed for RNG", NULL);
 }
 
 
