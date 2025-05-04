@@ -154,8 +154,24 @@ int kmain_automount(void* context) {
 int kmain_seed(void* context) {
     IGNORE_UNUSED(context);
 
-    rng_init(&kernel_seed_ctx, kernel_seed_v);
+    #ifdef _OPT_SEED_ENTROPY_RTC
+        struct rtc_time time;
+        rtc_getTime(&time);
+
+        kernel_seed_ctx.seed[0] = time.sec;
+        kernel_seed_ctx.seed[1] = time.min;
+        kernel_seed_ctx.seed[2] = time.hrs;
+        kernel_seed_ctx.seed[3] = time.day;
+        kernel_seed_ctx.seed[4] = time.mon;
+        kernel_seed_ctx.seed[5] = (u8) (time.year & 0xFF);
+        kernel_seed_ctx.seed[6] = (u8)((time.year >> 8) & 0xFF);
+    #endif
+        
+    for(int i = 12; i < _RNG_SEED_BYTES; i++)
+        kernel_seed_ctx.seed[i] = (u8)((kernel_seed_ctx.seed[i - 12] ^ kernel_seed_ctx.seed[i - 6]) + i);
     
+    rng_init(&kernel_seed_ctx, kernel_seed_v);
+        
     debug_message("RNG testing", "RNG", KERNEL_MESSAGE);
     u8 t[4];
     for(int i = 0; i < 10; i++) {

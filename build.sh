@@ -19,6 +19,8 @@ for fc in $(find -name "*.c" -type f); do
         -m32 -std=gnu99 -ffreestanding -c \
         -Wall -Wextra \
         -D _BUILD_INSIDERS \
+        -D _OPT_SEED_ENTROPY_RTC \
+        -D _OPT_SEED_ENTROPY_CPUID \
         $fc -o ../build/obj/$fc.o
 done
 
