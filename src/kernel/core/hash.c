@@ -85,7 +85,7 @@ void sha256_update(sha256_ctx* ctx, const u8* data, size_t len) {
         if(ctx->datalen == 64) {
             sha256_transform(ctx, ctx->data);
 
-            ctx->bitlen += 512;
+            ctx->bitlen += (u64) len * 8;
             ctx->datalen = 0;
         }
     }
