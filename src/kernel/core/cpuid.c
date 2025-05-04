@@ -2,6 +2,7 @@
 #include <string.h>
 #include "console.h"
 #include "debug.h"
+#include "cpuid.h"
 
 char* cpu_brand;
 

@@ -83,8 +83,7 @@ BOOL is_echo(char *b);
 void shutdown();
 
 // _____ CPUID.C _____
-void cpuid(u32 type, u32 *eax, u32 *ebx, u32 *ecx, u32 *edx);
-int cpuid_info(int print);
+#include "cpuid.h"
 
 void kernel_panic(REGISTERS* reg, signed int exception);
 
