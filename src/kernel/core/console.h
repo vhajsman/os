@@ -9,25 +9,27 @@
 #define SCROLL_UP     1
 #define SCROLL_DOWN   2
 
-/*
-void console_clear(VGA_COLOR_TYPE foreground, VGA_COLOR_TYPE background);
-void console_init(VGA_COLOR_TYPE foreground, VGA_COLOR_TYPE background);
+typedef struct kernel_console {
+    u16*    videomem_addr;                              // pointer to video memory to use
+    u16     console_buffer[VGA_WIDTH * VGA_HEIGHT];     // pointer to console buffer
+    int     depth;
 
-void console_scroll(int line_count);
+    u8      position_x;
+    u8      position_y;
+    u8      size_x;
+    u8      size_y;
+    u16     color;
 
-void console_putchar(char ch);
+    u8      cursor_enable;
+    u8      cursor_position_x;
+    u8      cursor_position_y;
+    u8      cursor_scanline_a;
+    u8      cursor_scanline_b;
 
-void console_ungetchar();
-void console_ungetchar_bound(u8 n);
+    void (*stdio_putc)(const char c);
+} Console;
 
-void console_gotoxy(u16 x, u16 y);
-
-void console_putstr(const char *str);
-
-
-void getstr(char *buffer);
-svoid getstr_bound(char *buffer, u8 bound);
-*/
+void console_switch(Console* console);
 
 extern struct xy2d console_position;
 extern u8* console_posx;

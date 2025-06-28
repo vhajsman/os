@@ -1,6 +1,6 @@
 #! /bin/sh
 
-rm $(find ./build/obj/ -type f)
+rm $(find ./build/obj/ -type f) -f
 
 mkdir -p ./build/obj/../bin
 cd ./src

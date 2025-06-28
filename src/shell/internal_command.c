@@ -24,6 +24,7 @@ INCLUDE_INTERNAL_COMMAND(unmount);
 
 #ifdef _BUILD_INSIDERS
 INCLUDE_INTERNAL_COMMAND(mmdu);
+INCLUDE_INTERNAL_COMMAND(random);
 #endif
 
 void shell_registerAll() {
@@ -39,5 +40,6 @@ void shell_registerAll() {
 
     #ifdef _BUILD_INSIDERS
     registerCommand(&command_mmdu);
+    registerCommand(&command_random);
     #endif
 }

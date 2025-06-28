@@ -7,6 +7,8 @@
 #include "string.h"
 #include "paging.h"
 
+void memory_freelist_integrity();
+
 #define SETBIT(i)   bitmap[i / BLOCKS_PER_BUCKET] = bitmap[i / BLOCKS_PER_BUCKET] | (  1 << (i % BLOCKS_PER_BUCKET))
 #define CLEARBIT(i) bitmap[i / BLOCKS_PER_BUCKET] = bitmap[i / BLOCKS_PER_BUCKET] & (~(1 << (i % BLOCKS_PER_BUCKET)))
 #define ISSET(i)  ((bitmap[i / BLOCKS_PER_BUCKET] >> (i % BLOCKS_PER_BUCKET)) & 0x1)
@@ -90,7 +92,10 @@ void memory_init(MULTIBOOT_INFO* mbinfo) {
 
     for(u32 i = 0; i < memory_blockCount; i++) {
         struct memory_block* block = (struct memory_block*) (memory_start + i * BLOCK_SIZE);
+
         block->size = BLOCK_SIZE;
+        memory_setfree(&(block->size), 1);
+
         block->next = NULL;
         block->prev = NULL;
         block->used = 0;
@@ -108,6 +113,25 @@ void memory_init(MULTIBOOT_INFO* mbinfo) {
         memory_block_free(i);
         memory_freelist_append(block);
     }
+
+    struct memory_block* it = freelist;
+    for(int i = 0; i < 10 && it != NULL; i++) {
+        debug_message("..", "..", KERNEL_MESSAGE);
+        debug_number((u32) it, 16);
+        debug_append(" size=");
+        debug_number(it->size, 10);
+        debug_append(" isfree=");
+        debug_number(memory_isfree(it), 10);
+        debug_append(" used=");
+        debug_number(it->used, 10);
+        debug_append("\n");
+
+        it = it->next;
+    }
+
+    memory_freelist_integrity();
+
+    //while(true) {};
 }
 
 #undef _h_set
@@ -133,6 +157,11 @@ u32 memory_block_alloc() {
 void memory_block_free(u32 blk) {
     if(blk != _UNSIGNED_ERR)
         CLEARBIT(blk);
+}
+
+void memory_block_orphan(struct memory_block* blk) {
+    blk->next = NULL;
+    blk->prev = NULL;
 }
 
 u32 _placement = (u32) &end;
@@ -450,16 +479,15 @@ void memory_freelist_remove(struct memory_block* blk) {
 
     if(blk->prev) {
         blk->prev->next = blk->next;
-
-        if(blk->next)
-            blk->next->prev = blk->prev;
-
-        return;
+    } else {
+        freelist = blk->next;
     }
 
-    freelist = blk->next;
-    if(freelist)
-        freelist->prev = NULL;
+    if(blk->next) {
+        blk->next->prev = blk->prev;
+    }
+
+    memory_block_orphan(blk);
 }
 
 void memory_freelist_append(struct memory_block* blk) {
@@ -468,17 +496,44 @@ void memory_freelist_append(struct memory_block* blk) {
         return;
     }
 
+    struct memory_block* it = freelist;
+    while(it) {
+        if(it == blk) {
+            debug_message("memory_freelist_append(): block already in freelist!", "memory", KERNEL_ERROR);
+            return;
+        }
+
+        it = it->next;
+    }
+
     if(blk->used)
         debug_message("memory_freelist_append(): append used block!", "memory", KERNEL_WARNING);
 
+    blk->used = 0;
+    blk->prev = NULL;
     blk->next = freelist;
-    
-    freelist = blk;
-    freelist->prev = NULL;
 
     if(freelist)
         freelist->prev = blk;
 
+    freelist = blk;
+}
+
+void memory_freelist_integrity() {
+    struct memory_block* slow = freelist;
+    struct memory_block* fast = freelist;
+
+    while (slow && fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+
+        if (slow == fast) {
+            debug_message("Cycle detected in freelist!", "memory", KERNEL_ERROR);
+            return;
+        }
+    }
+
+    debug_message("No cycles in freelist detected.", "memory", KERNEL_MESSAGE);
 }
 
 struct memory_block* memory_bestfit(u32 size) {
@@ -675,7 +730,8 @@ done:
     __malloc_append(" = ");
     __malloc_number((unsigned int) &result, 16);
 
-    blk_best->used=1;
+    if(blk_best != NULL)
+        blk_best->used=1;
 
     return result;
 }

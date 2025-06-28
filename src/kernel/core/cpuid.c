@@ -86,3 +86,43 @@ int cpuid_info(int print) {
     // return (strstr(brand, "QEMU") != NULL) ? BRAND_QEMU : BRAND_VBOX;
     return cpuid_checkBrand(brand);
 }
+
+void cpuid_simple(u32 eax_in, u32 ecx_in, u32 *eax, u32 *ebx, u32 *ecx_out, u32 *edx) {
+    __asm__ volatile("cpuid"
+                        : "=a" (*eax), "=b" (*ebx), "=c" (*ecx_out), "=d" (*edx)
+                        : "a" (eax_in), "c" (ecx_in)
+    );
+}
+
+cpuid_signature_t cpuid_signature(u32* _eax) {
+    if(_eax == NULL) {
+        cpuid_signature_t t;
+        return t;
+    }
+
+    u32 eax = *_eax;
+
+    cpuid_signature_t signature = {
+        .stepping =    eax        & 0xF,
+        .model =      (eax >> 4)  & 0xF,
+        .family =     (eax >> 8)  & 0xF,
+        .proc_type =  (eax >> 12) & 0x3,
+        .ext_model =  (eax >> 16) & 0xF,
+        .ext_family = (eax >> 20) & 0xFF
+    };
+
+    if(signature.family == 0xF)
+        signature.family += signature.ext_family;
+
+    if(signature.family == 0x6 || signature.family == 0xF)
+        signature.model += (signature.ext_model << 4);
+}
+
+void cpuid_addrwidth(u8* phys_addr_bits, u8* virt_addr_bits, u32* _eax) {
+    if(phys_addr_bits == NULL || virt_addr_bits == NULL || _eax == NULL)
+        return;
+
+    u32 eax = *_eax;
+
+    
+}

@@ -296,3 +296,42 @@ u16 console_cursor_locate(void) {
 void console_cursor_show() {
     console_cursor_enable(_cursor_scanline_start, _cursor_scanline_end);
 }
+
+Console* console_current = NULL;
+
+void console_switch(Console* console) {
+    if(console == NULL)
+        return;
+
+    console_current = console;
+    console_initialize();
+    
+    memcpy((void*) &console->videomem_addr, console->console_buffer, console->size_x * console->size_y);
+
+    console_cursor_move(console->cursor_position_x, console->cursor_position_y);
+    if(console->cursor_enable)
+        console_cursor_enable(console->cursor_scanline_a, console->cursor_scanline_b);
+}
+
+void C_Console(Console* ptr, u16* videomem_addr, u8 size_x, u8 size_y, int depth, void (*stdio_putc)(const char c)) {
+    if(ptr == NULL)
+        return;
+
+    ptr->videomem_addr = videomem_addr;
+    ptr->depth = depth;
+    ptr->size_x = size_x;
+    ptr->size_y = size_y;
+    ptr->stdio_putc = stdio_putc;
+
+    ptr->position_x = 0;
+    ptr->position_y = 0;
+    ptr->color = 0x00;
+
+    ptr->cursor_enable = 1;
+    ptr->cursor_position_x = 0;
+    ptr->cursor_position_y = 0;
+    ptr->cursor_scanline_a = 0;
+    ptr->cursor_scanline_b = 15;
+
+    memset(ptr->console_buffer, 0x0000, ptr->size_x * ptr->size_y);
+}
