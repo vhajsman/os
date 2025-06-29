@@ -16,18 +16,11 @@ void memory_freelist_integrity();
 #define GET_BUCKET32(i) (*((u32*) &bitmap[i / 32]))
 #define BLOCK_ALIGN(addr) (((addr) & 0xFFFFF000) + 0x1000)
 
+#define SIZE_MASK       0xFFFFFFFE
+#define IS_FREE(size)   ((size) & 1)
+#define GET_SIZE(size)  ((size) & SIZE_MASK)
+
 #define _UNSIGNED_ERR (unsigned) -1
-
-struct memory_block* memory_block_prev(struct memory_block* blk);
-struct memory_block* memory_block_next(struct memory_block* blk);
-void memory_freelist_remove(struct memory_block* blk);
-void memory_freelist_append(struct memory_block* blk);
-u32 memory_getRealSize(u32 size);
-int memory_block_istail(struct memory_block* blk);
-int memory_block_doesItFit(struct memory_block* blk, u32 size);
-void memory_setfree(u32* size, int x);
-int memory_isfree(struct memory_block* blk);
-
 
 struct memory_block* head = nullptr;
 struct memory_block* tail = nullptr;
@@ -112,6 +105,8 @@ void memory_init(MULTIBOOT_INFO* mbinfo) {
 
         memory_block_free(i);
         memory_freelist_append(block);
+
+        memory_block_trailing(block);
     }
 
     struct memory_block* it = freelist;
@@ -135,6 +130,16 @@ void memory_init(MULTIBOOT_INFO* mbinfo) {
 }
 
 #undef _h_set
+
+u32 _placement = (u32) &end;
+
+void memory_block_trailing(struct memory_block* blk) {
+    u32 size = blk->size;
+    u32 size_real = memory_getRealSize(size);
+
+    u32* trailing = (u32*) ((u8*) blk + sizeof(struct memory_block) + size_real);
+    *trailing = size;
+}
 
 u32 memory_block_findfree() {
     for(u32 i = 0; i < memory_blockCount; i++) {
@@ -164,283 +169,6 @@ void memory_block_orphan(struct memory_block* blk) {
     blk->prev = NULL;
 }
 
-u32 _placement = (u32) &end;
-
-#ifdef _BUILD_INSIDERS
-#define __malloc_message(message, level)    debug_message(message, "kmalloc", level);
-#define __malloc_append(message)            debug_append(message);
-#define __malloc_number(number, base)       debug_number(number, base);
-#else
-#define __malloc_message(message, level)
-#define __malloc_append(message)
-#define __malloc_number(number, base)
-#endif
-
-void* kmalloc_cont(u32 size, int align, u32* addr_phys) {
-    if(align == 1 && (_placement & 0xFFFFF000)) {
-        // Align placement addr
-        _placement &= 0xFFFFF000;
-        _placement += 0x1000;
-    }
-
-    if(addr_phys != NULL)
-        *addr_phys = _placement;
-
-    u32 temp = _placement;
-    _placement += size;
-
-    return (void*) temp;
-}
-
-u32 kmalloc_int(u32 size, int align, u32* addr_phys) {
-    if(heap_start != NULL) {
-        if(align)
-            size =+ BLOCK_SIZE;
-
-        void* addr = kmalloc(size);
-        u32 addr_align = ((u32) addr & 0xFFFFF000) + 0x1000;
-
-        if(addr_phys != 0) {
-            u32 t = align ? addr_align : (u32) addr;
-            *addr_phys = (u32) virtual2phys(kpage_dir, (void*) t);
-        }
-
-        return align ? addr_align : (u32) addr;
-    }
-
-    if(align == 1 && (_placement & 0xFFFFF000)) {
-        _placement &= 0xFFFFF000;
-        _placement += 0x1000;
-    }
-
-    if(addr_phys)
-        *addr_phys = _placement;
-
-    u32 temp = _placement;
-    _placement += size;
-
-    return temp;
-}
-
-void* kmalloc_align(u32 size) {
-    return (void*) kmalloc_int(size, 1, 0);
-}
-
-u32 kmalloc_p(u32 size, u32* addr_phys) {
-    return kmalloc_int(size, 0, addr_phys);
-}
-
-u32 kmalloc_ap(u32 size, u32* addr_phys) {
-    return kmalloc_int(size, 1, addr_phys);
-}
-
-void* kmalloc_k(u32 size) {
-    return (void*) kmalloc_int(size, 0, 0);
-}
-
-void* kcalloc(u32 num, u32 size) {
-    void* ptr = kmalloc(num * size);
-    memset(ptr, 0, num * size);
-
-    return ptr;
-}
-
-#ifdef _BUILD_INSIDERS
-#define __realloc_message(message, level)    debug_message(message, "krealloc", level);
-#define __relloc_append(message)             debug_append(message);
-#define __relloc_number(number, base)        debug_number(number, base);
-#else
-#define __relloc_message(message, level)
-#define __relloc_append(message)
-#define __relloc_number(number, base)
-#endif
-
-#ifdef _BUILD_INSIDERS
-#define _h_set(__identifier, __value, __base)                   \
-    __identifier = __value;                                     \
-    debug_message("krealloc(): ", "memory", KERNEL_MESSAGE);    \
-    debug_append(#__identifier);                                \
-    debug_append(" = ");                                        \
-    debug_number((int) __identifier, __base);
-#else
-#define _h_set(__identifier, __value, __base)                   \
-    __identifier = __value;
-#endif
-
-void* krealloc(void* ptr, u32 size) {
-    u32* trailing = NULL;
-
-    if(!ptr)
-        return kmalloc(size);
-
-    if(size == 0 && ptr != NULL) {
-        __realloc_message("size == 0 && ptr != NULL", KERNEL_MESSAGE);
-
-        kfree(ptr);
-        return NULL;
-    }
-
-    u32 _h_set(size_rnd, ((size + 15) / 16) * 16, 10);
-    u32 _h_set(size_blk, size_rnd + OVERHEAD, 10);
-
-    struct memory_block* nptr       = ptr - sizeof(struct memory_block);
-    struct memory_block* blk_next   = memory_block_next(nptr);
-    struct memory_block* blk_prev   = memory_block_prev(nptr);
-
-    if(nptr->size == size)
-        return ptr;
-
-    if(nptr->size < size) {
-        if( tail != nptr && 
-            memory_isfree(blk_next) && 
-            (memory_getRealSize(nptr->size) + OVERHEAD + memory_getRealSize(blk_next->size)) >= size_rnd) {
-                memory_freelist_remove(blk_next);
-
-                nptr->size = memory_getRealSize(nptr->size) + OVERHEAD + memory_getRealSize(blk_next->size);
-                memory_setfree(&(nptr->size), 0);
-
-                trailing = (void*) nptr + sizeof(struct memory_block) + memory_getRealSize(nptr->size);
-                *trailing = nptr->size;
-                
-                if(tail == blk_next)
-                    tail = nptr;
-
-                return nptr + 1;
-        }
-
-        if( head != nptr && 
-            memory_isfree(blk_prev) &&
-            (memory_getRealSize(nptr->size) + OVERHEAD + memory_getRealSize(blk_prev->size)) >= size_rnd) {
-                u32 size_org = memory_getRealSize(nptr->size);
-                
-                memory_freelist_remove(blk_prev);
-
-                blk_prev->size = size_org + OVERHEAD + memory_getRealSize(blk_prev->size);
-                memory_setfree(&(blk_prev->size), 0);
-
-                trailing = (void*) blk_prev + sizeof(struct memory_block) + memory_getRealSize(blk_prev->size);
-                *trailing = blk_prev->size;
-
-                if(tail == nptr)
-                    tail = blk_prev;
-
-                memcpy(blk_prev + 1, ptr, size_org);
-                return blk_prev + 1;
-        }
-
-        void* nplace = kmalloc(size);
-        memcpy(nplace, ptr, memory_getRealSize(nptr->size));
-
-        kfree(ptr);
-
-        return nplace;
-    }
-
-    u32 rest = memory_getRealSize(nptr->size) + OVERHEAD - size_blk;
-    if(rest < 8 + OVERHEAD)
-        return ptr;
-
-    nptr->size = size_blk - OVERHEAD;
-    memory_setfree(&(nptr->size), 0);
-
-    trailing = (void*) nptr + sizeof(struct memory_block) + memory_getRealSize(nptr->size);
-    *trailing = nptr->size;
-
-    struct memory_block* blk_split = (void*) trailing + sizeof(u32);
-    
-    if(blk_next && memory_isfree(blk_next)) {
-        blk_split->size = rest + memory_getRealSize(blk_next->size);
-        memory_setfree(&(blk_split->size), 1);
-
-        trailing = (void*) blk_split + sizeof(struct memory_block) + memory_getRealSize(blk_split->size);
-        *trailing = blk_split->size;
-
-        memory_freelist_remove(blk_next);
-
-        if(tail == blk_next)
-            tail = blk_split;
-
-        memory_freelist_append(blk_split);
-        return ptr;
-    }
-
-    blk_split->size = rest - OVERHEAD;
-    memory_setfree(&(blk_split->size), 0);
-
-    trailing = (void*) blk_split + sizeof(struct memory_block) + memory_getRealSize(blk_split->size);
-    *trailing = blk_split->size;
-
-    memory_freelist_append(blk_split);
-    return ptr;
-}
-
-#ifdef _h_set
-#undef _h_set
-#endif
-
-void kfree(void* ptr) {
-    struct memory_block* blk_curr = ptr - sizeof(struct memory_block);
-    struct memory_block* blk_prev = memory_block_prev(blk_curr);
-    struct memory_block* blk_next = memory_block_next(blk_curr);
-
-    u32 size = memory_getRealSize(blk_curr->size) + OVERHEAD;
-    memory_used -= size;
-
-    if(memory_isfree(blk_prev) && memory_isfree(blk_next)) {
-        blk_prev->size =
-            memory_getRealSize(blk_prev->size) + 2 * OVERHEAD +
-            memory_getRealSize(blk_curr->size) +
-            memory_getRealSize(blk_next->size);
-
-        memory_setfree(&(blk_prev->size), 1);
-
-        u32* trailing = (void*) blk_prev + sizeof(struct memory_block) + memory_getRealSize(blk_prev->size);
-        *trailing = blk_prev->size;
-
-        if(tail == blk_next)
-            tail = blk_prev;
-
-        memory_freelist_remove(blk_next);
-        return;
-    }
-
-    if(memory_isfree(blk_prev)) {
-        blk_prev->size = memory_getRealSize(blk_prev->size) + OVERHEAD + memory_getRealSize(blk_curr->size);
-        memory_setfree(&(blk_prev->size), 1);
-
-        u32* trailing = (void*) blk_prev + sizeof(struct memory_block) + memory_getRealSize(blk_prev->size);
-        *trailing = blk_prev->size;
-
-        if(tail == blk_curr)
-            tail = blk_prev;
-
-        return;
-    }
-
-    if(memory_isfree(blk_next)) {
-        blk_curr->size = memory_getRealSize(blk_curr->size) + OVERHEAD + memory_getRealSize(blk_next->size);
-        memory_setfree(&(blk_curr->size), 1);
-
-        u32* trailing = (void*) blk_curr + sizeof(struct memory_block) + memory_getRealSize(blk_curr->size);
-        *trailing = blk_curr->size;
-
-        if(tail == blk_next)
-            tail = blk_curr;
-
-        memory_freelist_remove(blk_next);
-        memory_freelist_append(blk_curr);
-
-        return;
-    }
-
-    memory_setfree(&(blk_curr->size), 1);
-
-    u32* trailing = (void*) blk_curr + sizeof(struct memory_block) + memory_getRealSize(blk_curr->size);
-    *trailing = blk_curr->size;
-
-    memory_freelist_append(blk_curr);
-}
-
 void kheap_init(void* start, void* end, void* max) {
     heap_start  = start;
     heap_end    = end;
@@ -451,7 +179,6 @@ void kheap_init(void* start, void* end, void* max) {
 }
 
 u32 memory_getRealSize(u32 size) {
-    // return (size >> 1) << 1;
     return (size % 8 == 0) ? size : ((size + 7) / 8) * 8;
 }
 
@@ -460,7 +187,6 @@ int memory_block_istail(struct memory_block* blk) {
 }
 
 int memory_block_doesItFit(struct memory_block* blk, u32 size) {
-    // return blk->size >= memory_getRealSize(size) && memory_isfree(blk);
     return blk->size >= size && memory_isfree(blk);
 }
 
@@ -469,71 +195,7 @@ void memory_setfree(u32* size, int x) {
 }
 
 int memory_isfree(struct memory_block* blk) {
-    // return blk ? blk->size & 1 : 0;
     return blk && blk->size & 1;
-}
-
-void memory_freelist_remove(struct memory_block* blk) {
-    if(!blk)
-        return;
-
-    if(blk->prev) {
-        blk->prev->next = blk->next;
-    } else {
-        freelist = blk->next;
-    }
-
-    if(blk->next) {
-        blk->next->prev = blk->prev;
-    }
-
-    memory_block_orphan(blk);
-}
-
-void memory_freelist_append(struct memory_block* blk) {
-    if(!blk) {
-        debug_message("memory_freelist_append(): append null block!", "memory", KERNEL_ERROR);
-        return;
-    }
-
-    struct memory_block* it = freelist;
-    while(it) {
-        if(it == blk) {
-            debug_message("memory_freelist_append(): block already in freelist!", "memory", KERNEL_ERROR);
-            return;
-        }
-
-        it = it->next;
-    }
-
-    if(blk->used)
-        debug_message("memory_freelist_append(): append used block!", "memory", KERNEL_WARNING);
-
-    blk->used = 0;
-    blk->prev = NULL;
-    blk->next = freelist;
-
-    if(freelist)
-        freelist->prev = blk;
-
-    freelist = blk;
-}
-
-void memory_freelist_integrity() {
-    struct memory_block* slow = freelist;
-    struct memory_block* fast = freelist;
-
-    while (slow && fast && fast->next) {
-        slow = slow->next;
-        fast = fast->next->next;
-
-        if (slow == fast) {
-            debug_message("Cycle detected in freelist!", "memory", KERNEL_ERROR);
-            return;
-        }
-    }
-
-    debug_message("No cycles in freelist detected.", "memory", KERNEL_MESSAGE);
 }
 
 struct memory_block* memory_bestfit(u32 size) {
@@ -575,16 +237,26 @@ struct memory_block* memory_bestfit(u32 size) {
     return blk_best;
 }
 
+u32 memory_getRawSize(u32 size) {
+    return size & ~1;
+}
+
 struct memory_block* memory_block_prev(struct memory_block* blk) {
     if(blk == head)
         return NULL;
 
-    void* ptr = blk;
-    u32* uptr = ptr - sizeof(u32);
-    u32 prev_size = memory_getRealSize(*uptr);
+    // void* ptr = blk;
+    // u32* uptr = ptr - sizeof(u32);
+    // u32 prev_size = memory_getRealSize(*uptr);
 
-    void* ret = ptr - OVERHEAD - prev_size;
-    return ret;
+    u32* uptr = (u32*) ((u8*) blk - sizeof(u32));
+    u32 prev_size = memory_getRawSize(*uptr);
+
+    // void* ret = ptr - OVERHEAD - prev_size;
+    // return ret;
+    
+    void* ret = (u8*) blk - OVERHEAD - prev_size;
+    return (struct memory_block*) ret;
 }
 
 struct memory_block* memory_block_next(struct memory_block* blk) {
@@ -596,147 +268,6 @@ struct memory_block* memory_block_next(struct memory_block* blk) {
 
     return ptr;
 }
-
-#define _h_set(__identifier, __value, __base)                   \
-    __identifier = __value;                                     \
-    debug_message("memory_init(): ", "memory", KERNEL_MESSAGE); \
-    debug_append(#__identifier);                                \
-    debug_append(" = ");                                        \
-    debug_number((int) __identifier, __base);
-
-void* kmalloc(u32 size) {
-    void* result = NULL;
-    u32* trailing = NULL;
-
-    if(size == 0)
-        goto done;
-
-    __malloc_message("running kmalloc() size=", KERNEL_MESSAGE);
-    __malloc_number(size, 10);
-
-    u32 _h_set(size_rnd, ((size + 15) / 16) * 16, 10);
-    u32 _h_set(size_blk, size_rnd + OVERHEAD, 10);
-
-    struct memory_block* blk_best = memory_bestfit(size_rnd);
-
-    if(blk_best) {
-        void* ptr = (void*) blk_best;
-        void* blk_save_next = memory_block_next(blk_best);
-
-        u32 size_chunk = memory_getRealSize(blk_best->size) + OVERHEAD;
-        u32 size_rest = size_chunk - size_blk;
-        u32 size_w = (size_rest < 8 + OVERHEAD) ? size_chunk : size_blk;
-
-        blk_best->size = size_w - OVERHEAD;
-        memory_setfree(&(blk_best->size), 0);
-
-        void* base = ptr;
-        trailing = ptr + size_w - sizeof(u32);
-        *trailing = blk_best->size;
-        ptr = (void*) (trailing + 1);
-
-        memory_used += size_blk;
-
-        if(size_rest < 8 + OVERHEAD) {
-            __malloc_message("size_rest is smaller than OVERHEAD+8", KERNEL_MESSAGE);
-            goto noSplit;
-        }
-
-        if(size_rest >= 8) {
-            __malloc_message("size_rest >= 8", KERNEL_MESSAGE);
-
-            if(base != tail && memory_isfree(blk_save_next)) {
-                void* blk_next_void = blk_save_next;
-                struct memory_block* blk_next = blk_next_void;
-    
-                memory_freelist_remove(blk_next);
-    
-                struct memory_block* t = ptr;
-                t->size = size_rest - OVERHEAD + memory_getRealSize(blk_next->size) + OVERHEAD;
-                memory_setfree(&(t->size), 1);
-
-                ptr += sizeof(struct memory_block) + memory_getRealSize(t->size);
-                trailing = ptr;
-                *trailing = t->size;
-
-                if(blk_next == tail) {
-                    tail = t;
-
-                    int size_reclaim = memory_getRealSize(t->size) + OVERHEAD;
-                    ksbrk(-size_reclaim);
-
-                    goto noSplit;
-                }
-
-                memory_freelist_append(t);
-            } else {
-                struct memory_block* putback = ptr;
-                putback->size = size_rest - OVERHEAD;
-                memory_setfree(&(putback->size), 1);
-
-                trailing = ptr + sizeof(struct memory_block) + memory_getRealSize(putback->size);
-                *trailing = putback->size;
-
-                if(base == tail) {
-                    tail = putback;
-
-                    int size_reclaim = memory_getRealSize(putback->size) + OVERHEAD;
-                    ksbrk(-size_reclaim);
-
-                    goto noSplit;
-                }
-            }
-        }
-noSplit:
-    __malloc_message("goto nosplit", KERNEL_MESSAGE);
-
-    memory_freelist_remove(base);
-
-    result = base + sizeof(struct memory_block);
-    goto done;
-
-    } else {
-        u32 size_real = size_blk;
-        struct memory_block* ret = ksbrk(size_real);
-
-        ASSERT(ret != NULL && "kmalloc(): not enough memory in heap\n");
-
-        memory_used += size_real;
-
-        if(!head)
-            head = ret;
-
-        void* ptr  = ret;
-        void* save = ret;
-        tail = ptr;
-
-        ret->size = size_blk - OVERHEAD;
-        memory_setfree(&(ret->size), 0);
-
-        ptr += size_blk - sizeof(u32);
-
-        trailing = ptr;
-        *trailing = ret->size;
-
-        result = save + sizeof(struct memory_block);
-        goto done;
-    }
-
-done:
-    __malloc_message("malloc(", KERNEL_MESSAGE);
-    __malloc_number(size, 10);
-    __malloc_append(")");
-
-    __malloc_append(" = ");
-    __malloc_number((unsigned int) &result, 16);
-
-    if(blk_best != NULL)
-        blk_best->used=1;
-
-    return result;
-}
-
-#undef _h_set
 
 u32 memory_getused() {
     return memory_used;

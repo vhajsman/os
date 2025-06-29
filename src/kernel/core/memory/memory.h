@@ -170,4 +170,14 @@ int munmap(page_directory_t* dir, u32 start_va, u32 size);
 
 int mprotect(page_directory_t* dir, u32 start_va, u32 size, int prot);
 
+struct memory_block* memory_block_prev(struct memory_block* blk);
+struct memory_block* memory_block_next(struct memory_block* blk);
+void memory_freelist_remove(struct memory_block* blk);
+void memory_freelist_append(struct memory_block* blk);
+u32 memory_getRealSize(u32 size);
+int memory_block_istail(struct memory_block* blk);
+int memory_block_doesItFit(struct memory_block* blk, u32 size);
+void memory_setfree(u32* size, int x);
+int memory_isfree(struct memory_block* blk);
+
 #endif
