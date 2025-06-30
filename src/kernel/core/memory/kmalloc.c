@@ -203,7 +203,7 @@ done:
     __malloc_append(")");
 
     __malloc_append(" = ");
-    __malloc_number((unsigned int) &result, 16);
+    __malloc_number((unsigned int) result, 16);
 
     if(blk_best != NULL)
         blk_best->used=1;
