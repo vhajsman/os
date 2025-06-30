@@ -50,17 +50,61 @@ struct memory_block {
     struct memory_block* prev;
 };
 
+/**
+ * @brief Gets real size of block, without metadata and flags
+ * 
+ * @param size size
+ * @return u32 real size
+ */
 u32 memory_getRealSize(u32 size);
 
-// u32 memory_block_find();
+/**
+ * @brief Writes trailing
+ * 
+ * @param blk block
+ */
 void memory_block_trailing(struct memory_block* blk);
+
+/**
+ * @brief Disconnects block from "siblings"
+ * 
+ * @param blk 
+ */
 void memory_block_orphan(struct memory_block* blk);
 
+/**
+ * @brief Gets previous block
+ * 
+ * @param blk block
+ * @return struct memory_block* 
+ */
 struct memory_block* memory_block_prev(struct memory_block* blk);
+
+/**
+ * @brief Gets next block
+ * 
+ * @param blk block
+ * @return struct memory_block* 
+ */
 struct memory_block* memory_block_next(struct memory_block* blk);
 
+/**
+ * @brief Check if block is tailing (end of memory). Returns 1 if yes, 0 if no.
+ * 
+ * @param blk block
+ * @return int 
+ */
 int memory_block_istail(struct memory_block* blk);
+
+/**
+ * @brief Returns 1 if data of required size fits in to block. Returns 0 otherwise.
+ * 
+ * @param blk block
+ * @param size data size
+ * @return int 
+ */
 int memory_block_doesItFit(struct memory_block* blk, u32 size);
+
 
 void memory_setfree(u32* size, int x);
 int memory_isfree(struct memory_block* blk);
@@ -84,11 +128,8 @@ extern void* heap_end;      // Where heap ends (must be page-aligned)
 extern void* heap_curr;     // Top of heap
 extern void* heap_max;      // Maximum heap_end
 
-void kheap_init(void* start, void* end, void* max);
-
 void memory_freelist_remove(struct memory_block* blk);
 void memory_freelist_append(struct memory_block* blk);
-
 
 // =========================================================
 // =================== KMALLOC (kmalloc.c)
