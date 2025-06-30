@@ -52,7 +52,7 @@ struct memory_block {
 
 u32 memory_getRealSize(u32 size);
 
-u32 memory_block_find();
+// u32 memory_block_find();
 void memory_block_trailing(struct memory_block* blk);
 void memory_block_orphan(struct memory_block* blk);
 
