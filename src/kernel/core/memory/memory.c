@@ -41,7 +41,7 @@ void memory_init(MULTIBOOT_INFO* mbinfo) {
     _h_set(memory_blockCount,   memory_size / BLOCK_SIZE,               10);
 
     void* _heap_start = KHEAP_START;
-    void* _heap_end =   (void*) ((u8*) _heap_start + KHEAP_INITIAL_SIZE)
+    void* _heap_end =   (void*) ((u8*) _heap_start + KHEAP_INITIAL_SIZE);
     void* _heap_max =   KHEAP_MAX_ADDRESS;
     
     kheap_init(_heap_start, _heap_end, _heap_max);
