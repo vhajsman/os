@@ -34,7 +34,7 @@ int __mmdu(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, void
             void* addr = kmalloc(atoi(tokens[2]));
     
             char buf_res[32];
-            itoa(buf_res, 16, (u32) &addr);
+            itoa(buf_res, 16, (u32) addr);
             callback_stdout(addr == NULL ? "null" : buf_res);
             callback_stdout("\n");
         }
@@ -48,7 +48,7 @@ int __mmdu(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, void
             void* addr = (void*) memory_bestfit(atoi(tokens[2]));
     
             char buf_res[32];
-            itoa(buf_res, 16, (u32) &addr);
+            itoa(buf_res, 16, (u32) addr);
             callback_stdout(addr == NULL ? "null" : buf_res);
             callback_stdout("\n");
         }
