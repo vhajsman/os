@@ -117,8 +117,8 @@ extern u32 _placement;
 
 #define KHEAP_START         (void*) 0xC0400000
 #define KHEAP_MAX_ADDRESS   (void*) 0xCFFFFFFF
-#define KHEAP_INITIAL_SIZE  48 * M
-#define HEAP_MIN_SIZE       4 * M
+#define KHEAP_INITIAL_SIZE  (48 * M)
+#define HEAP_MIN_SIZE       (4 * M)
 
 #define PAGE_SIZE 4096
 #define OVERHEAD (sizeof(struct memory_block) + sizeof(unsigned int))
@@ -128,8 +128,11 @@ extern void* heap_end;      // Where heap ends (must be page-aligned)
 extern void* heap_curr;     // Top of heap
 extern void* heap_max;      // Maximum heap_end
 
+void kheap_init(void* start, void* end, void* max);
+
 void memory_freelist_remove(struct memory_block* blk);
 void memory_freelist_append(struct memory_block* blk);
+
 
 // =========================================================
 // =================== KMALLOC (kmalloc.c)
