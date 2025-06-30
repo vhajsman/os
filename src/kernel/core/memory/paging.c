@@ -99,9 +99,9 @@ void paging_allocate(page_directory_t* dir, u32 virtual_addr, u32 frame, int is_
     }
 
     if(!table->pages[page_tbl_idx].present) {
-        u32 t = frame ? frame : (u32) memory_block_alloc();
+        // u32 t = frame ? frame : (u32) memory_block_alloc();
 
-        table->pages[page_tbl_idx].frame = t;
+        table->pages[page_tbl_idx].frame = frame;
         table->pages[page_tbl_idx].present = 1;
         table->pages[page_tbl_idx].rw = 1;
         table->pages[page_tbl_idx].user = 1;
@@ -190,8 +190,6 @@ void paging_freeRegion(page_directory_t* dir, u32 start_va, u32 end_va, int _fre
 }
 
 void paging_init() {
-    temp_mem = bitmap + bitmap_size;
-
     // Allocate a page directory and set it to all zeros
     kpage_dir = dumb_kmalloc(sizeof(page_directory_t), 1);
     memset(kpage_dir, 0, sizeof(page_directory_t));

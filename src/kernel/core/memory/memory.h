@@ -6,6 +6,15 @@
 #include "stdlib.h"
 #include "memory/paging.h"
 
+#define GET_BUCKET32(i) (*((u32*) &bitmap[i / 32]))
+#define BLOCK_ALIGN(addr) (((addr) & 0xFFFFF000) + 0x1000)
+
+#define SIZE_MASK       0xFFFFFFFE
+#define IS_FREE(size)   ((size) & 1)
+#define GET_SIZE(size)  ((size) & SIZE_MASK)
+
+#define _UNSIGNED_ERR (unsigned) -1
+
 #ifndef nullptr
 #define nullptr ((void*) 0x00)
 #endif
@@ -19,25 +28,47 @@
 #define PROT_NONE  0x0
 #define PROT_USER  0x8
 
+extern struct memory_block* head;
+extern struct memory_block* tail;
+extern struct memory_block* freelist;
+
+extern u8* memory_start;
+extern u32 memory_size;
+extern u32 memory_blockCount;
+
+extern size_t memory_used;
+
 void memory_init(MULTIBOOT_INFO* mboot_info);
-void kheap_init(void* start, void* end, void* max);
 
 struct memory_block {
     u8 used;
     u8 kernel;
-
+    
     unsigned int size;
-
+    
     struct memory_block* next;
     struct memory_block* prev;
 };
 
+u32 memory_getRealSize(u32 size);
+
 u32 memory_block_find();
-u32 memory_block_alloc();
-void memory_block_free(u32 blknum);
+void memory_block_trailing(struct memory_block* blk);
+void memory_block_orphan(struct memory_block* blk);
+
+struct memory_block* memory_block_prev(struct memory_block* blk);
+struct memory_block* memory_block_next(struct memory_block* blk);
+
+int memory_block_istail(struct memory_block* blk);
+int memory_block_doesItFit(struct memory_block* blk, u32 size);
+
+void memory_setfree(u32* size, int x);
+int memory_isfree(struct memory_block* blk);
+
+extern u32 _placement;
 
 // =========================================================
-// =================== MEMROY HEAP
+// =================== MEMROY HEAP (heap.c)
 // =========================================================
 
 #define KHEAP_START         (void*) 0xC0400000
@@ -48,12 +79,20 @@ void memory_block_free(u32 blknum);
 #define PAGE_SIZE 4096
 #define OVERHEAD (sizeof(struct memory_block) + sizeof(unsigned int))
 
-#ifdef __REQ_ALL_ADDRESS
-    extern void* heap_start;    // Where heap starts (must be page-aligned)
-    extern void* heap_end;      // Where heap ends (must be page-aligned)
-    extern void* heap_curr;     // Top of heap
-    extern void* heap_max;      // Maximum heap_end
-#endif
+extern void* heap_start;    // Where heap starts (must be page-aligned)
+extern void* heap_end;      // Where heap ends (must be page-aligned)
+extern void* heap_curr;     // Top of heap
+extern void* heap_max;      // Maximum heap_end
+
+void kheap_init(void* start, void* end, void* max);
+
+void memory_freelist_remove(struct memory_block* blk);
+void memory_freelist_append(struct memory_block* blk);
+
+
+// =========================================================
+// =================== KMALLOC (kmalloc.c)
+// =========================================================
 
 /**
  * @brief allocate contigual memory block
@@ -103,6 +142,10 @@ void* kmalloc(u32 sz);
  */
 void* kcalloc(u32 num, u32 size);
 
+// =========================================================
+// =================== KREALLOC (krealloc.c)
+// =========================================================
+
 /**
  * @brief re-allocates (resizes) allocated memory block and returns its new address
  * 
@@ -112,12 +155,22 @@ void* kcalloc(u32 num, u32 size);
  */
 void* krealloc(void* ptr, u32 size);
 
+// =========================================================
+// =================== KFREE (kfree.c)
+// =========================================================
+
 /**
  * @brief frees allocated memory block
  * 
  * @param ptr memory block pointer to be freed
  */
 void kfree(void* ptr);
+
+// =========================================================
+// =================== BESTFIT ALGORYTHM (bestfit.c)
+// =========================================================
+
+struct memory_block* memory_bestfit(u32 size);
 
 /**
  * @brief calculates and returns the nearest higher or equal multiple of 8 for a given size
@@ -129,21 +182,12 @@ u32 memory_getRealSize(u32 size);
 
 int doesItFit(struct memory_block* n, u32 size);
 
-// void setFree(u32* size, int x);
-// int isFree(struct memory_block* n);
-
-void memory_freelist_remove(struct memory_block* x);
-void memory_freelist_append(struct memory_block* x);
-
-struct memory_block* memory_bestfit(u32 size);
 struct memory_block* memory_block_prev(struct memory_block* n);
 struct memory_block* memory_block_next(struct memory_block* n);
 
 #ifdef __REQ_ALL
     extern int kheap_enabled;
     
-    extern u8* bitmap;
-    extern u32 bitmap_size;
     extern u8* memory_start;
     extern u32 memory_size;
     extern u32 memory_blockCount;
@@ -169,15 +213,5 @@ void* mmap(page_directory_t* dir, u32 start_va, u32 size, int prot);
 int munmap(page_directory_t* dir, u32 start_va, u32 size);
 
 int mprotect(page_directory_t* dir, u32 start_va, u32 size, int prot);
-
-struct memory_block* memory_block_prev(struct memory_block* blk);
-struct memory_block* memory_block_next(struct memory_block* blk);
-void memory_freelist_remove(struct memory_block* blk);
-void memory_freelist_append(struct memory_block* blk);
-u32 memory_getRealSize(u32 size);
-int memory_block_istail(struct memory_block* blk);
-int memory_block_doesItFit(struct memory_block* blk, u32 size);
-void memory_setfree(u32* size, int x);
-int memory_isfree(struct memory_block* blk);
 
 #endif

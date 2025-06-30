@@ -1,5 +1,10 @@
 #include "memory.h"
 
+void* heap_start;    // Where heap starts (must be page-aligned)
+void* heap_end;      // Where heap ends (must be page-aligned)
+void* heap_curr;     // Top of heap
+void* heap_max;      // Maximum heap_end
+
 void memory_freelist_remove(struct memory_block* blk) {
     if(!blk)
         return;
