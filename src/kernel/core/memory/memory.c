@@ -40,7 +40,11 @@ void memory_init(MULTIBOOT_INFO* mbinfo) {
     _h_set(memory_start,        (u8*) BLOCK_ALIGN((u32) &end),          10);
     _h_set(memory_blockCount,   memory_size / BLOCK_SIZE,               10);
 
-    kheap_init(KHEAP_START, (void*) ((u8*) KHEAP_START + KHEAP_INITIAL_SIZE), KHEAP_MAX_ADDRESS);
+    void* _heap_start = KHEAP_START;
+    void* _heap_end =   (void*) ((u8*) _heap_start + KHEAP_INITIAL_SIZE)
+    void* _heap_max =   KHEAP_MAX_ADDRESS;
+    
+    kheap_init(_heap_start, _heap_end, _heap_max);
 
     freelist = NULL;
     head = NULL;
