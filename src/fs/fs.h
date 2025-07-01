@@ -70,7 +70,7 @@ void fs_destroy(fs_node_t* node);
 */
 int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t** target);
 
-int fs_readfilen(fs_node_t* filenode, char* buffer, u32 buffer_size);
+int fs_readfilenode(fs_node_t* filenode, char* buffer, u32 buffer_size);
 int fs_readfile(const char* path, char* buffer, u32 buffer_size, fs_node_t* currentnode);
 
 int fs_cat(fs_node_t* node);

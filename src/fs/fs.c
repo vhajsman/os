@@ -6,6 +6,9 @@
 #include "kernel.h"
 #include "device.h"
 
+#define _MNTCHK(__iter) \
+    (fs_mounts[__iter] == NULL || fs_mounts[__iter]->mountpoint[0] == '\0')
+
 fs_node_t* fs_root = 0;
 
 u32 fs_read(fs_node_t* node, u32 offset, u32 size, u8* buffer) {
@@ -80,8 +83,8 @@ struct fs_node* fs_finddir(fs_node_t* node, char* name) {
     struct fs_dirent* dirent;
 
     while((dirent = node->readdir(node, index)) != NULL) {
-        if (strcmp(dirent->name, name) == 0) {
-            struct fs_node* found_node = (fs_node_t*) malloc(sizeof(fs_node_t));
+        if(strcmp(dirent->name, name) == 0) {
+            struct fs_node* found_node = (fs_node_t*) kmalloc(sizeof(fs_node_t));
             memset(found_node, 0, sizeof(fs_node_t));
 
             strcpy(found_node->name, dirent->name);
@@ -89,12 +92,12 @@ struct fs_node* fs_finddir(fs_node_t* node, char* name) {
             found_node->flags = node->flags;
 
             if((found_node->flags & 0x7) == FS_DIRECTORY) {
-                // fs_destroy(found_node);
+                // return fs_finddir(found_node, name);
 
-                return fs_finddir(found_node, name);
+                fs_node_t* next = fs_finddir(found_node, name);
+                fs_destroy(found_node);
+                return next;
             }
-
-            // fs_destroy(found_node); 
 
             return found_node;
         }
@@ -172,7 +175,7 @@ u32 fs_getfilesizen(fs_node_t* filenode) {
     return filenode->length;
 }
 
-int fs_readfilen(fs_node_t* filenode, char* buffer, u32 buffer_size) {
+int fs_readfilenode(fs_node_t* filenode, char* buffer, u32 buffer_size) {
     if(filenode == NULL) {
         debug_message("fs_readfilenode(): invalid file node.", "fs", KERNEL_ERROR);
         return -1;
@@ -183,6 +186,11 @@ int fs_readfilen(fs_node_t* filenode, char* buffer, u32 buffer_size) {
         return -2;
     }
 
+    if(filenode->length == 0) {
+        debug_message("fs_readfilenode(): file empty.", "fs", KERNEL_ERROR);
+        return 0;
+    }
+    
     if(filenode->length > buffer_size) {
         debug_message("fs_readfilenode(): not enough memory", "fs", KERNEL_ERROR);
         return -3;
@@ -205,7 +213,7 @@ int fs_readfile(const char* path, char* buffer, u32 buffer_size, fs_node_t* curr
         return -5;
     }
 
-    return fs_readfilen(node, buffer, buffer_size);
+    return fs_readfilenode(node, buffer, buffer_size);
 }
 
 int fs_cat(fs_node_t* node) {
@@ -216,15 +224,22 @@ int fs_cat(fs_node_t* node) {
 
     u32 length = node->length + 2;
 
-    char buffer[length];
-    memset(buffer, '\0', length);
+    char* buffer = kmalloc(length);
+    if(buffer == NULL) {
+        debug_message("fs_cat(): not enough memory.", "fs", KERNEL_ERROR);
+        return 2;
+    }
 
-    if(fs_readfilen(node, buffer, length) != (int) node->length) {
+    if(fs_readfilenode(node, buffer, length) != (int) node->length) {
         debug_message("fs_cat(): read failed. filesize not equal the excepted.", "fs", KERNEL_ERROR);
+
+        free(buffer);
         return 1;
     }
 
     puts(buffer);
+
+    free(buffer);
     return 0;
 }
 
@@ -243,7 +258,7 @@ static struct fs_mnt mnt_storage[MAX_MOUNT_POINTS] SECTION_MID = {0};
 
 int findFreeMntField() {
     for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
-        if(fs_mounts[i] == NULL)
+        if(_MNTCHK(i))
             return i;
     }
 
@@ -252,7 +267,7 @@ int findFreeMntField() {
 
 struct fs_mnt* findMntByName(const char* mnt) {
     for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
-        if(fs_mounts[i] == NULL)
+        if(_MNTCHK(i))
             continue;
         
         if(strcmp(mnt, fs_mounts[i]->mountpoint) == 0)
@@ -297,9 +312,8 @@ int fs_mount(device_t* dev, const char* mnt, const char* fs_type, file_permissio
 }
 
 int fs_unmount(const char* mnt) {
-    if(mnt == NULL) {
+    if(mnt == NULL)
         return 0;
-    }
 
     struct fs_mnt* mntpoint = findMntByName(mnt);
     if(mntpoint == NULL) {
@@ -309,8 +323,15 @@ int fs_unmount(const char* mnt) {
         return 1;
     }
 
-    mntpoint->dev->mount_count--;
-    mntpoint = NULL;
+    for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
+        if(fs_mounts[i] == mntpoint) {
+            fs_mounts[i] = NULL;
+            break;
+        }
+    }
+
+    //mntpoint->dev->mount_count--;
+    //mntpoint = NULL;
 
     return 0;
 }
@@ -373,3 +394,4 @@ void fs_mounts_debug() {
     }
 }
 
+#undef _MNTCHK
