@@ -1,7 +1,8 @@
-# Cubebox OS
+![Cubeboxlogo](res/cbos-logo.png)
 
-DIY Hobby operating system  
-![screenshot](screenshot/screenshot-1.png)
+# Cubebox OS - DIY Hobby operating system
+
+![screenshot](screenshot/screenshot-2.png)
 
 # Build dependencies
 
