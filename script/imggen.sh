@@ -1,6 +1,6 @@
 echo "Generating image"
 
-mkdir -p build/iso/boot/grub
+mkdir -p build/iso/boot/grub/themes/default
 
 cp res/cbos-grub-bg.png build/iso/boot/grub/background.png
 cp config/grub.cfg build/iso/boot/grub/
