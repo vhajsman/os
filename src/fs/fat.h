@@ -93,3 +93,13 @@ typedef struct __attribute__((packed)) {
     u32 filesize;
 } fat32_dirent_t;
 
+typedef struct {
+    fat32_kernel_info_t* fs;
+
+    u32 cluster_start;
+    u32 cluster_current;
+    u32 dir_offset;
+    u32 filesize;
+
+    bool is_dir;
+} fat32_file_t;
