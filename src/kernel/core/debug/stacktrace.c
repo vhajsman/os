@@ -45,6 +45,8 @@ void debug_dumpStackTrace(u8 depth, void (*_fn_print)(unsigned char*)) {
         _fn_print((unsigned char*) i_string);
         _fn_print((unsigned char*) "] 0x");
         _fn_print((unsigned char*) addr_string);
+        _fn_print(": ");
+        _fn_print((unsigned char*) debug_lookup((uintptr_t) addr));
         _fn_print((unsigned char*) "\n");
     }
 }

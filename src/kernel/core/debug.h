@@ -2,6 +2,7 @@
 #define __DEBUG_H
 
 #include "types.h"
+#include "libc/stdint.h"
 
 enum kernel_statusLevels {
     KERNEL_MESSAGE,
@@ -84,5 +85,17 @@ void debug_putc(char c);
  * @param _fn_print pointer to function that is used as print
  */
 void debug_dumpStackTrace(u8 depth, void (*_fn_print)(unsigned char*));
+
+// =========================================================
+// =================== SYMBOL LOOKUP (debug/symbol.c, symbol.h)
+// =========================================================
+
+/**
+ * @brief Get name of symbol of kernel binary
+ * 
+ * @param addr symbol address
+ * @return const char* 
+ */
+const char* debug_lookup(uintptr_t addr);
 
 #endif
