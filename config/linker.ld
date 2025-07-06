@@ -60,4 +60,8 @@ SECTIONS
     __end = .;
     
     __kernel_section_end = .;
+
+    .note.GNU-stack : {
+        KEEP(*(.note.GNU-stack))
+    }
 }
