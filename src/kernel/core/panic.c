@@ -55,8 +55,11 @@ void kernel_panic_dumpreg(REGISTERS* reg, signed int exception) {
 //     while(pit_directRead() < end) {}
 // }
 
-void kernel_panic(REGISTERS* reg, signed int exception) {
+#ifndef __KERNEL_PANIC_STACK_TRACE_DEPTH
+#define __KERNEL_PANIC_STACK_TRACE_DEPTH 10
+#endif
 
+void kernel_panic(REGISTERS* reg, signed int exception) {
     debug_separator("KERNEL PANIC");
     debug_message("Kernel panic.", "Kernel panic", KERNEL_FATAL);
 
@@ -66,8 +69,16 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
     if(reg != NULL)
         kernel_panic_dumpreg(reg, exception);
 
-    puts("\n");
-    puts("CPU is now halted. If debugging enabled, check debug log for more information.\n");
+
+    // --- stack trace ---
+    debug_message("kernel stack trace\n", "Kernel panic", KERNEL_FATAL);
+    void _print(unsigned char* data) {
+        puts(data);
+        debug_append(data);
+    }
+
+    puts("\nKERNEL STACK TRACE:\n");
+    debug_dumpStackTrace(__KERNEL_PANIC_STACK_TRACE_DEPTH, &_print);
 
     puts("--------------");
 

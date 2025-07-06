@@ -70,4 +70,19 @@ void debug_messagea(const char* message, const char* interface, enum kernel_stat
 
 void debug_putc(char c);
 
+// =========================================================
+// =================== STACK TRACE (debug/stacktrace.c)
+// =========================================================
+
+#define __wrap_return_address(x)    \
+    ((x) >= 0 && (x) < 16 ? __builtin_return_address(x) : NULL)
+
+/**
+ * @brief Dumps stack trace
+ * 
+ * @param depth how many addresses to dump
+ * @param _fn_print pointer to function that is used as print
+ */
+void debug_dumpStackTrace(u8 depth, void (*_fn_print)(unsigned char*));
+
 #endif
