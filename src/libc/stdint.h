@@ -1,7 +1,7 @@
-#include "types.h"
-
 #ifndef __STDINT_H
 #define __STDINT_H
+
+#include "kernel/common/types.h"
 
 #ifndef __defined_null
 #define __defined_null 1
