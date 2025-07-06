@@ -1,3 +1,5 @@
+#include "types.h"
+
 #ifndef __STDINT_H
 #define __STDINT_H
 
@@ -11,8 +13,8 @@
     #define nullptr ((void*) 0)
 #endif
 
-#define __size_t __uint_64t
-typedef __size_t size_t;
+typedef unsigned int uintptr_t;
+
 
 #define BYTE    char
 #define WORD    short
