@@ -86,6 +86,14 @@ void debug_putc(char c);
  */
 void debug_dumpStackTrace(u8 depth, void (*_fn_print)(unsigned char*));
 
+/**
+ * @brief Captures stack trace and save maximum frames to buffer
+ * 
+ * @param buffer buffer pointer
+ * @param maxFrames maximum frames to be captured
+ */
+void debug_captureStackTrace(void** buffer, unsigned int maxFrames);
+
 // =========================================================
 // =================== SYMBOL LOOKUP (debug/symbol.c, symbol.h)
 // =========================================================

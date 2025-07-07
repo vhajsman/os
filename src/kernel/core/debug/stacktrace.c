@@ -1,26 +1,25 @@
 #include "debug.h"
 #include "string.h"
 #include "libc/stdint.h"
+#include "stack.h"
 
-void* get_return_address(int i) {
-    switch(i) {
-        case 0: return __builtin_return_address(0);
-        case 1: return __builtin_return_address(1);
-        case 2: return __builtin_return_address(2);
-        case 3: return __builtin_return_address(3);
-        case 4: return __builtin_return_address(4);
-        case 5: return __builtin_return_address(5);
-        case 6: return __builtin_return_address(6);
-        case 7: return __builtin_return_address(7);
-        case 8: return __builtin_return_address(8);
-        case 9: return __builtin_return_address(9);
-        case 10: return __builtin_return_address(10);
-        case 11: return __builtin_return_address(11);
-        case 12: return __builtin_return_address(12);
-        case 13: return __builtin_return_address(13);
-        case 14: return __builtin_return_address(14);
-        case 15: return __builtin_return_address(15);
-        default: return NULL;
+void debug_captureStackTrace(void** buffer, unsigned int maxFrames) {
+    if(maxFrames == 0 || buffer == NULL) {
+        debug_message("debug_captureStackTrace(): invalid parameters", "debug", KERNEL_ERROR);
+        return;
+    }
+
+    kernel_stack_frame_t* frame;
+
+    // get EBP register value
+    asm volatile("movl %%ebp, %0" : "=r" (frame));
+
+    for(unsigned int i = 0; i < maxFrames; i++) {
+        if(frame == NULL || frame->ebp == NULL)
+            break;
+
+        buffer[i] = frame->ret_addr;
+        frame = frame->ebp;
     }
 }
 
@@ -30,8 +29,13 @@ void debug_dumpStackTrace(u8 depth, void (*_fn_print)(unsigned char*)) {
         return;
     }
 
-    for(int i = 0; i < depth; i++) {
-        void* addr = get_return_address(i);
+    void* trace[depth];
+    memset(trace, 0x00, sizeof(trace));
+
+    debug_captureStackTrace(trace, depth);
+
+    for(unsigned int i = 0; i < depth; i++) {
+        void* addr = trace[i];
         if(!addr || (uintptr_t) addr < 0x10000)
             break;
 

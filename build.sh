@@ -16,6 +16,7 @@ for fc in $(find -name "*.c" -type f); do
     gcc -I kernel -I drivers -I kernel/common/structures -I kernel/common -I libc -I kernel/core -I shell -I fs -I . \
         -m32 -std=gnu99 -ffreestanding -c \
         -Wall -Wextra \
+        -fno-omit-frame-pointer -fno-optimize-sibling-calls -mno-omit-leaf-frame-pointer \
         -D _BUILD_INSIDERS \
         -D _OPT_SEED_ENTROPY_RTC \
         -D _OPT_SEED_ENTROPY_CPUID \
