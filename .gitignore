@@ -11,3 +11,6 @@ GTAGS
 initrd/usr
 .clangd
 *.img
+
+*.sym.c
+*.sym.entries
