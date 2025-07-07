@@ -14,3 +14,4 @@ initrd/usr
 
 *.sym.c
 *.sym.entries
+.configure
