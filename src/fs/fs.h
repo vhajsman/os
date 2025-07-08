@@ -92,13 +92,11 @@ typedef u8 file_permissions_t;
 #define MAX_MOUNT_POINTS 16
 
 struct fs_mnt {
-    device_t* dev;
-
     char mountpoint[256];
     char fs_type[8];
+    device_t* dev;
     file_permissions_t permission;
-
-    // struct fs_mnt* next;
+    fs_node_t* node;
 };
 
 // int fs_mount(device_t* dev, char* mnt, char* fs_type, file_permissions_t permissions);
@@ -117,5 +115,44 @@ bool fs_ismounted(device_t* dev);
 char* fs_findMntByDevice(device_t* dev);
 
 void fs_mounts_debug();
+
+// =========================================================
+// =================== FILESYSTEM DRIVERS (backend/fs_drivers.c)
+// =========================================================
+
+#ifndef MAX_FS_DRIVERS
+#define MAX_FS_DRIVERS 24
+#endif
+
+#include "fs.h"
+#include "debug.h"
+
+typedef fs_node_t* (*fs_mount_callback_t)(device_t* dev);
+
+typedef struct fs_driver_entry {
+    const char* name;
+    fs_mount_callback_t mount_callback;
+} fs_driver_entry_t;
+
+extern fs_driver_entry_t fs_drivers[MAX_FS_DRIVERS];
+extern struct fs_mnt* fs_mounts[MAX_MOUNT_POINTS];
+extern struct fs_mnt mnt_storage[MAX_MOUNT_POINTS];
+
+/**
+ * @brief Registers the filesystem driver. Returns 0 if success, 1 otherwise
+ * 
+ * @param name filesystem name
+ * @param mount_callback mount callback
+ * @return int 
+ */
+int fs_driver_register(const char* name, fs_mount_callback_t mount_callback);
+
+/**
+ * @brief Gets function callback. Returns the callback pointer if found, NULL otherwise
+ * 
+ * @param name filesystem name
+ * @return fs_mount_callback_t 
+ */
+fs_mount_callback_t fs_driver_getCallback(char* name);
 
 #endif

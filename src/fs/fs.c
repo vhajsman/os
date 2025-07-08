@@ -127,8 +127,23 @@ int fs_resolvepath(const char* path, fs_node_t* currentnode, fs_node_t** target)
     fs_node_t* current = currentnode == NULL ? fs_root : currentnode;
     *target = (fs_node_t*) NULL;
 
-    if (path[0] == '/')
+    if(path[0] == '/')
         path++;
+
+    for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
+        if(_MNTCHK(i))
+            continue;
+        
+        const char* mp = fs_mounts[i]->mountpoint;
+        size_t len = strlen(mp);
+        
+        if(strncmp(path, mp, len) == 0 && path[len] == '/') {
+            current = fs_mounts[i]->node;
+            path += len + 1; // skip over mountpoint part
+            break;
+        }
+    }
+        
 
     char* path_copy = strdup(path);
     char* token =     strtok(path_copy, "/");
@@ -254,7 +269,7 @@ bool fs_isinitrd(const char* path) {
 }
 
 struct fs_mnt* fs_mounts[MAX_MOUNT_POINTS] SECTION_MID = { NULL };
-static struct fs_mnt mnt_storage[MAX_MOUNT_POINTS] SECTION_MID = {0};
+struct fs_mnt mnt_storage[MAX_MOUNT_POINTS] SECTION_MID = {0};
 
 int findFreeMntField() {
     for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
@@ -289,6 +304,18 @@ int fs_mount(device_t* dev, const char* mnt, const char* fs_type, file_permissio
         return 2;
     }
 
+    fs_mount_callback_t mount_cb = fs_driver_getCallback(fs_type);
+    if(mount_cb == NULL) {
+        debug_message("fs_mount(): mounmt callback not found", "fs", KERNEL_ERROR);
+        return 3;
+    }
+
+    fs_node_t* root_node = mount_cb(dev);
+    if (root_node == NULL) {
+        debug_message("fs_mount(): mount callback failed - exited NULL", "fs", KERNEL_ERROR);
+        return 4;
+    }
+
     fs_mounts[mntpoint_idx] = &mnt_storage[mntpoint_idx];
     struct fs_mnt* mntpoint = fs_mounts[mntpoint_idx];
 
@@ -300,6 +327,7 @@ int fs_mount(device_t* dev, const char* mnt, const char* fs_type, file_permissio
 
     mntpoint->dev = dev;
     mntpoint->permission = permissions;
+    mntpoint->node = root_node;
 
     debug_message("fs_mount(): device mounted successfully: ", "fs", KERNEL_OK);
     debug_append(dev->filename);
