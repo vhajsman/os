@@ -111,6 +111,10 @@ int memory_isfree(struct memory_block* blk);
 
 extern u32 _placement;
 
+/**
+ */
+u32 memory_block_alloc();
+
 // =========================================================
 // =================== MEMROY HEAP (heap.c)
 // =========================================================
@@ -215,6 +219,10 @@ void kfree(void* ptr);
 // =========================================================
 
 struct memory_block* memory_bestfit(u32 size);
+
+// =========================================================
+// =================== BITMAP FOR PAGING (bmap.c)
+// =========================================================
 
 /**
  * @brief calculates and returns the nearest higher or equal multiple of 8 for a given size

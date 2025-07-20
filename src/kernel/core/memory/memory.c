@@ -221,5 +221,23 @@ int mprotect(page_directory_t* dir, u32 start_va, u32 size, int prot) {
 }
 
 
+
+
+
+// --------------------------------------------------
+
+/*
+static u32 nextFreeFrame = 0x100000;
+
+u32 memory_block_alloc() {
+    // TODO: use safer method to do this in the future
+
+    u32 frame = nextFreeFrame;
+    nextFreeFrame += BLOCK_SIZE;
+
+    return frame;
+}
+*/
+
 #undef _UNSIGNED_ERR
 #undef __REQ_ALL
