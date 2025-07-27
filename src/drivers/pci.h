@@ -82,6 +82,7 @@ void pci_init();
 #endif
 
 u32 pci_config_read(pci_dev_t* dev, u8 offset);
+void pci_config_write16(pci_dev_t* dev, u8 offset, u16 data);
 u32 pci_read_bar0(pci_dev_t* dev);
 
 #endif

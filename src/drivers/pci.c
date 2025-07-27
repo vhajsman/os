@@ -180,7 +180,7 @@ u32 pci_config_read(pci_dev_t* dev, u8 offset) {
 
 void pci_config_write16(pci_dev_t* dev, u8 offset, u16 data) {
     outportl(PCI_CONFIG_ADDRESS, dev->bits | (offset & 0xFC));
-    outportw(PCI_CONFIG_DATA + (offset & 2), value);
+    outportw(PCI_CONFIG_DATA + (offset & 2), data);
 }
 
 u32 pci_read_bar0(pci_dev_t* dev) {

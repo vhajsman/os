@@ -22,6 +22,17 @@ void outports(u16 port, u16 data) {
     asm volatile ("outw %1, %0" : : "dN" (port), "a" (data));
 }
 
+u16 inportw(u16 port) {
+    u16 rv;
+    asm volatile ("inw %1, %0" : "=a" (rv) : "dN" (port));
+
+    return rv;
+}
+
+void outportw(u16 port, u16 data) {
+    asm volatile ("outw %1, %0" : : "dN" (port), "a" (data));
+}
+
 u32 inportl(u16 port) {
     u32 rv;
     asm volatile ("inl %%dx, %%eax" : "=a" (rv) : "dN" (port));
