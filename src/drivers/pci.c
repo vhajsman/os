@@ -5,7 +5,7 @@
 #include "string.h" // For debug macros
 
 u32 pci_size_map[100];
-pci_dev_t dev_zero = {0};
+const pci_dev_t dev_zero = {0};
 
 u32 pci_read(pci_dev_t device, u32 field) {
     u32 size = pci_size_map[field];
@@ -171,4 +171,13 @@ void pci_init() {
 	pci_size_map[PCI_SECONDARY_BUS]		= 1;
 
     debug_message("init ok", "PCI", KERNEL_OK);
+}
+
+u32 pci_config_read(pci_dev_t* dev, u8 offset) {
+    outportl(dev->bits | (offset & 0xFC), PCI_CONFIG_ADDRESS);
+    return inportl(PCI_CONFIG_DATA);
+}
+
+u32 pci_read_bar0(pci_dev_t* dev) {
+    return pci_config_read(dev, PCI_BAR0)
 }
