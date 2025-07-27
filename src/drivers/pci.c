@@ -179,5 +179,5 @@ u32 pci_config_read(pci_dev_t* dev, u8 offset) {
 }
 
 u32 pci_read_bar0(pci_dev_t* dev) {
-    return pci_config_read(dev, PCI_BAR0)
+    return pci_config_read(dev, PCI_BAR0);
 }
