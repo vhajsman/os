@@ -63,6 +63,9 @@ void kbd_setLeds(int n, int c, int s) {
 void kbd_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
 
+    if(!_kbd_enable)
+        return;
+
     char c;
     u8 scancode;
     int setLeds = 0;
