@@ -71,4 +71,19 @@ void console_cursor_move(int x, int y);
 u16 console_cursor_locate(void);
 void console_cursor_show();
 
+// =========================================================
+// ===== KEY BUFFER
+// =========================================================
+
+void keybuffer_disable();
+void keybuffer_enable(u8 printOnAppend);
+void keybuffer_set(unsigned char* val);
+void keybuffer_append(char c);
+void keybuffer_discard();
+const unsigned char* keybuffer_read();
+const unsigned char* keybuffer_wait(char breaker);
+void keybuffer_nowait();
+
+extern size_t _keyb_size;
+
 #endif

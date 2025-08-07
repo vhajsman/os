@@ -2,6 +2,7 @@
 #define KEYBOARD_H
 
 #include "types.h"
+#include "console.h"
 
 #define KEYBOARD_DATA_PORT          0x60
 #define KEYBOARD_STATUS_PORT        0x64
@@ -55,20 +56,5 @@ u8 kbd_getLastKey();
 char kbd_getLastChar();
 
 char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr);
-
-// =========================================================
-// ===== KEY BUFFER
-// =========================================================
-
-void keybuffer_disable();
-void keybuffer_enable(u8 printOnAppend);
-void keybuffer_set(unsigned char* val);
-void keybuffer_append(char c);
-void keybuffer_discard();
-const unsigned char* keybuffer_read();
-const unsigned char* keybuffer_wait(char breaker);
-void keybuffer_nowait();
-
-extern size_t _keyb_size;
 
 #endif

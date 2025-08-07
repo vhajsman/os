@@ -81,7 +81,7 @@ size_t console_column;
 
 u8 console_color;
 u16* console_buffer;
- 
+
 void console_initialize(void) {
 	console_position.x = 0;
     console_position.y = 0;
