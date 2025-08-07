@@ -75,13 +75,55 @@ void console_cursor_show();
 // ===== KEY BUFFER
 // =========================================================
 
+/**
+ * @brief disable key buffering
+ */
 void keybuffer_disable();
+
+/**
+ * @brief enable key buffering
+ * 
+ * @param printOnAppend whether to print characters on append
+ */
 void keybuffer_enable(u8 printOnAppend);
+
+/**
+ * @brief explicitely set key buffer contents
+ * 
+ * @param val 
+ */
 void keybuffer_set(unsigned char* val);
+
+/**
+ * @brief append character to the buffer
+ * 
+ * @param c 
+ */
 void keybuffer_append(char c);
+
+/**
+ * @brief discard key buffer contents
+ */
 void keybuffer_discard();
+
+/**
+ * @brief get key buffer contents
+ * 
+ * @return const unsigned* 
+ */
 const unsigned char* keybuffer_read();
+
+/**
+ * @brief wait for breaker key to be append
+ * 
+ * @param breaker 
+ * @return const unsigned* 
+ */
 const unsigned char* keybuffer_wait(char breaker);
+
+/**
+ * @brief stop waiting
+ */
 void keybuffer_nowait();
 
 extern size_t _keyb_size;
