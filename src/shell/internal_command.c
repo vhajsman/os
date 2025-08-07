@@ -21,6 +21,8 @@ INCLUDE_INTERNAL_COMMAND(cd);
 INCLUDE_INTERNAL_COMMAND(df);
 INCLUDE_INTERNAL_COMMAND(mount);
 INCLUDE_INTERNAL_COMMAND(unmount);
+INCLUDE_INTERNAL_COMMAND(lspci);
+
 
 #ifdef _BUILD_INSIDERS
 INCLUDE_INTERNAL_COMMAND(mmdu);
@@ -37,6 +39,7 @@ void shell_registerAll() {
     registerCommand(&command_df);
     registerCommand(&command_mount);
     registerCommand(&command_unmount);
+    registerCommand(&command_lspci);
 
     #ifdef _BUILD_INSIDERS
     registerCommand(&command_mmdu);
