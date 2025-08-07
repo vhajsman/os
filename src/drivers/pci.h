@@ -58,12 +58,12 @@ typedef union pci_dev {
 
 
 
-u32 pci_read(pci_dev_t device, u32 field);
-void pci_write(pci_dev_t device, u32 field, u32 value);
+u32 pci_read(pci_dev_t* device, u32 field);
+void pci_write(pci_dev_t* device, u32 field, u32 value);
 
-u32 pci_getDeviceType(pci_dev_t device);
-u32 pci_bridge(pci_dev_t device);
-u32 pci_reachEnd(pci_dev_t device);
+u32 pci_getDeviceType(pci_dev_t* device);
+u32 pci_bridge(pci_dev_t* device);
+u32 pci_reachEnd(pci_dev_t* device);
 
 pci_dev_t pci_scanFunction(u16 vendorId, u16 deviceId, u32 bus, u32 device, u32 function, int device_type);
 pci_dev_t pci_scanDevice(u16 vendorId, u16 deviceId, u32 bus, u32 device, int device_type);

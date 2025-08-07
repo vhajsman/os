@@ -73,11 +73,6 @@ typedef struct {
     device_t* dev;
 } fat32_kernel_info_t;
 
-typedef struct {
-    fat32_fsinfo_t* fsinfo;
-    u32 cluster_start;
-} fat32_file_t;
-
 typedef struct __attribute__((packed)) {
     char name[11];
     u8 attr;
@@ -95,11 +90,9 @@ typedef struct __attribute__((packed)) {
 
 typedef struct {
     fat32_kernel_info_t* fs;
-
     u32 cluster_start;
     u32 cluster_current;
     u32 dir_offset;
     u32 filesize;
-
     bool is_dir;
 } fat32_file_t;

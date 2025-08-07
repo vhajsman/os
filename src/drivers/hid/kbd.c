@@ -51,7 +51,7 @@ void kbd_sendCommand(u8 command) {
 }
 
 #define SEND_COMMAND(COMMAND)   kbd_sendCommand(COMMAND)
-#define SEND_DATA(DATA)         kbd_sendEncCommand(COMMAND)
+#define SEND_DATA(DATA)         kbd_sendEncCommand(DATA)
 
 void kbd_setLeds(int n, int c, int s) {
     u8 data = (s ? 1 : 0) | (n ? 2 : 0) | (c ? 4 : 0);
@@ -61,17 +61,9 @@ void kbd_setLeds(int n, int c, int s) {
 }
 
 void kbd_irq(REGISTERS* r) {
-    //puts("kbdirq");
     IGNORE_UNUSED(r);
 
-    //asm("add esp, 12");
-    //asm("pushad");
-    //asm("cli");
-
-    //static int ext = 0;
-
     char c;
-
     u8 scancode;
     int setLeds = 0;
 
@@ -113,32 +105,9 @@ void kbd_irq(REGISTERS* r) {
             _scan = scancode;
 
             switch (scancode) {
-                case SCAN_CODE_KEY_LEFT_CTRL:
-                //case SCAN_CODE_KEY_RIGHT_CTRL:
-                    _ctrl = 1;
-                    break;
-                
-                case SCAN_CODE_KEY_LEFT_SHIFT:
-                    //puts("S");
-                    _shift = 1;
-                    break;
-                
-                // ? idk why but doesnt work lmao
-                //case SCAN_CODE_LEFT_SHIFT_RELEASE:
-                //case SCAN_CODE_RIGHT_SHIFT_RELEASE:
-                //    _shift = 0;
-                //    break;
-
-                case SCAN_CODE_KEY_ALT:
-                    _alt = 1;
-                    break;
-
-
-
-                //case SCAN_CODE_KEY_SCROLL_LOCK:
-                //case SCAN_CODE_KEY_CAPS_LOCK:
-                //case SCAN_CODE_KEY_NUM_LOCK:
-
+                case SCAN_CODE_KEY_LEFT_CTRL:   _ctrl   = 1;    break;
+                case SCAN_CODE_KEY_LEFT_SHIFT:  _shift  = 1;    break;
+                case SCAN_CODE_KEY_ALT:         _alt    = 1;    break;
 
                 case SCAN_CODE_KEY_CAPS_LOCK:
                     _capslock = !_capslock;
@@ -154,8 +123,6 @@ void kbd_irq(REGISTERS* r) {
                     _scrollock = !_scrollock;
                     setLeds = 1;
                     break;
-
-
 
                 default:
                     break;
@@ -178,15 +145,6 @@ void kbd_irq(REGISTERS* r) {
 
     if(setLeds)
         kbd_setLeds(_numlock, _capslock, _scrollock);
-
-     //puts("Keyboard interrupt.");
-     //puts("Key: ");
-     //putc(c);
-     //putc('\n');
-
-
-    //_scan = scancode;
-    //_last_char = c;
 
     keybuffer_append(c);
 }
@@ -236,47 +194,54 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_8:       return '8'; break;
         case SCAN_CODE_KEY_9:       return '9'; break;
 
-        case SCAN_CODE_KEY_Q:       ___K('q', 'Q', '\\'); break;
-        case SCAN_CODE_KEY_W:       ___K('w', 'W', '|');  break;
-        case SCAN_CODE_KEY_E:       ___K('e', 'E', 0); break;
-        case SCAN_CODE_KEY_R:       ___K('r', 'R', '\r'); break;
-        case SCAN_CODE_KEY_T:       ___K('t', 'T', 0); break;
-        case SCAN_CODE_KEY_Y:       ___K('y', 'Y', 0); break;
-        case SCAN_CODE_KEY_U:       ___K('u', 'U', 0); break;
-        case SCAN_CODE_KEY_I:       ___K('i', 'I', 0); break;
-        case SCAN_CODE_KEY_O:       ___K('o', 'O', 0); break;
-        case SCAN_CODE_KEY_P:       ___K('p', 'P', 0); break;
-        case SCAN_CODE_KEY_A:       ___K('a', 'A', '~'); break;
-        case SCAN_CODE_KEY_S:       ___K('s', 'S', 0); break;
-        case SCAN_CODE_KEY_D:       ___K('d', 'D', 0); break;
-        case SCAN_CODE_KEY_F:       ___K('f', 'F', '['); break;
-        case SCAN_CODE_KEY_G:       ___K('g', 'G', ']'); break;
-        case SCAN_CODE_KEY_H:       ___K('h', 'H', '`'); break;
-        case SCAN_CODE_KEY_J:       ___K('j', 'J', '\''); break;
-        case SCAN_CODE_KEY_K:       ___K('k', 'K', 0); break;
-        case SCAN_CODE_KEY_L:       ___K('l', 'L', 0); break;
-        case SCAN_CODE_KEY_Z:       ___K('z', 'Z', 0); break;
-        case SCAN_CODE_KEY_X:       ___K('x', 'X', '#'); break;
-        case SCAN_CODE_KEY_C:       ___K('c', 'C', '&'); break;
-        case SCAN_CODE_KEY_V:       ___K('v', 'V', '@'); break;
-        case SCAN_CODE_KEY_B:       ___K('b', 'B', '{'); break;
-        case SCAN_CODE_KEY_N:       ___K('n', 'N', '}'); break;
-        case SCAN_CODE_KEY_M:       ___K('m', 'M', '^'); break;
-        case SCAN_CODE_KEY_SPACE:   return ' '; break;
+        case SCAN_CODE_KEY_Q:       ___K('q', 'Q', '\\');   break;
+        case SCAN_CODE_KEY_W:       ___K('w', 'W', '|');    break;
+        case SCAN_CODE_KEY_E:       ___K('e', 'E', 0);      break;
+        case SCAN_CODE_KEY_R:       ___K('r', 'R', '\r');   break;
+        case SCAN_CODE_KEY_T:       ___K('t', 'T', 0);      break;
+        case SCAN_CODE_KEY_Y:       ___K('y', 'Y', 0);      break;
+        case SCAN_CODE_KEY_U:       ___K('u', 'U', 0);      break;
+        case SCAN_CODE_KEY_I:       ___K('i', 'I', 0);      break;
+        case SCAN_CODE_KEY_O:       ___K('o', 'O', 0);      break;
+        case SCAN_CODE_KEY_P:       ___K('p', 'P', 0);      break;
+        case SCAN_CODE_KEY_A:       ___K('a', 'A', '~');    break;
+        case SCAN_CODE_KEY_S:       ___K('s', 'S', 0);      break;
+        case SCAN_CODE_KEY_D:       ___K('d', 'D', 0);      break;
+        case SCAN_CODE_KEY_F:       ___K('f', 'F', '[');    break;
+        case SCAN_CODE_KEY_G:       ___K('g', 'G', ']');    break;
+        case SCAN_CODE_KEY_H:       ___K('h', 'H', '`');    break;
+        case SCAN_CODE_KEY_J:       ___K('j', 'J', '\'');   break;
+        case SCAN_CODE_KEY_K:       ___K('k', 'K', 0);      break;
+        case SCAN_CODE_KEY_L:       ___K('l', 'L', 0);      break;
+        case SCAN_CODE_KEY_Z:       ___K('z', 'Z', 0);      break;
+        case SCAN_CODE_KEY_X:       ___K('x', 'X', '#');    break;
+        case SCAN_CODE_KEY_C:       ___K('c', 'C', '&');    break;
+        case SCAN_CODE_KEY_V:       ___K('v', 'V', '@');    break;
+        case SCAN_CODE_KEY_B:       ___K('b', 'B', '{');    break;
+        case SCAN_CODE_KEY_N:       ___K('n', 'N', '}');    break;
+        case SCAN_CODE_KEY_M:       ___K('m', 'M', '^');    break;
+
+        case SCAN_CODE_KEY_SPACE:   
+            return ' '; 
+            break;
 
         case SCAN_CODE_KEY_MINUS:
         case SCAN_CODE_KEY_KEYPAD_MINUS:
             return '-';
             break;
+
         case SCAN_CODE_KEY_KEYPAD_PLUS:
             return '+';
             break;
 
-        case SCAN_CODE_KEY_EQUAL:   return '='; break;
+        case SCAN_CODE_KEY_EQUAL:
+            return '='; 
+            break;
 
         case SCAN_CODE_KEY_SQUARE_OPEN_BRACKET:
             ___K('[', '{', '/');
             break;
+
         case SCAN_CODE_KEY_SQUARE_CLOSE_BRACKET:
             ___K(']', '}', ')');
             break;
@@ -284,6 +249,7 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_SEMICOLON:
             ___K(':', '"', ';');
             break;
+
         case SCAN_CODE_KEY_SINGLE_QUOTE:
             ___K('\'', '|', '\\');
             break;
@@ -300,9 +266,11 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
         case SCAN_CODE_KEY_BACKSPACE:
             return '\b';
             break;
+
         case SCAN_CODE_KEY_TAB:
             return '\t';
             break;
+
         case SCAN_CODE_KEY_ENTER:
             return '\n';
             break;
@@ -326,37 +294,22 @@ void kbd_init() {
     kbd_sendCommand(KEYBOARD_COMMAND_RESET);
     kbd_sendCommand(KEYBOARD_COMMAND_ECHO);
     for(int i = 0; i < 10000; i ++) {
-        if(kbd_readStatus() == KEYBOARD_RESPONSE_ECHO) {
-            goto echoOk;
+        if(kbd_readEncBuffer() == KEYBOARD_RESPONSE_ECHO) {
+            debug_message("keyboard ECHO OK", "ps2kbd", KERNEL_MESSAGE);
+            puts("KBD: OK\n");
+
             return;
         }
     }
 
-
-    // puts("KBD: Keyboard not responding.\n");
-
+    debug_message("keyboard ECHO command timeout", "ps2kbd", KERNEL_ERROR); 
     return;
-
-
-    echoOk:
-        puts("KBD: OK\n");
-        return;
 }
-
-
-/*
-void setKeyHandler(void(*handler)(char c)) {
-    keyh = handler;
-}
-
-void unsetKeyHandler() {
-    keyh = 0;
-}
-*/
 
 // =========================================================
 // ===== KEY BUFFER
 // =========================================================
+
 #define KEYBUFFER_SIZE_DEFAULT  1024
 
 u8 _keyb_enable = 0;
@@ -410,8 +363,19 @@ void keybuffer_backspace(int pos) {
     _keyb_index = _keyb_index - 1;
     _keyb[_keyb_index] = '\0';
 
-    console_gotoxy(console_position.x - 1, console_position.y);
-    putc('\0');
+    if(console_position.x > 0) {
+        console_gotoxy(console_position.x - 1, console_position.y);
+    } else if(console_position.y > 0) {
+        console_gotoxy(VGA_WIDTH - 1, console_position.y - 1);
+    }
+
+    putc(' ');
+    
+    if(console_position.x > 0) {
+        console_gotoxy(console_position.x - 1, console_position.y);
+    } else if(console_position.y > 0) {
+        console_gotoxy(VGA_WIDTH - 1, console_position.y - 1);
+    }
 
     return;
 }
@@ -421,32 +385,17 @@ void keybuffer_append(char c) {
         return;
 
     if(c == '\b') {
-//        if(_keyb_index == 0)
-//            return;
-//
-//        _keyb_index--;
-//        _keyb[_keyb_index] = '\0';
-//
-//        console_gotoxy(console_position.x - 1, console_position.y);
-//        putc(' ');
-//
-//        debug_message("Backspace insert", "keybuffer", KERNEL_MESSAGE);
-//
-//        return;
-
         keybuffer_backspace(0);
+        return;
     }
 
-    if (_keyb_enable && _keyb_index < _keyb_size) {
-
+    if(_keyb_enable && _keyb_index < _keyb_size) {
         _keyb[_keyb_index] = c;
         _keyb_index++;
 
-        if (_keyb_putc) {
+        if(_keyb_putc) {
             putc(c);
         }
-        
-        debug_message("Key append", "keybuffer", KERNEL_MESSAGE);
     }
 }
 
