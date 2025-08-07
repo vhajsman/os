@@ -10,3 +10,4 @@
 * `xorriso mtools grub grub-common` for image generation
 * `gcc build-essentials nasm` for code build (C Compiler, assembler, linker, ...)
 * `dosfstools` for floppy generation
+* `kconfiglib` (python), `python3` - for kernel configuration

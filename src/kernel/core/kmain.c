@@ -26,6 +26,7 @@
 #include "time/rtc.h"
 #include "device.h"
 #include "util/fstab.h"
+#include "network/rtl8139.h"
 
 #include "random.h"
 struct rng_ctx kernel_seed_ctx;
@@ -264,6 +265,8 @@ void kmain(unsigned long magic, unsigned long addr) {
     fs_mounts_debug();
 
     //framebuffer_init();
+    
+    rtl8139_init();
 
     shell();
 }
