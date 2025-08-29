@@ -7,8 +7,6 @@
 #include "kernel.h"
 #include "internal_commands.h"
 
-
-
 u8 shell_errorColor;
 u8 shell_hintColor;
 
@@ -25,13 +23,16 @@ void shell_printError(char* kind, char* message, int start, int end) {
         for(int i = 0; i < start + 2; i++)
             putc(' ');
     }
-        
+
     colorPrint(kind, shell_errorColor);
     colorPrint(": ", shell_errorColor);
     colorPrint(message, shell_errorColor);
 }
 
 int shell_command_handle(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokenCount, void (*callback_stdout) (char*), char* (*callback_stdin) (void)) {
+    IGNORE_UNUSED(callback_stdout);
+    IGNORE_UNUSED(callback_stdin);
+
     if(!tokenCount) {
         debug_message("Empty command not handled", "shell", KERNEL_MESSAGE);
         return 0;

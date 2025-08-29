@@ -73,8 +73,8 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
     // --- stack trace ---
     debug_message("kernel stack trace\n", "Kernel panic", KERNEL_FATAL);
     void _print(unsigned char* data) {
-        puts(data);
-        debug_append(data);
+        puts((unsigned char*) data);
+        debug_append((unsigned char*) data);
     }
 
     puts("\nKERNEL STACK TRACE:\n");
