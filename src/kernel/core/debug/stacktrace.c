@@ -12,7 +12,7 @@ uintptr_t stack_top  =  (uintptr_t) bootstrap_stack + KERNEL_STACK_SIZE;
 
 static inline u8 frameInStackRange(const kernel_stack_frame_t* frame) {
     uintptr_t pf = (uintptr_t) frame;
-    return (p >= stack_base) && (p < stack_top);
+    return (pf >= stack_base) && (pf < stack_top);
 }
 
 static inline u8 validateRetAddr(const void* addr) {
