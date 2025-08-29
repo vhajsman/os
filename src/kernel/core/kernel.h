@@ -92,4 +92,6 @@ void kout(enum kernel_statusLevels lvl, char* interface, char* message, char* qu
 #include "random.h"
 extern struct rng_ctx kernel_seed_ctx;
 
+void cpu_relax();
+
 #endif

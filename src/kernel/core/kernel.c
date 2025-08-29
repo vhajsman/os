@@ -119,3 +119,15 @@ const struct multiboot_header {
     FRAMEBUFFER_BPP
 };  
 
+#if defined(_OPT_CPU_RELAX_INST_PAUSE)
+    #define __opt_cpu_relax_inst "pause"
+#elif defined(_OPT_CPU_RELAX_INST_NOP)
+    #define __opt_cpu_relax_inst "nop"
+#else
+    #define __opt_cpu_relax_inst "nop"
+#endif
+
+inline void cpu_relax() {
+    __asm__ __volatile__(__opt_cpu_relax_inst ::: "memory");
+}
+
