@@ -1,5 +1,9 @@
 #! /bin/sh
-qemu-system-x86_64                                              \
+
+GDB_PORT=1234
+echo "running gdb on port: $GDB_PORT"
+
+qemu-system-i386                                                \
     -M pc                                                       \
     -cpu pentium                                                \
     -smp sockets=1,cores=1,threads=1                            \
@@ -12,4 +16,5 @@ qemu-system-x86_64                                              \
     -boot d                                                     \
     -cdrom build/*.iso                                          \
     -chardev stdio,id=char0,logfile=serial.log,signal=off       \
-    -serial chardev:char0                                       
+    -serial chardev:char0                                       \
+    -S -gdb tcp::$GDB_PORT
