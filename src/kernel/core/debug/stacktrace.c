@@ -10,7 +10,7 @@
 uintptr_t stack_base =  (uintptr_t) bootstrap_stack;
 uintptr_t stack_top  =  (uintptr_t) bootstrap_stack + KERNEL_STACK_SIZE;
 
-static inline u8 frameInStackRange(cosnt kernel_stack_frame_t* frame) {
+static inline u8 frameInStackRange(const kernel_stack_frame_t* frame) {
     uintptr_t pf = (uintptr_t) frame;
     return (p >= stack_base) && (p < stack_top);
 }
