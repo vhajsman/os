@@ -16,5 +16,7 @@ int __random(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, vo
     rand[_RNG_SEED_BYTES] = '\0';
 
     callback_stdout((char*) rand);
+
+    return 0;
 }
 #endif
