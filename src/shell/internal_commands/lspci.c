@@ -13,7 +13,7 @@ int __lspci(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, voi
 
     char buff_a[16];
 
-    for(u8 bus = 0; bus < 256; bus++) {
+    for(u8 bus = 0; bus < 255; bus++) {
         for(u8 device = 0; device < 32; device++) {
             for(u8 function = 0; function < 8; function++) {
                 pci_dev_t dev = {0};
