@@ -144,3 +144,7 @@ void wait(u32 ticks) {
         
     }
 }
+
+u32 pit_get() {
+    return tick;
+}

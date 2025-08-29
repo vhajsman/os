@@ -69,4 +69,6 @@ void wait(u32 ticks);
 #define pit_sleep sleep
 #define pit_wait wait
 
+u32 pit_get();
+
 #endif
