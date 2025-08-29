@@ -56,7 +56,7 @@ void kernel_panic_dumpreg(REGISTERS* reg, signed int exception) {
 // }
 
 #ifndef __KERNEL_PANIC_STACK_TRACE_DEPTH
-#define __KERNEL_PANIC_STACK_TRACE_DEPTH 10
+#define __KERNEL_PANIC_STACK_TRACE_DEPTH 12
 #endif
 
 void kernel_panic(REGISTERS* reg, signed int exception) {

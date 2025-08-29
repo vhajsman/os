@@ -3,6 +3,22 @@
 #include "libc/stdint.h"
 #include "stack.h"
 
+// TODO: implement per-task stack as soon as multitasking is implemented.
+#define _BOOTSTRAP_STACK_SIZE   KERNEL_STACK_SIZE       // TODO: implement per-task stack as
+                                                        // soon as multitasking is implemented.
+
+uintptr_t stack_base =  (uintptr_t) bootstrap_stack;
+uintptr_t stack_top  =  (uintptr_t) bootstrap_stack + KERNEL_STACK_SIZE;
+
+static inline u8 frameInStackRange(cosnt kernel_stack_frame_t* frame) {
+    uintptr_t pf = (uintptr_t) frame;
+    return (p >= stack_base) && (p < stack_top);
+}
+
+static inline u8 validateRetAddr(const void* addr) {
+    return ((uintptr_t) addr > 0x10000 /*kernel text section start*/);
+}
+
 void debug_captureStackTrace(void** buffer, unsigned int maxFrames) {
     if(maxFrames == 0 || buffer == NULL) {
         debug_message("debug_captureStackTrace(): invalid parameters", "debug", KERNEL_ERROR);
@@ -16,6 +32,9 @@ void debug_captureStackTrace(void** buffer, unsigned int maxFrames) {
 
     for(unsigned int i = 0; i < maxFrames; i++) {
         if(frame == NULL || frame->ebp == NULL)
+            break;
+
+        if(!frameInStackRange(frame) || !validateRetAddr(frame->ret_addr))
             break;
 
         buffer[i] = frame->ret_addr;

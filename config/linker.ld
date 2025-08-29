@@ -49,6 +49,10 @@ SECTIONS
     /* un-initialized data section */
     .bss : {
         __kernel_bss_section_start = .;
+
+        bootstrap_stack = .;
+        . = . + 0x1000;
+
         bss = .; _bss = .; __bss = .;
         *(.bss)
         . = ALIGN(4096);
