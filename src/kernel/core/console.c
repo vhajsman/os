@@ -5,6 +5,7 @@
 #include "hid/kbd.h"
 #include "debug.h"
 #include "ioport.h"
+#include "time/timer.h"
 
 struct xy2d console_position;
     u8* console_posx = &console_position.x;
@@ -183,9 +184,14 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
     char l = '\0';
     size_t i = 0;
 
+    kbd_discard();
+
     while (i < bufferSize - 1) {
         l = getc();
-        console_cursor_move(console_position.x + 1, console_position.y);
+        kbd_discard();
+
+        // console_cursor_move(console_position.x + 1, console_position.y);
+        // console_position.x++;
 
         if (l == '\0') {
             debug_messagen("EOF or string terminator @: ", "getc()", KERNEL_MESSAGE, l, 10);
@@ -194,6 +200,8 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
 
         putc(l);
         buffer[i] = l;
+
+        console_position.x++;
         
         if (l == '\n') {
             debug_messagen("Breaker char @: ", "getc()", KERNEL_MESSAGE, l, 10);
@@ -235,17 +243,20 @@ u8 console_wherey() {
 }
 
 char console_wait() {
-    kbd_discard();
-    char scancode;
-
     while(1) {
-            scancode = kbd_getLastChar();
+        // TODO: use something like cpu_relax() as soon as its implemented
 
-            if(scancode != 0x00)
-                break;
+        kbd_event_t* e = kbd_getLastEvent();                // get last key pressed
+        if(!e || e->evtype != KEYBOARD_EVENT_KEY_PRESSED)   // if event is not a keypress, continue waiting
+            continue;
+
+        if(e->scancode != 0x00 && e->hanrtdone == 0) {
+            e->hanrtdone = 1;
+            return e->character;
+        }
     }
 
-    return scancode;
+    return 0x00;
 }
 
 u8 _cursor_visible = 1;

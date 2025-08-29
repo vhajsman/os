@@ -7,182 +7,262 @@
 #include "console.h"
 #include "memory/memory.h"
 #include "string.h"
+#include "time/timer.h"
 
-static BOOL _kbd_enable;
+void kbd_updateLeds();
 
-u8 _ctrl, _shift, _alt;
-u8 _capslock, _numlock, _scrollock;
-u8 _scan;
+void kbd_enable();
+void kbd_disable();
 
-u8 _self, _diagnosis;
+u8 kbd_readStatus();
+u8 kbd_readEncBuffer();
+void kbd_sendData(u8 data);
+void kbd_sendCommand(u8 command);
 
-char _last_char;
+#define __KBD_STATE_NORMAL  0   // ...
+#define __KBD_STATE_PREFIX  1   // 0xE0
+#define __KBD_STATE_SPECIAL 2   // 0xE1
 
-#define _KEYBOARD_MAX_RESENDS 5
-#define _KEYBOARD_TIMEOUT_CYCLES 1000
+u8      _last_scancode;     // last scancode sent
+char    _last_char;         // last character decoded
+u8      _current_state;     // current keyboard state (prefix/normal key)
+u8      _current_modifiers; // current key modifiers
+u8      _enabled;           // keyboard enable/disable
 
-//void resend();
+static u8 _shift, _alt, _ctrl   = 0;
+static u8 _caps, _num, _scroll  = 0;
 
-u8 kbd_readStatus() {
-    return inportb(KEYBOARD_STATUS_PORT);
+void (*_event_callback)(kbd_event_t* event);
+kbd_event_t _last_event;
+
+kbd_event_t* kbd_getLastEvent() {
+    return &_last_event;
 }
 
-u8 kbd_readEncBuffer() {
-    return inportb(KEYBOARD_DATA_PORT);
-}
+#define KEY_COUNT 128
 
-void kbd_sendEncCommand(u8 command) {
-    while(1) {
-        if((kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_IN_BUF) == 0)
-            break;
+u8 key_down[KEY_COUNT]      = {0};
+u32 key_lasttime[KEY_COUNT] = {0};
+u32 _repeat_delay_ms        = PIT_FREQUENCY * 250 / 1000;
+u32 _repeat_rate_ms         = PIT_FREQUENCY * 30  / 1000;
+
+void process_scancode(u8 raw, u8 code, bool released) {
+    if(raw == KEYBOARD_SCANCODE_PREFIX) {
+        _current_state = __KBD_STATE_PREFIX;
+        return;
     }
 
-    outportb(KEYBOARD_DATA_PORT, command);
-}
-
-void kbd_sendCommand(u8 command) {
-    while(1) {
-        if((kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_IN_BUF) == 0)
-            break;
+    if(released) {
+        key_down[code] = 0;
+        return;
     }
 
-    outportb(KEYBOARD_COMMAND_PORT, command);
-}
+    if(_current_state == __KBD_STATE_PREFIX) {
+        _current_state = __KBD_STATE_NORMAL;
+        // TODO: zpracovat extended kódy, pokud potřebuješ
+        return;
+    }
 
-#define SEND_COMMAND(COMMAND)   kbd_sendCommand(COMMAND)
-#define SEND_DATA(DATA)         kbd_sendEncCommand(DATA)
+    switch(code) {
+        case SCAN_CODE_KEY_LEFT_SHIFT: _shift = !released; return;
+        case SCAN_CODE_KEY_LEFT_CTRL:  _ctrl  = !released; return;
+        case SCAN_CODE_KEY_ALT:         _alt   = !released; return;
 
-void kbd_setLeds(int n, int c, int s) {
-    u8 data = (s ? 1 : 0) | (n ? 2 : 0) | (c ? 4 : 0);
+        case SCAN_CODE_KEY_CAPS_LOCK:
+            if(!released) _caps ^= 1;
+            kbd_updateLeds();
+            return;
 
-    kbd_sendEncCommand(KEYBOARD_COMMAND_SET_LEDS);
-    kbd_sendEncCommand(data);
+        case SCAN_CODE_KEY_NUM_LOCK:
+            if(!released) _num ^= 1;
+            kbd_updateLeds();
+            return;
+
+        case SCAN_CODE_KEY_SCROLL_LOCK:
+            if(!released) _scroll ^= 1;
+            kbd_updateLeds();
+            return;
+
+        default: break;
+    }
+
+    // Zpracuj znak a vyvolej event
+    _last_scancode = code;
+    _last_char = kbd_toChar(code, _shift ^ _caps, _alt);
+
+    _last_event.scancode  = _last_scancode;
+    _last_event.character = _last_char;
+
+    _last_event.stmask    = (_caps  ? KEYBOARD_STMASK_CL    : 0) |
+                            (_num   ? KEYBOARD_STMASK_NL    : 0) |
+                            (_scroll? KEYBOARD_STMASK_SL    : 0);
+
+    _last_event.modifiers = (_shift ? KEYBOARD_MASK_SHIFT   : 0) |
+                            (_ctrl  ? KEYBOARD_MASK_CTRL    : 0) |
+                            (_alt   ? KEYBOARD_MASK_ALT     : 0);
+
+    _last_event.evtype  = released
+                        ? KEYBOARD_EVENT_KEY_RELEASED
+                        : KEYBOARD_EVENT_KEY_PRESSED;
+
+    if(_event_callback)
+        _event_callback(&_last_event);
 }
 
 void kbd_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
 
-    if(!_kbd_enable)
+    if(!_enabled)
         return;
 
-    char c;
-    u8 scancode;
-    int setLeds = 0;
+    kbd_disable();
 
-    if(kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF) {
-        scancode = kbd_readEncBuffer();
-        c = kbd_toChar(scancode, _capslock || _shift, _alt);
+    while(kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF) {
+        u32 now = pit_get();
+        u8 raw = inportb(KEYBOARD_DATA_PORT);
 
-        if(scancode > 0x58)
+        bool released = raw & 0x80;
+        u8 code = raw & 0x7F;
+
+        if(released) {
+            key_down[code] = 0;
             return;
-
-        _scan = scancode;
-        _last_char = c;
-
-        if(_shift == 1)
-            _shift = 0;
-
-        if(scancode & 0x80) {
-            scancode -= 0x80;
-
-            switch(scancode) {
-                case SCAN_CODE_KEY_LEFT_CTRL:
-                //case SCAN_CODE_KEY_RIGHT_CTRL:
-                    _ctrl = 0;
-                    break;
-                
-                case SCAN_CODE_KEY_LEFT_SHIFT:
-                case SCAN_CODE_KEY_RIGHT_SHIFT:
-                    _shift = 0;
-                    break;
-
-                case SCAN_CODE_KEY_ALT:
-                    _alt = 0;
-                    break;
-
-                default:
-                    break;
-            }
-        } else {
-            _scan = scancode;
-
-            switch (scancode) {
-                case SCAN_CODE_KEY_LEFT_CTRL:   _ctrl   = 1;    break;
-                case SCAN_CODE_KEY_LEFT_SHIFT:  _shift  = 1;    break;
-                case SCAN_CODE_KEY_ALT:         _alt    = 1;    break;
-
-                case SCAN_CODE_KEY_CAPS_LOCK:
-                    _capslock = !_capslock;
-                    setLeds = 1;
-                    break;
-                
-                case SCAN_CODE_KEY_NUM_LOCK:
-                    _numlock = !_numlock;
-                    setLeds = 1;
-                    break;
-                
-                case SCAN_CODE_KEY_SCROLL_LOCK:
-                    _scrollock = !_scrollock;
-                    setLeds = 1;
-                    break;
-
-                default:
-                    break;
-            }
         }
 
-        switch (scancode) {
-            case KEYBOARD_RESPONSE_SELF_FAIL:
-                _self = 1;
-                break;
-            
-            case KEYBOARD_RESPONSE_RESEND:
-                //resend();
-                break;
+        if(!key_down[code]) {
+            key_down[code] = 1;
+            key_lasttime[code] = now;
 
-            default:
-                break;
+            process_scancode(raw, code, released);
+        } else {
+            u32 elapsed = now - key_lasttime[code];
+            if(elapsed >= _repeat_delay_ms) {
+                if((elapsed - _repeat_delay_ms) % _repeat_rate_ms == 0) {
+                    process_scancode(raw, code, released);
+                    pit_wait(10);
+                }
+            }
         }
     }
 
-    if(setLeds)
-        kbd_setLeds(_numlock, _capslock, _scrollock);
-
-    keybuffer_append(c);
+    kbd_enable();
 }
 
-u8 kbd_getLastKey() {
-    return _scan;
+void kbd_enable()   { _enabled = 1; }
+void kbd_disable()  { _enabled = 0; }
+
+/**
+ * @brief read keyboards status port
+ * 
+ * @return u8 
+ */
+u8 kbd_readStatus() {
+    return inportb(KEYBOARD_STATUS_PORT);
 }
 
-char kbd_getLastChar() {
-    return _last_char;
+/**
+ * @brief read keyboards data port
+ * 
+ * @return u8 
+ */
+u8 kbd_readEncBuffer() {
+    return inportb(KEYBOARD_DATA_PORT);
 }
+
+/**
+ * @brief write data to keyboard data port
+ * 
+ * @param data 
+ */
+void kbd_sendData(u8 data) {
+    while(1)
+        if((kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_IN_BUF) == 0)
+            break;
+
+    outportb(KEYBOARD_DATA_PORT, data);
+}
+
+/**
+ * @brief write data to keyboard command port (send command)
+ * 
+ * @param command 
+ */
+void kbd_sendCommand(u8 command) {
+    while(1)
+        if((kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_IN_BUF) == 0)
+            break;
+
+    outportb(KEYBOARD_COMMAND_PORT, command);
+}
+
+void kbd_setLeds(int n, int c, int s) {
+    u8 mask =   (s ? 1 : 0) | 
+                (n ? 2 : 0) | 
+                (c ? 4 : 0);
+
+    kbd_sendData(KEYBOARD_COMMAND_SET_LEDS);
+    while(inportb(KEYBOARD_DATA_PORT) != KEYBOARD_RESPONSE_ACK);
+
+    kbd_sendData(mask);
+    while(inportb(KEYBOARD_DATA_PORT) != KEYBOARD_RESPONSE_ACK);
+}
+
+void kbd_updateLeds() {
+    kbd_setLeds(_num, _caps, _scroll);
+}
+
+void kbd_setEventHandler(void (*callback)(kbd_event_t* event)) {
+    _event_callback = callback;
+}
+
+void kbd_init() {
+    // Register keyboard interrupt handler
+    isr_registerInterruptHandler(IRQ_BASE + IRQ1_KEYBOARD, kbd_irq);
+
+    while(inportb(KEYBOARD_STATUS_PORT) & 1)
+        inportb(KEYBOARD_DATA_PORT);
+
+    kbd_enable();
+    kbd_discard();
+
+    kbd_setEventHandler(NULL);
+
+    kbd_sendCommand(KEYBOARD_COMMAND_RESET);
+    kbd_sendCommand(KEYBOARD_COMMAND_ECHO);
+    for(int i = 0; i < 10000; i ++) {
+        if(kbd_readEncBuffer() == KEYBOARD_RESPONSE_ECHO) {
+            debug_message("keyboard ECHO OK", "ps2kbd", KERNEL_MESSAGE);
+            puts("KBD: OK\n");
+
+            return;
+        }
+    }
+
+    debug_message("keyboard ECHO command timeout", "ps2kbd", KERNEL_ERROR); 
+    return;
+}
+
+u8 kbd_getLastKey()     { return _last_scancode; }
+char kbd_getLastChar()  { return _last_char;     }
 
 void kbd_discard() {
-    _scan = 0;
+    _last_scancode = 0;
     _last_char = 0;
+
+    _last_event.scancode    = 0x00;
+    _last_event.stmask      = 0x00;
+    _last_event.modifiers   = 0x00;
+    _last_event.evtype      = 0x00;
+    _last_event.character   = 0x00;
+    _last_event.hanrtdone   = 1;
 }
 
-void kbd_enable() {
-    _kbd_enable = TRUE;
-}
 
-void kbd_disable() {
-    _kbd_enable = FALSE;
-}
+
 
 char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
-    #define ___K(n, u, alt)         \
-        if(altgr) {                 \
-            return alt;             \
-        }                           \
-                                    \
-        if(_capslock || _shift) {   \
-            return u;               \
-        }                           \
-                                    \
-        return n;
+    #define ___K(n, u, alt) \
+        return altgr    ? alt : (_caps || _shift ? u : n);
     
     switch (scancode) {
         case SCAN_CODE_KEY_0:       return '0'; break;
@@ -281,29 +361,4 @@ char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
             // Invalid scancode
             return 0x00;
     }
-}
-
-void kbd_init() {
-    isr_registerInterruptHandler(IRQ_BASE + IRQ1_KEYBOARD, kbd_irq);
-
-    while(inportb(0x64) & 1)
-        inportb(0x60);
-
-    kbd_enable();
-
-    debug_message("waiting for keyboard", "ps2kbd", KERNEL_MESSAGE);
-    
-    kbd_sendCommand(KEYBOARD_COMMAND_RESET);
-    kbd_sendCommand(KEYBOARD_COMMAND_ECHO);
-    for(int i = 0; i < 10000; i ++) {
-        if(kbd_readEncBuffer() == KEYBOARD_RESPONSE_ECHO) {
-            debug_message("keyboard ECHO OK", "ps2kbd", KERNEL_MESSAGE);
-            puts("KBD: OK\n");
-
-            return;
-        }
-    }
-
-    debug_message("keyboard ECHO command timeout", "ps2kbd", KERNEL_ERROR); 
-    return;
 }

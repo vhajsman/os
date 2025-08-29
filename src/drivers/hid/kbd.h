@@ -37,6 +37,28 @@
 #define KEYBOARD_CTRL_STATUS_MASK_TIMEOUT   0x40	//01000000
 #define KEYBOARD_CTRL_STATUS_MASK_PARITY    0x8     //10000000
 
+#define KEYBOARD_SCANCODE_PREFIX    0xE0
+#define KEYBOARD_SCANCODE_SPECIAL   0xE1
+
+#define KEYBOARD_MASK_CTRL          1
+#define KEYBOARD_MASK_ALT           2
+#define KEYBOARD_MASK_SHIFT         3
+
+#define KEYBOARD_STMASK_CL          1   // CAPS LOCK
+#define KEYBOARD_STMASK_NL          2   // NUM LOCK
+#define KEYBOARD_STMASK_SL          3   // SCROLL LOCK
+
+#define KEYBOARD_EVENT_KEY_RELEASED 1
+#define KEYBOARD_EVENT_KEY_PRESSED  2
+
+typedef struct kbd_event {
+    u8      scancode;   // scancode
+    u8      stmask;     // caps,numl,scrl
+    u8      modifiers;  // ctrl,alt,shift etc. mask
+    u8      evtype;     // event type
+    char    character;  // character represented by a key
+    u8      hanrtdone;  // whether handle routine done (1 = done)
+} kbd_event_t;
 
 // Initializes the keyboard driver
 void kbd_init();
@@ -45,6 +67,7 @@ void kbd_enable();
 void kbd_disable();
 
 void kbd_discard();
+void kbd_setEventHandler(void (*callback)(kbd_event_t* event));
 
 void kbd_setLeds(int n, int c, int s);
 
@@ -54,6 +77,7 @@ void kbd_setLeds(int n, int c, int s);
 
 u8 kbd_getLastKey();
 char kbd_getLastChar();
+kbd_event_t* kbd_getLastEvent();
 
 char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr);
 
