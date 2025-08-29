@@ -10,6 +10,7 @@
 extern void shell_printError(char* kind, char* message, int start, int end);
 
 int __mmdu(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc, void (*callback_stdout) (char*), char* (*callback_stdin) (void)) {
+    IGNORE_UNUSED(callback_stdin);
 
     if(!strcmp("help\0", tokens[1])) {
         callback_stdout("MMDU - Memory Management Debug Utility\n\n");
