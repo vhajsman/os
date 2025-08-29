@@ -13,6 +13,6 @@ initrd/usr
 *.img
 *.bin
 
-*.sym.c
-*.sym.entries
+src/kernel/core/kernel.sym.c
+src/kernel/core/kernel.sym.entries
 .configure
