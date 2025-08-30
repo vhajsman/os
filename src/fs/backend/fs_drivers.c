@@ -23,7 +23,7 @@ int fs_driver_register(const char* name, fs_mount_callback_t mount_callback) {
     return 1;
 }
 
-fs_mount_callback_t fs_driver_getCallback(char* name) {
+fs_mount_callback_t fs_driver_getCallback(const char* name) {
     if(name == NULL) {
         debug_message("fs_driver_getCallback(): invalid parameters", "fs", KERNEL_ERROR);
         return NULL;

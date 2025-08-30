@@ -153,6 +153,6 @@ int fs_driver_register(const char* name, fs_mount_callback_t mount_callback);
  * @param name filesystem name
  * @return fs_mount_callback_t 
  */
-fs_mount_callback_t fs_driver_getCallback(char* name);
+fs_mount_callback_t fs_driver_getCallback(const char* name);
 
 #endif

@@ -379,10 +379,10 @@ char* fs_findMntByDevice(device_t* dev) {
         return NULL;
     }
 
-    const char* desired_filename = dev->filename;
+    char* desired_filename = dev->filename;
     
     for(int i = 0; i < MAX_MOUNT_POINTS; i++) {
-        if(fs_mounts[i]->mountpoint == NULL)
+        if(!strlen(fs_mounts[i]->mountpoint))
             continue;
 
         if(strcmp(fs_mounts[i]->dev->filename, desired_filename) == 0) {
@@ -406,7 +406,7 @@ void fs_mounts_debug() {
         debug_number(i, 10);
         debug_append(": ");
 
-        if(fs_mounts[i]->mountpoint == NULL) {
+        if(!strlen(fs_mounts[i]->mountpoint)) {
             debug_append("mount->mountpoint is NULL");
             continue;
         }
