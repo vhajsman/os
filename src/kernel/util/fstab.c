@@ -108,9 +108,8 @@ int fstab_mount_line(char* buffer) {
             debug_append(": ");
             debug_number(mountresult, 16);
 
-            if(mountpoint != 0) {
+            // if(strlen(mountpoint[0] > 0)
                 return 200 + mountresult;
-            }
         }
 
         curr = (*line_end == '\n') ? line_end + 1: line_end;
@@ -136,11 +135,11 @@ int fstab_mount(char* buffer) {
         while(*line_end != '\0' && *line_end != '\n')
             line_end++;
         
-        int line_len = line_end - line_start;
+        unsigned int line_len = line_end - line_start;
 
         if(line_len > 0) {
             char line[512] = {0};
-            for(int i = 0; i < line_len && i < sizeof(line) - 1; i++)
+            for(unsigned int i = 0; i < line_len && i < sizeof(line) - 1; i++)
                 line[i] = line_start[i];
             
             line[line_len] = '\0';

@@ -2,6 +2,10 @@
 #include "memory/memory.h"
 #include "debug.h"
 
+// TODO: implement later
+
+/*
+
 unsigned long hash_data(const void* data, size_t len) {
     const unsigned char* p = data;
     unsigned long hash = 5381;
@@ -67,29 +71,28 @@ void fncache_free(struct CacheFn* cache) {
 }
 
 void* fncache_call(struct CacheFn* cache, void* (*func)(size_t*, va_list), size_t* result_size, int argc, ...) {
-    /*
-        Function execution diagram:
-
-        +-----------------------+
-        | Search function cache |
-        +-----------------------+
-                      |
-                      | Found?     No
-                      +----------------------+
-                Yes   |                      |
-                      |                      |
-            +----------------------+ +--------------+
-            | Return cached result | | Run function |
-            +----------------------+ +--------------+
-                                        |
-                                Results |        +---------------+
-                                        +------- | Save to cache |
-                                        |        +---------------+
-                                        |
-                                        |        +---------------+
-                                        +------- | Return result |
-                                                 +---------------+
-    */
+//
+//        Function execution diagram:
+//
+//        +-----------------------+
+//        | Search function cache |
+//        +-----------------------+
+//                      |
+//                      | Found?     No
+//                      +----------------------+
+//                Yes   |                      |
+//                      |                      |
+//            +----------------------+ +--------------+
+//            | Return cached result | | Run function |
+//            +----------------------+ +--------------+
+//                                        |
+//                                Results |        +---------------+
+//                                        +------- | Save to cache |
+//                                        |        +---------------+
+//                                        |
+//                                        |        +---------------+
+//                                        +------- | Return result |
+//                                                 +---------------+
    
     if(cache == NULL || func == NULL)
         return NULL;
@@ -189,4 +192,4 @@ memory_insufficent:
     debug_message("fncache_call(): not enough memory", "cache", KERNEL_ERROR);
     return NULL;
 }
-
+*/

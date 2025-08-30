@@ -96,8 +96,7 @@ void cpuid_simple(u32 eax_in, u32 ecx_in, u32 *eax, u32 *ebx, u32 *ecx_out, u32 
 
 cpuid_signature_t cpuid_signature(u32* _eax) {
     if(_eax == NULL) {
-        cpuid_signature_t t;
-        return t;
+        return (cpuid_signature_t) {0};
     }
 
     u32 eax = *_eax;
@@ -116,13 +115,14 @@ cpuid_signature_t cpuid_signature(u32* _eax) {
 
     if(signature.family == 0x6 || signature.family == 0xF)
         signature.model += (signature.ext_model << 4);
+    
+    return signature;
 }
 
-void cpuid_addrwidth(u8* phys_addr_bits, u8* virt_addr_bits, u32* _eax) {
+void cpuid_addrwidth(u8* phys_addr_bits, u8* virt_addr_bits, u32* _eax) { // TODO: FIXME
     if(phys_addr_bits == NULL || virt_addr_bits == NULL || _eax == NULL)
         return;
 
     u32 eax = *_eax;
-
-    
+    IGNORE_UNUSED(eax);
 }

@@ -1,6 +1,7 @@
 #include "fat.h"
 #include "memory/memory.h"
 #include "debug.h"
+#include "macros.h"
 
 struct fs_dirent* fat32_readdir(fs_node_t* node, u32 index);
 fs_node_t* fat32_finddir(fs_node_t* node, char* name);
@@ -161,11 +162,11 @@ int fat32_resolve(fat32_kernel_info_t* info, u32 cluster_start, const char* name
 
             fat32_dirent_t* entry = (fat32_dirent_t*) buffer;
 
-            for(int ii = 0; ii < info->bps / sizeof(fat32_dirent_t); ii++) {
+            for(u16 ii = 0; ii < info->bps / sizeof(fat32_dirent_t); ii++) {
                 if((u8) entry[ii].name[0] == 0xE5 || entry[ii].attr == FAT_ATTR_LONG_NAME)
                     continue;
 
-                if(memcmp(entry[ii].name, (const u8*) name, 11) == 0) {
+                if(memcmp((u8*) entry[ii].name, (u8*) name, 11) == 0) {
                     memcpy(result, &entry[ii], sizeof(fat32_dirent_t));
 
                     kfree(buffer);

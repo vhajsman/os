@@ -2,6 +2,11 @@
 #include "debug.h"
 #include "string.h"
 
+#include "macros.h"
+// #ifndef CONST_CAST
+// #define CONST_CAST(type, expr) ((type)(void*) expr)
+// #endif
+
 fs_driver_entry_t fs_drivers[MAX_FS_DRIVERS] = {0};
 
 int fs_driver_register(const char* name, fs_mount_callback_t mount_callback) {
@@ -30,7 +35,7 @@ fs_mount_callback_t fs_driver_getCallback(const char* name) {
     }
 
     for(int i = 0; i < MAX_FS_DRIVERS; i++) {
-        if(fs_drivers[i].name && strcmp(fs_drivers[i].name, name) == 0)
+        if(fs_drivers[i].name && strcmp(fs_drivers[i].name, CONST_CAST(char*, name)) == 0)
             return fs_drivers[i].mount_callback;
     }
 
