@@ -52,23 +52,24 @@ size_t tar_readf(const char* tar_data, const char* filename, char* buffer, size_
 
 
 void tar_list(const char* tar_data) {
-    debug_message("Tar directory listing for '/': ", "tar", KERNEL_MESSAGE);
+    debug_message("TAR archive directory listing for '/': ", "tar", KERNEL_MESSAGE);
 
-    const tar_header_t* header;
+    // const tar_header_t* header;
+
     const char* current = tar_data;
+    const tar_header_t* header = (tar_header_t*) current;
 
-    while(header != NULL && header->name[0] != '\n') {
+    while(/*header != NULL &&*/ header->name[0] != '\n') {
         header = (const tar_header_t*) current;
-
-        // if(header->name[0] == '\0')
-        //     return;
 
         debug_append("\n                  ");
         debug_append(header->name);
 
         size_t file_size = _oct2dec(header->size, sizeof(header->size));
         size_t file_blocks = (file_size + 512 - 1) / 512;
+
         current += 512 + file_blocks * 512;
+        header = (const tar_header_t*) current;
     }
 }
 
