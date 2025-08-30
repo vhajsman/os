@@ -21,7 +21,6 @@
 #include "fs/tar.h"
 #include "hid/mouse.h"
 #include "hook.h"
-#include "video/fb.h"
 #include "video/vga.h"
 #include "time/rtc.h"
 #include "device.h"
