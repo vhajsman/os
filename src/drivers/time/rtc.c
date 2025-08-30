@@ -27,7 +27,7 @@ int rtc_isupdating() {
 }
 
 void rtc_wait() {
-    while(rtc_isupdating) {}
+    while(rtc_isupdating()) {}
 }
 
 void rtc_getTime(struct rtc_time* time) {
