@@ -84,6 +84,8 @@ void vga_writeReg(u16 port, u8 idx, u8 value) {
 // ===========================================================================================================================================================================
 //
 
+// TODO: implement these later
+/*
 linkedlist_t* vga_charset_list;
 unsigned int vga_charset_current = 0;
 
@@ -97,7 +99,7 @@ int vga_charset_import(vga_charset_t* charset, unsigned int idx) {
     }
 
     linkedlist_node_t* node = linkedlist_getNodeByIndex(vga_charset_list, idx);
-    if(node == NULL /*|| (node->next == NULL && node->prev == NULL)*/)
+    if(node == NULL)
         return -2;
 
     node->val = (vga_charset_t*) charset;
@@ -199,6 +201,7 @@ void vga_fill(u8 color) {
     }
 }
 
+
 // ===========================================================================================================================================================================
 // ===== INIT
 // ===========================================================================================================================================================================
@@ -211,22 +214,24 @@ void vga_init() {
     outportb(0x3D4, 0x0D);
     outportb(0x3D5, 0x00);
 
-    vga_pallete_setColor(0, 0, 0, 0);
-    vga_pallete_setColor(1, 63, 0, 0);
-    vga_pallete_setColor(2, 0, 63, 0);
-    vga_pallete_setColor(3, 0, 0, 63);
-    vga_pallete_setColor(4, 63, 63, 63);
+//    vga_pallete_setColor(0, 0, 0, 0);
+//    vga_pallete_setColor(1, 63, 0, 0);
+//    vga_pallete_setColor(2, 0, 63, 0);
+//    vga_pallete_setColor(3, 0, 0, 63);
+//    vga_pallete_setColor(4, 63, 63, 63);
 
     vga_charset_list = linkedlist_create();
     vga_charset_current = 0;
     
     vga_charset_t* cs = (vga_charset_t*) malloc(sizeof(vga_charset_t));
-    if(cs != NULL) {
-        vga_charset_read(cs);
-        vga_charset_import(cs, 0);
-    }
+//    if(cs != NULL) {
+//        vga_charset_read(cs);
+//        vga_charset_import(cs, 0);
+//    }
 
     linkedlist_debug(vga_charset_list);
 
     //vga_square(20, 20, 40, 1);
 }
+
+*/
