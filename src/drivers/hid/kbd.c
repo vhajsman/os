@@ -261,6 +261,8 @@ void kbd_discard() {
 
 
 char kbd_toChar(u8 scancode, u8 uppercase, u8 altgr) {
+    IGNORE_UNUSED(uppercase);
+
     #define ___K(n, u, alt) \
         return altgr    ? alt : (_caps || _shift ? u : n);
     

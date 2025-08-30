@@ -5,7 +5,7 @@
 #include "string.h" // For debug macros
 
 u32 pci_size_map[100];
-const pci_dev_t dev_zero = {0};
+pci_dev_t dev_zero = {0};
 
 u32 pci_read(pci_dev_t* device, u32 field) {
     u32 size = pci_size_map[field];

@@ -223,7 +223,7 @@ void ide_init_detect() {
 }
 
 int _ide_frontend_readSector(void* ctx, u32 sector, void* buffer) {
-    u8 drive = (u8) &ctx;
+    u8 drive = (u8)(uintptr_t) ctx;
     return ata_readSector(drive, sector, buffer);
 }
 
@@ -262,7 +262,10 @@ void ide_bind() {
         
         static char id[16] = "deviceatacx";
         char chan = '0' + ide_devices[i].channel;
-        if (ide_devices[i].channel < 0 || ide_devices[i].channel > 9) {
+
+        if(/*ide_devices[i].channel < 0 ||*/ ide_devices[i].channel > 9) {
+            // NOTE: discard `...[i].channel < 0` - never would be <0 because unsigned.
+
             debug_message("ide_bind(): invalid channel for device", "ide", KERNEL_ERROR);
             continue;
         }
