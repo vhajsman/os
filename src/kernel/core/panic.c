@@ -48,13 +48,6 @@ void kernel_panic_dumpreg(REGISTERS* reg, signed int exception) {
 
 }
 
-// void kernel_panic_delay(u32 __delay) {
-//     u32 start = pit_directRead();
-//     u32 end = start + __delay;
-// 
-//     while(pit_directRead() < end) {}
-// }
-
 #ifndef __KERNEL_PANIC_STACK_TRACE_DEPTH
 #define __KERNEL_PANIC_STACK_TRACE_DEPTH 12
 #endif
@@ -73,8 +66,8 @@ void kernel_panic(REGISTERS* reg, signed int exception) {
     // --- stack trace ---
     debug_message("kernel stack trace\n", "Kernel panic", KERNEL_FATAL);
     void _print(unsigned char* data) {
-        puts((unsigned char*) data);
-        debug_append((unsigned char*) data);
+        puts((const char*) data);
+        debug_append((const char*) data);
     }
 
     puts("\nKERNEL STACK TRACE:\n");
