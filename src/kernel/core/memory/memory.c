@@ -152,6 +152,9 @@ u32 memory_getfree() {
 }
 
 void unmap(page_directory_t* dir, u32 addr_virt, int free_frame) {
+    // TODO: free_frame
+    IGNORE_UNUSED(free_frame);
+
     u32 idx_dir = PAGEDIR_INDEX(addr_virt);
     u32 idx_tbl = PAGETBL_INDEX(addr_virt);
 

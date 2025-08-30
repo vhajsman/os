@@ -137,8 +137,8 @@ void* kmalloc(u32 size) {
                 if(blk_next == tail) {
                     tail = t;
 
-                    int size_reclaim = memory_getRealSize(t->size) + OVERHEAD;
-                    ASSERT(ksbrk(-size_reclaim) && "kmalloc: ksbrk() failed");
+                    //int size_reclaim = memory_getRealSize(t->size) + OVERHEAD;
+                    ASSERT(ksbrk(-(memory_getRealSize(t->size) + OVERHEAD)) && "kmalloc: ksbrk() failed");
 
                     goto noSplit;
                 }
@@ -155,8 +155,8 @@ void* kmalloc(u32 size) {
                 if(base == tail) {
                     tail = putback;
 
-                    int size_reclaim = memory_getRealSize(putback->size) + OVERHEAD;
-                    ASSERT(ksbrk(-size_reclaim) != NULL && "kmalloc: ksbrk() failed\n");
+                    //int size_reclaim = memory_getRealSize(putback->size) + OVERHEAD;
+                    ASSERT(ksbrk(-(memory_getRealSize(putback->size) + OVERHEAD)) != NULL && "kmalloc: ksbrk() failed\n");
 
                     goto noSplit;
                 }
