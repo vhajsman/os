@@ -28,6 +28,7 @@ char    _last_char;         // last character decoded
 u8      _current_state;     // current keyboard state (prefix/normal key)
 u8      _current_modifiers; // current key modifiers
 u8      _enabled;           // keyboard enable/disable
+u8      _init_done = 0;
 
 static u8 _shift, _alt, _ctrl   = 0;
 static u8 _caps, _num, _scroll  = 0;
@@ -107,13 +108,24 @@ void process_scancode(u8 raw, u8 code, bool released) {
 
     if(_event_callback)
         _event_callback(&_last_event);
+
+    pit_wait(_repeat_delay_ms);
 }
+
+u8 _scancode_isFirst = 1;
 
 void kbd_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
 
-    if(!_enabled)
+    if(!_enabled || !_init_done)
         return;
+
+    if(_scancode_isFirst) {
+        _scancode_isFirst = 0;
+        return;
+    }
+
+    puts("KEYBOARD INTERRUPT");
 
     kbd_disable();
 
@@ -121,12 +133,23 @@ void kbd_irq(REGISTERS* r) {
         u32 now = pit_get();
         u8 raw = inportb(KEYBOARD_DATA_PORT);
 
+        if(raw == 0x00 || raw == 0xFA || raw == 0xAA || raw == 0x65 || (raw > 0x59 && raw < 0x69)) {
+            char buff[3]; itoa(buff, 16, raw);
+            puts("irq(): kbd_irq(): invalid scancode detected: ");
+            puts(buff);
+            puts("\n");
+
+            return;
+        }
+
         bool released = raw & 0x80;
         u8 code = raw & 0x7F;
 
         if(released) {
             key_down[code] = 0;
-            return;
+
+            //return;
+            continue;
         }
 
         if(!key_down[code]) {
@@ -137,9 +160,13 @@ void kbd_irq(REGISTERS* r) {
         } else {
             u32 elapsed = now - key_lasttime[code];
             if(elapsed >= _repeat_delay_ms) {
-                if((elapsed - _repeat_delay_ms) % _repeat_rate_ms == 0) {
+                //if((elapsed - _repeat_delay_ms) % _repeat_rate_ms == 0) {
+                //    process_scancode(raw, code, released);
+                //    pit_wait(10);
+                //}
+
+                if(elapsed >= _repeat_delay_ms + _repeat_rate_ms) {
                     process_scancode(raw, code, released);
-                    pit_wait(10);
                 }
             }
         }
@@ -216,29 +243,33 @@ void kbd_setEventHandler(void (*callback)(kbd_event_t* event)) {
 }
 
 void kbd_init() {
-    // Register keyboard interrupt handler
+    kbd_disable();
+    _init_done = 0;
+
+    while(kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF)
+        (void) inportb(KEYBOARD_DATA_PORT);
+
     isr_registerInterruptHandler(IRQ_BASE + IRQ1_KEYBOARD, kbd_irq);
-
-    while(inportb(KEYBOARD_STATUS_PORT) & 1)
-        inportb(KEYBOARD_DATA_PORT);
-
-    kbd_enable();
-    kbd_discard();
-
     kbd_setEventHandler(NULL);
 
     kbd_sendCommand(KEYBOARD_COMMAND_RESET);
     kbd_sendCommand(KEYBOARD_COMMAND_ECHO);
-    for(int i = 0; i < 10000; i ++) {
-        if(kbd_readEncBuffer() == KEYBOARD_RESPONSE_ECHO) {
-            debug_message("keyboard ECHO OK", "ps2kbd", KERNEL_MESSAGE);
-            puts("KBD: OK\n");
 
-            return;
-        }
+    int timeout = 10000;
+    while(timeout--) {
+        u8 val = kbd_readEncBuffer();
+        if(val == KEYBOARD_RESPONSE_ECHO)
+            break;
     }
 
-    debug_message("keyboard ECHO command timeout", "ps2kbd", KERNEL_ERROR); 
+    while(kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF)
+        (void) inportb(KEYBOARD_DATA_PORT);
+
+    kbd_enable();
+
+    pit_wait(80);
+    _init_done = 1;
+    
     return;
 }
 

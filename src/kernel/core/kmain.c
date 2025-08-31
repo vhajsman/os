@@ -100,8 +100,6 @@ int kmain_initperipherial(void* context) {
     IGNORE_UNUSED(context);
 
     kbd_init();
-    kbd_enable();
-
     rtc_init();
 
     return 0;

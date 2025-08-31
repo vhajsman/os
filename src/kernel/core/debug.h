@@ -106,4 +106,7 @@ void debug_captureStackTrace(void** buffer, unsigned int maxFrames);
  */
 const char* debug_lookup(uintptr_t addr);
 
+#define DEBUG_SYMBOL_CURRENT()  \
+    debug_lookup((uintptr_t) __wrap_return_address(0))
+
 #endif
