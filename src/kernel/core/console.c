@@ -194,9 +194,6 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
         l = getc();
         kbd_discard();
 
-        // console_cursor_move(console_position.x + 1, console_position.y);
-        // console_position.x++;
-
         if (l == '\0') {
             debug_messagen("EOF or string terminator @: ", "getc()", KERNEL_MESSAGE, l, 10);
             break;
@@ -205,7 +202,7 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
         putc(l);
         buffer[i] = l;
 
-        console_position.x++;
+        // console_position.x++;
         
         if (l == '\n') {
             debug_messagen("Breaker char @: ", "getc()", KERNEL_MESSAGE, l, 10);
