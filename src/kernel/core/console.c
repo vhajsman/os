@@ -83,6 +83,8 @@ size_t console_column;
 u8 console_color;
 u16* console_buffer;
 
+void __console_wait_kbdcallback(kbd_event_t* event);
+
 void console_initialize(void) {
 	console_position.x = 0;
     console_position.y = 0;
@@ -96,6 +98,8 @@ void console_initialize(void) {
 			console_buffer[index] = vga_entry(' ', console_color);
 		}
 	}
+
+    kbd_setEventHandler(__console_wait_kbdcallback);
 }
  
 void setColor(u8 color) {
@@ -242,21 +246,32 @@ u8 console_wherey() {
     return console_position.x;
 }
 
+static kbd_event_t __console_wait_event;
+void __console_wait_kbdcallback(kbd_event_t* event) {
+    __console_wait_event = *event;
+    __console_wait_event.hanrtdone = 0;
+}
+
 char console_wait() {
+    kbd_setEventHandler(__console_wait_kbdcallback);
+
     while(1) {
-        // TODO: use something like cpu_relax() as soon as its implemented
+        if(__console_wait_event.evtype == KEYBOARD_EVENT_KEY_PRESSED && __console_wait_event.hanrtdone == 0) {
+            __console_wait_event.hanrtdone = 1;
 
-        kbd_event_t* e = kbd_getLastEvent();                // get last key pressed
-        if(!e || e->evtype != KEYBOARD_EVENT_KEY_PRESSED)   // if event is not a keypress, continue waiting
-            continue;
+            debug_message("received kbd event: scancode=", "console", KERNEL_MESSAGE);
+            debug_number(__console_wait_event.scancode, 16);
+            debug_append(", character=");
+            debug_append(&__console_wait_event.character);
 
-        if(e->scancode != 0x00 && e->hanrtdone == 0) {
-            e->hanrtdone = 1;
-            return e->character;
+            kbd_setEventHandler(NULL);
+            return __console_wait_event.character;
         }
     }
 
-    return 0x00;
+    // never should reach this
+    kbd_setEventHandler(NULL);
+    return (char) 0x00;
 }
 
 u8 _cursor_visible = 1;
