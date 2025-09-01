@@ -190,7 +190,7 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
 
     kbd_discard();
 
-    while (i < bufferSize - 1) {
+    while(i < bufferSize - 1) {
         l = getc();
         kbd_discard();
 
@@ -201,8 +201,6 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
 
         putc(l);
         buffer[i] = l;
-
-        // console_position.x++;
         
         if (l == '\n') {
             debug_messagen("Breaker char @: ", "getc()", KERNEL_MESSAGE, l, 10);
@@ -210,10 +208,11 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
         }
 
         i++;
+
+        console_cursor_move(console_position.x, console_position.y);
     }
     
     buffer[i] = '\0';
-
     console_cursor_hide();
 }
 
