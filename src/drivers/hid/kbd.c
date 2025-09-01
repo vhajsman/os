@@ -48,9 +48,6 @@ u32 _repeat_delay_ms        = PIT_FREQUENCY * 250 / 1000;
 u32 _repeat_rate_ms         = PIT_FREQUENCY * 30  / 1000;
 
 void process_scancode(u8 raw, u8 code, bool released) {
-    debug_message("processing scancode: raw=", "kbd", KERNEL_MESSAGE);
-    debug_number(raw, 16);
-
     if(raw == KEYBOARD_SCANCODE_PREFIX) {
         _current_state = __KBD_STATE_PREFIX;
         return;
@@ -58,7 +55,7 @@ void process_scancode(u8 raw, u8 code, bool released) {
 
     if(released) {
         key_down[code] = 0;
-//        return;
+        return;
     }
 
     switch(code) {
@@ -98,17 +95,11 @@ void process_scancode(u8 raw, u8 code, bool released) {
                             (_ctrl  ? KEYBOARD_MASK_CTRL    : 0) |
                             (_alt   ? KEYBOARD_MASK_ALT     : 0);
 
-//    _last_event.evtype  = released
-//                        ? KEYBOARD_EVENT_KEY_RELEASED
-//                        : KEYBOARD_EVENT_KEY_PRESSED;
-
-    _last_event.evtype = KEYBOARD_EVENT_KEY_PRESSED;
+    _last_event.evtype    = KEYBOARD_EVENT_KEY_PRESSED;
     _last_event.hanrtdone = 0;
 
     if(_event_callback)
         _event_callback(&_last_event);
-
-    // pit_wait(_repeat_delay_ms);
 }
 
 u8 _scancode_isFirst = 1;
@@ -117,8 +108,6 @@ void kbd_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
 
     int _max_loops = 10;
-    //while((kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF) && _max_loops--)
-    //    (void) inportb(KEYBOARD_DATA_PORT);
 
     if(!_enabled || !_init_done) {
         goto cleanup;
