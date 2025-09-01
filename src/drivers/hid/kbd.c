@@ -87,7 +87,6 @@ void process_scancode(u8 raw, u8 code, bool released) {
         default: break;
     }
 
-    // Zpracuj znak a vyvolej event
     _last_scancode = code;
     _last_char = kbd_toChar(code, _shift ^ _caps, _alt);
 
@@ -109,7 +108,7 @@ void process_scancode(u8 raw, u8 code, bool released) {
     if(_event_callback)
         _event_callback(&_last_event);
 
-    pit_wait(_repeat_delay_ms);
+    // pit_wait(_repeat_delay_ms);
 }
 
 u8 _scancode_isFirst = 1;
@@ -117,29 +116,40 @@ u8 _scancode_isFirst = 1;
 void kbd_irq(REGISTERS* r) {
     IGNORE_UNUSED(r);
 
-    if(!_enabled || !_init_done)
-        return;
+    int _max_loops = 10;
+    while((kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF) && _max_loops--)
+        (void) inportb(KEYBOARD_DATA_PORT);
 
-    if(_scancode_isFirst) {
-        _scancode_isFirst = 0;
+    if(!_enabled || !_init_done) {
+        goto cleanup;
         return;
     }
 
-    puts("KEYBOARD INTERRUPT");
+    if(_scancode_isFirst) {
+        _scancode_isFirst = 0;
+
+        goto cleanup;
+        return;
+    }
 
     kbd_disable();
 
-    while(kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF) {
+    _max_loops = 10;
+    while((kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF) && _max_loops--) {
         u32 now = pit_get();
         u8 raw = inportb(KEYBOARD_DATA_PORT);
 
-        if(raw == 0x00 || raw == 0xFA || raw == 0xAA || raw == 0x65 || (raw > 0x59 && raw < 0x69)) {
-            char buff[3]; itoa(buff, 16, raw);
-            puts("irq(): kbd_irq(): invalid scancode detected: ");
-            puts(buff);
-            puts("\n");
+        switch(raw) {
+            case 0xFA:  debug_message("KEYBOARD_RESPONSE_ACK", "kbd", KERNEL_MESSAGE); continue;
+            case 0xAA:  debug_message("KEYBOARD_SELF_TEST_OK", "kbd", KERNEL_MESSAGE); continue;
+            case 0xEE:  debug_message("KEYBOARD_RESPONSE_ECHO","kbd", KERNEL_MESSAGE); continue;
+        }
 
-            return;
+        if(raw == 0x00) {
+            debug_message("invalid scancode: ", "kbd", KERNEL_ERROR);
+            debug_number(raw, 16);
+
+            continue;
         }
 
         bool released = raw & 0x80;
@@ -147,32 +157,23 @@ void kbd_irq(REGISTERS* r) {
 
         if(released) {
             key_down[code] = 0;
-
-            //return;
             continue;
         }
 
         if(!key_down[code]) {
             key_down[code] = 1;
             key_lasttime[code] = now;
-
-            process_scancode(raw, code, released);
-        } else {
-            u32 elapsed = now - key_lasttime[code];
-            if(elapsed >= _repeat_delay_ms) {
-                //if((elapsed - _repeat_delay_ms) % _repeat_rate_ms == 0) {
-                //    process_scancode(raw, code, released);
-                //    pit_wait(10);
-                //}
-
-                if(elapsed >= _repeat_delay_ms + _repeat_rate_ms) {
-                    process_scancode(raw, code, released);
-                }
-            }
         }
+
+        process_scancode(raw, code, released);
     }
 
     kbd_enable();
+cleanup:
+    while(kbd_readStatus() & KEYBOARD_CTRL_STATUS_MASK_OUT_BUF)
+        (void) inportb(KEYBOARD_DATA_PORT);
+
+    return;
 }
 
 void kbd_enable()   { _enabled = 1; }

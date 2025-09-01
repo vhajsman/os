@@ -2,6 +2,8 @@
 #include "idt.h"
 #include "time/timer.h"
 #include "console.h"
+#include "debug.h"
+#include "irqdef.h"
 
 ISR g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
 
@@ -40,6 +42,8 @@ char *exception_messages[32] = {
     "Reserved"
 };
 
+u8 _irq_busy = 0;
+
 void isr_registerInterruptHandler(int num, ISR handler) {
     // printf("IRQ %d registered\n", num);
 
@@ -52,12 +56,22 @@ void isr_endInterrupt(int num) {
 }
 
 void isr_irqHandler(REGISTERS *reg) {
-    if (g_interrupt_handlers[reg->int_no] != NULL) {
+    if(g_interrupt_handlers[reg->int_no] != NULL) {
+        _irq_busy = 1;
+        // __asm__ __volatile__("cli");
+
         ISR handler = g_interrupt_handlers[reg->int_no];
         handler(reg);
+
+        _irq_busy = 0;
+        // __asm__ __volatile__("sti");
+
+        // debug_message("IRQ subroutine done: ", "IRQ", KERNEL_MESSAGE);
+        // debug_number(reg->int_no, 16);
+
     }
     
-    pic8259_eoi(reg->int_no);
+    pic8259_eoi(reg->int_no + IRQ_BASE);
 }
 
 void print_registers(REGISTERS *reg) {
@@ -81,3 +95,5 @@ void isr_exception_handler(REGISTERS reg) {
         handler(&reg);
     }
 }
+
+void irq_done() {}
