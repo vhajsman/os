@@ -184,7 +184,7 @@ u32 pci_config_read(pci_dev_t* dev, u8 offset) {
                     ((u32) dev->function_num << 8)  |
                     (offset & 0xFC)                 ;
 
-    outportl(/*dev->bits | (offset & 0xFC)*/ address, PCI_CONFIG_ADDRESS);
+    outportl(PCI_CONFIG_ADDRESS, address);
     return inportl(PCI_CONFIG_DATA);
 }
 
@@ -193,7 +193,8 @@ u16 pci_config_read16(pci_dev_t* dev, u8 offset) {
 }
 
 u8 pci_config_read8(pci_dev_t* dev, u8 offset) {
-    return (pci_config_read(dev, offset) >> ((offset & 2) * 3)) & 0xFF;
+    // return (pci_config_read(dev, offset) >> ((offset & 2) * 3)) & 0xFF;
+    return (pci_config_read(dev, offset) >> ((offset & 3) * 8) & 0xFF);
 }
 
 void pci_config_write16(pci_dev_t* dev, u8 offset, u16 data) {
@@ -203,7 +204,7 @@ void pci_config_write16(pci_dev_t* dev, u8 offset, u16 data) {
                     ((u32) dev->function_num << 8)  |
                     (offset & 0xFC)                 ;
 
-    outportl(PCI_CONFIG_ADDRESS, /*dev->bits | (offset & 0xFC)*/ address);
+    outportl(PCI_CONFIG_ADDRESS, address);
     outportw(PCI_CONFIG_DATA + (offset & 2), data);
 }
 
