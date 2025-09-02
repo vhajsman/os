@@ -176,6 +176,23 @@ char getc() {
     return console_wait();
 }
 
+void console_position_movback(unsigned int steps) {
+    if((console_position.x == 0 && console_position.y == 0) || !steps)
+        return;
+
+    while(steps--) {
+        if(console_position.x > 0) {
+            console_position.x--;
+            continue;
+        }
+
+        if(console_position.y > 0) {
+            console_position.y--;
+            console_position.x = VGA_WIDTH - 1;
+        }
+    }
+}
+
 void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
     if (buffer == NULL || bufferSize == 0) {
         debug_message("Buffer size should not be NULL.", "getc()", KERNEL_ERROR);
@@ -194,15 +211,30 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
         l = getc();
         kbd_discard();
 
-        if (l == '\0') {
+        if(l == '\0') {
             debug_messagen("EOF or string terminator @: ", "getc()", KERNEL_MESSAGE, l, 10);
             break;
+        }
+
+        if(l == '\b') {
+            if(!i)
+                continue;
+
+            buffer[i-1] = '\0';
+            i--;
+
+            console_position_movback(1);
+            putc(' ');
+            console_position_movback(1);
+
+            console_cursor_move(console_position.x, console_position.y);
+            continue;
         }
 
         putc(l);
         buffer[i] = l;
         
-        if (l == '\n') {
+        if(l == '\n') {
             debug_messagen("Breaker char @: ", "getc()", KERNEL_MESSAGE, l, 10);
             break;
         }
