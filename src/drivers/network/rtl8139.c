@@ -16,7 +16,9 @@ u8 rtl8139_mac[6];
 
 void rtl8139_command(u8 command) {
     outportb(rtl8139_io_base + RTL8139_REG_CMD, command);
-    while(inportb(rtl8139_io_base + RTL8139_REG_CMD) & command);
+
+    if(command & RTL8139_CMD_RESET) // reset required
+        while(inportb(rtl8139_io_base + RTL8139_REG_CMD) & command);
 }
 
 void rtl8139_reset() {
