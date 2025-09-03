@@ -1,6 +1,8 @@
 #ifndef __RTL8139_H
 #define __RTL8139_H
 
+#include "kernel.h"
+
 #define RTL8139_VENDOR_ID 0x10EC
 #define RTL8139_DEVICE_ID 0x8139
 

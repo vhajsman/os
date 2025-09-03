@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "memory/memory.h"
 #include "ioport.h"
+#include "console.h"
 
 pci_dev_t rtl8139_device;
 u16 rtl8139_io_base;
@@ -99,7 +100,12 @@ void rtl8139_init() {
     for(int i = 0; i < 6; i++)
         rtl8139_mac[i] = inportb(rtl8139_io_base + i);
 
-    
+    char mac_str[18];
+    mac2str(rtl8139_mac, mac_str);
+
+    puts("RTL8139 physical address: ");
+    puts(mac_str);
+    puts("\n");
 }
 
 #undef _require_pci_dev_zero
