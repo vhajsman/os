@@ -26,6 +26,7 @@
 #include "device.h"
 #include "util/fstab.h"
 #include "network/rtl8139.h"
+#include "multitask.h"
 
 #include "random.h"
 struct rng_ctx kernel_seed_ctx;
@@ -207,6 +208,8 @@ void kmain(unsigned long magic, unsigned long addr) {
     idt_init();
 
     asm volatile("sti");
+
+    mt_init();
 
     pit_init(1000); 
 
