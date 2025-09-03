@@ -21,6 +21,7 @@ typedef struct kernel_threadCtrlBlk {
 } kernel_tcb_t;
 
 void mt_init();
+void mt_switch();
 
 #endif
 

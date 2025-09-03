@@ -107,6 +107,7 @@
 #include "kernel.h"
 #include "irq/isr.h"
 #include "irq/irqdef.h"
+#include "multitask.h"
 
 void pit_handler(REGISTERS* r);
 
@@ -128,6 +129,8 @@ void pit_init(u32 freq) {
 
 void pit_handler(REGISTERS* r) {
     IGNORE_UNUSED(r);
+
+    mt_switch();
     tick++;
 }
 

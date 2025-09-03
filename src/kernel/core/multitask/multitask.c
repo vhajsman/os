@@ -39,3 +39,43 @@ void mt_init() {
 
     __asm__ __volatile__("sti");
 }
+
+void mt_switch() {
+    if(!mt_tcb_current || !mt_tcb_current->next)
+        return;
+
+    __asm__ __volatile__("cli");
+
+    kernel_tcb_t* old = mt_tcb_current;
+    kernel_tcb_t* new = mt_tcb_current->next;
+
+    // save regs to old task
+    __asm__ __volatile__ (
+        "movl %%esp, %0\n\t"
+        "movl %%ebp, %1\n\t"
+        "pushf\n\t"
+        "pop %2\n\t"
+        :   "=m"(old->regs.esp), 
+            "=m"(old->regs.ebp), 
+            "=m"(old->regs.eflags)
+        :
+        : "memory"
+    );
+
+    mt_tcb_current = new;
+
+    // load regs from new task
+    __asm__ __volatile__ (
+        "movl %0, %%esp\n\t"
+        "movl %1, %%ebp\n\t"
+        "push %2\n\t"
+        "popf\n\t"
+        :
+        :   "m"(new->regs.esp), 
+            "m"(new->regs.ebp), 
+            "m"(new->regs.eflags)
+        : "memory"
+    );
+
+    __asm__ __volatile__("sti");
+}
