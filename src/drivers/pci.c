@@ -7,6 +7,12 @@
 u32 pci_size_map[100];
 pci_dev_t dev_zero = {0};
 
+u32 pci_config_read(pci_dev_t* dev, u8 offset);
+u16 pci_config_read16(pci_dev_t* dev, u8 offset);
+u8 pci_config_read8(pci_dev_t* dev, u8 offset);
+void pci_config_write16(pci_dev_t* dev, u8 offset, u16 data);
+u32 pci_read_bar0(pci_dev_t* dev);
+
 u32 pci_read(pci_dev_t* device, u32 field) {
     u32 size = pci_size_map[field];
 
@@ -31,6 +37,14 @@ u32 pci_read(pci_dev_t* device, u32 field) {
     }
 }
 
+u16 pci_getDeviceId(pci_dev_t* dev) {
+    return pci_config_read16(dev, PCI_DEVICE_ID);
+}
+
+u16 pci_getVendorId(pci_dev_t* dev) {
+    return pci_config_read16(dev, PCI_VENDOR_ID);
+}
+
 void pci_write(pci_dev_t* device, u32 field, u32 value) {
     device->field_num = (field & 0xFC) >> 2;
     device->enable = 1;
@@ -40,7 +54,9 @@ void pci_write(pci_dev_t* device, u32 field, u32 value) {
 }
 
 u32 pci_getDeviceType(pci_dev_t* device) {
-    return (pci_read(device, PCI_CLASS) << 8) | pci_read(device, PCI_SUBCLASS);
+    // return (pci_read(device, PCI_CLASS) << 8) | pci_read(device, PCI_SUBCLASS);
+    u8 headerType = pci_config_read8(device, PCI_HEADER_TYPE) & 0x7F;
+    return headerType;
 }
 
 u32 pci_bridge(pci_dev_t* device) {
@@ -58,62 +74,53 @@ pci_dev_t pci_scanFunction(u16 vendorId, u16 deviceId, u32 bus, u32 device, u32 
     dev.device_num = device;
     dev.function_num = function;
 
-    u32 _vendorId = pci_read(&dev, PCI_VENDOR_ID);
+    u16 _vendorId = pci_getVendorId(&dev);
+    if(_vendorId == PCI_NONE || _vendorId == 0x0000)
+        return dev_zero;
 
-    if(_vendorId == 0xFFFF)
-        return dev_zero;    
+    if(device_type != -1 && pci_getDeviceType(&dev) != (u32) device_type)
+        return dev_zero;
+
+    u16 _deviceId = pci_getDeviceId(&dev);
+
+    if(vendorId == _vendorId && deviceId == _deviceId)
+        return dev;
 
     if(pci_getDeviceType(&dev) == PCI_TYPE_BRIDGE) {
-        pci_dev_t t = pci_scanBus(vendorId, deviceId, pci_bridge(&dev), device_type);
-
-        if(t.bits)
-            return t;
-    }
-
-    if(device_type == -1 || device_type == (int) pci_getDeviceType(&dev)) {    // ? Device found
-        u32 _deviceId = pci_read(&dev, PCI_DEVICE_ID);
-        //u32 _vendorId = pci_read(dev, PCI_VENDOR_ID);
-
-        if(_deviceId == deviceId && _vendorId == vendorId)
-            return dev;
+        u8 secondaryBus = pci_config_read8(&dev, 0x19);
+        return pci_scanBus(vendorId, deviceId, secondaryBus, device_type);
     }
 
     return dev_zero;
 }
 
 pci_dev_t pci_scanDevice(u16 vendorId, u16 deviceId, u32 bus, u32 device, int device_type) {
-    pci_dev_t dev = {0};
-
-    dev.bus_num = bus;
-    dev.device_num = device;
-
-    if(pci_read(&dev, PCI_VENDOR_ID) == PCI_NONE)
-        return dev_zero;
-
-    pci_dev_t t = pci_scanFunction(vendorId, deviceId, bus, device, 0, device_type);
-
+    pci_dev_t t = pci_scanFunction(vendorId, deviceId, bus, device_type, 0, device_type);
     if(t.bits)
         return t;
 
-    if(pci_reachEnd(&dev))
+    pci_dev_t dev;
+
+    dev.bus_num = bus;
+    dev.device_num = device;
+    dev.function_num = 0;
+
+    u16 _vendorId = pci_getVendorId(&dev);
+    if(_vendorId == PCI_NONE || _vendorId == 0x0000)
         return dev_zero;
 
-    for(int f = 1; f < FUNCTION_PER_DEVICE; f++) {
-        if(pci_read(&dev, PCI_VENDOR_ID) != PCI_NONE) {
-            t = pci_scanFunction(vendorId, deviceId, bus, device, f, device_type);
-
-            if(t.bits)
-                return t;
-        }
+    for(u32 f = 1; f < FUNCTION_PER_DEVICE; f++) {
+        t = pci_scanFunction(vendorId, deviceId, bus, device, f, device_type);
+        if(t.bits)
+            return t;
     }
 
     return dev_zero;
 }
 
 pci_dev_t pci_scanBus(u16 vendorId, u16 deviceId, u32 bus, int device_type) {
-    for(int d = 0; d < DEVICE_PER_BUS; d++) {
+    for(u32 d = 0; d < DEVICE_PER_BUS; d++) {
         pci_dev_t t = pci_scanDevice(vendorId, deviceId, bus, d, device_type);
-
         if(t.bits)
             return t;
     }
@@ -127,7 +134,7 @@ pci_dev_t pci_getDevice(u16 vendorId, u16 deviceId, int device_type) {
     if(t.bits)
         return t;
 
-    if(pci_reachEnd(&dev_zero)) {
+//    if(pci_reachEnd(&dev_zero)) {
         debug_message("Failed to get PCI device",   "PCI", KERNEL_ERROR);
         debug_messagen(" -> vendorId: ",            "PCI", KERNEL_ERROR, vendorId, 16);
         debug_messagen(" -> deviceId: ",            "PCI", KERNEL_ERROR, deviceId, 16);
@@ -136,22 +143,22 @@ pci_dev_t pci_getDevice(u16 vendorId, u16 deviceId, int device_type) {
         puts("Failed to get PCI device.\n");
 
         return dev_zero;
-    }
+//    }
 
-    for(int f = 1; f < FUNCTION_PER_DEVICE; f++) {
-        pci_dev_t dev = {0};
-        dev.function_num = f;
-
-        if(pci_read(&dev, PCI_VENDOR_ID) == PCI_NONE)
-            break;
-
-        t = pci_scanBus(vendorId, deviceId, f, device_type);
-
-        if(t.bits)
-            return t;
-    }
-
-    return dev_zero;
+//    for(int f = 1; f < FUNCTION_PER_DEVICE; f++) {
+//        pci_dev_t dev = {0};
+//        dev.function_num = f;
+//
+//        if(pci_read(&dev, PCI_VENDOR_ID) == PCI_NONE)
+//            break;
+//
+//        t = pci_scanBus(vendorId, deviceId, f, device_type);
+//
+//        if(t.bits)
+//            return t;
+//    }
+//
+//    return dev_zero;
 }
 
 void pci_init() {
@@ -204,7 +211,7 @@ void pci_config_write16(pci_dev_t* dev, u8 offset, u16 data) {
                     ((u32) dev->function_num << 8)  |
                     (offset & 0xFC)                 ;
 
-    outportl(PCI_CONFIG_ADDRESS, address);
+    outportl(PCI_CONFIG_ADDRESS, /*dev->bits | (offset & 0xFC)*/ address);
     outportw(PCI_CONFIG_DATA + (offset & 2), data);
 }
 

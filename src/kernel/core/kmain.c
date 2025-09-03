@@ -261,6 +261,8 @@ void kmain(unsigned long magic, unsigned long addr) {
     kmain_automount(NULL);
     fs_mounts_debug();
 
+    rtl8139_init();
+
     shell();
 }
 
