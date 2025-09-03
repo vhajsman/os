@@ -14,6 +14,21 @@ u8* rtl8139_rxbuffer = NULL;
 
 u8 rtl8139_mac[6];
 
+void mac2str(const mac_t mac, char buffer[18]) {
+    const char* hex = "0123456789ABCDEF";
+
+    int pos = 0;
+    for(int i = 0; i < 6; i++) {
+        buffer[pos++] = hex[(mac[i] >> 4) & 0xF];
+        buffer[pos++] = hex[mac[i] & 0xF];
+
+        if(i < 5)
+            buffer[pos++] = ':';
+    }
+
+    buffer[pos] = '\0';
+}
+
 void rtl8139_command(u8 command) {
     outportb(rtl8139_io_base + RTL8139_REG_CMD, command);
 
