@@ -16,5 +16,7 @@
 
 void rtl8139_init();
 
+typedef u8 mac_t[6];
+
 #endif
 
