@@ -131,3 +131,25 @@ inline void cpu_relax() {
     __asm__ __volatile__(__opt_cpu_relax_inst ::: "memory");
 }
 
+u32 get_esp() {
+    u32 esp;
+    __asm__ __volatile__("movl %%esp, %0" : "=r"(esp));
+    return esp;
+}
+
+u32 get_ebp() {
+    u32 ebp;
+    __asm__ __volatile__("movl %%ebp, %0" : "=r"(ebp));
+    return ebp;
+}
+
+u32 get_eflags() {
+    u32 eflags;
+    __asm__ __volatile__(
+        "pushf\n\t"
+        "pop %0"
+        : "=r"(eflags)
+    );
+    return eflags;
+}
+

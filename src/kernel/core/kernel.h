@@ -78,6 +78,10 @@ typedef struct {
     u16 eflags;
 } REGISTERS_16;
 
+u32 get_esp();
+u32 get_ebp();
+u32 get_eflags();
+
 BOOL is_echo(char *b);
 
 void shutdown();
