@@ -114,6 +114,8 @@ void pit_handler(REGISTERS* r);
 // PIT tick counter
 volatile u32 tick = 0;
 
+// extern void pit_stub(REGISTERS* regs);
+
 void pit_init(u32 freq) {
     u32 divisor = PIT_FREQUENCY / freq;
 
@@ -130,7 +132,7 @@ void pit_init(u32 freq) {
 void pit_handler(REGISTERS* r) {
     IGNORE_UNUSED(r);
 
-    mt_switch();
+    mt_switch(r);
     tick++;
 }
 

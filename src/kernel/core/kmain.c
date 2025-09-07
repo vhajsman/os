@@ -196,6 +196,21 @@ void kmain_setuphooks() {
     hook_register(&kmain_hooks, kmain_seed, "get seed for RNG", NULL);
 }
 
+void task1() {
+        while(1) {
+            puts("Task A OK\n");
+            for (volatile int i = 0; i < 1000000; i++);
+        }
+    }
+
+    void task2() {
+        while(1) {
+            puts("Task B OK\n");
+            for (volatile int i = 0; i < 1000000; i++);
+        }
+    }
+
+
 
 void kmain(unsigned long magic, unsigned long addr) {
     mboot_info = (MULTIBOOT_INFO*) addr;
@@ -205,13 +220,10 @@ void kmain(unsigned long magic, unsigned long addr) {
     console_initialize();
     kmain_init_cursor();
     gdt_init();
+
     idt_init();
-
-    asm volatile("sti");
-
-    mt_init();
-
     pit_init(1000); 
+    mt_init();
 
     // DO NOT initialize debugging on your own if not insiders build
     #ifdef _BUILD_INSIDERS
@@ -228,6 +240,10 @@ void kmain(unsigned long magic, unsigned long addr) {
     #ifdef _BUILD_INSIDERS
         debug_message("insiders build - testing-purpose functionality included.", 0, KERNEL_MESSAGE);
     #endif
+
+    
+    mt_newtask(task1);
+    mt_newtask(task2);
 
     memory_init(mboot_info);
 
@@ -265,6 +281,8 @@ void kmain(unsigned long magic, unsigned long addr) {
     fs_mounts_debug();
 
     rtl8139_init();
+
+    __asm__ __volatile__("sti");
 
     shell();
 }
