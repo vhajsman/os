@@ -22,6 +22,7 @@ INCLUDE_INTERNAL_COMMAND(df);
 INCLUDE_INTERNAL_COMMAND(mount);
 INCLUDE_INTERNAL_COMMAND(unmount);
 INCLUDE_INTERNAL_COMMAND(lspci);
+INCLUDE_INTERNAL_COMMAND(mtdump);
 
 
 #ifdef _BUILD_INSIDERS
@@ -40,6 +41,7 @@ void shell_registerAll() {
     registerCommand(&command_mount);
     registerCommand(&command_unmount);
     registerCommand(&command_lspci);
+    registerCommand(&command_mtdump);
 
     #ifdef _BUILD_INSIDERS
     registerCommand(&command_mmdu);

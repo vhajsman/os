@@ -242,8 +242,8 @@ void kmain(unsigned long magic, unsigned long addr) {
     #endif
 
     
-    mt_newtask(task1);
-    mt_newtask(task2);
+    mt_newtask(&task1);
+    mt_newtask(&task2);
 
     memory_init(mboot_info);
 

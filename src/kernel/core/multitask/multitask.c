@@ -81,6 +81,7 @@ void mt_init() {
 
     // set this thread as a current one
     mt_tcb_current = thread;
+    mt_tcb_current->next = mt_tcb_current;
 
     __asm__ __volatile__("sti");    // enable interrupts again
 }
@@ -151,6 +152,8 @@ kernel_tcb_t* mt_newtask(void(*task_func)()) {
 }
 
 void mt_switch(REGISTERS* regs) {
+    // __asm__ __volatile__("cli");
+
     if(!mt_tcb_current || mt_tcb_current->next == mt_tcb_current)
         return;
 
@@ -162,4 +165,19 @@ void mt_switch(REGISTERS* regs) {
     kernel_tcb_t* new = mt_tcb_current;
 
     memcpy(regs, &new->regs, sizeof(REGISTERS));
+
+    debug_message("switch tasks: ", "mt", KERNEL_MESSAGE);
+    debug_number(old->pid, 10);
+    debug_append(", ");
+    debug_number(new->pid, 10);
+
+    // __asm__ __volatile__("sti");
+}
+
+pid_t mt_getPidCounter() {
+    return mt_pid_counter;
+}
+
+kernel_tcb_t* mt_getCurrent() {
+    return mt_tcb_current;
 }

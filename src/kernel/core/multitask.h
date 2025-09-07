@@ -36,5 +36,8 @@ void mt_switch(REGISTERS* regs);
 
 kernel_tcb_t* mt_newtask(void(*task_func)());
 
+pid_t mt_getPidCounter();
+kernel_tcb_t* mt_getCurrent();
+
 #endif
 
