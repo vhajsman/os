@@ -238,7 +238,7 @@ GLBLABEL_DEFINE(_l_kmain_stage0);
     debug_message("CubeBox OS! v 0.0.1 kernel!", 0, KERNEL_IMPORTANT);
     #endif
 
-    mt_init();
+    // mt_init();
 
 GLBLABEL_DEFINE(_l_kmain_stage1);
 
