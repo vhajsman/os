@@ -213,6 +213,8 @@ void task1() {
 
 
 void kmain(unsigned long magic, unsigned long addr) {
+GLBLABEL_DEFINE(_l_kmain_stage0);
+
     mboot_info = (MULTIBOOT_INFO*) addr;
 
     asm volatile("cli");
@@ -223,7 +225,6 @@ void kmain(unsigned long magic, unsigned long addr) {
 
     idt_init();
     pit_init(1000); 
-    mt_init();
 
     // DO NOT initialize debugging on your own if not insiders build
     #ifdef _BUILD_INSIDERS
@@ -237,13 +238,13 @@ void kmain(unsigned long magic, unsigned long addr) {
     debug_message("CubeBox OS! v 0.0.1 kernel!", 0, KERNEL_IMPORTANT);
     #endif
 
+    mt_init();
+
+GLBLABEL_DEFINE(_l_kmain_stage1);
+
     #ifdef _BUILD_INSIDERS
         debug_message("insiders build - testing-purpose functionality included.", 0, KERNEL_MESSAGE);
     #endif
-
-    
-    mt_newtask(&task1);
-    mt_newtask(&task2);
 
     memory_init(mboot_info);
 

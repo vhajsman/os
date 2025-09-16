@@ -20,6 +20,9 @@ typedef struct kernel_threadCtrlBlk {
 
     REGISTERS regs;
 
+    u8* stack_base;
+    size_t stack_size;
+
     kernel_tcb_t* parent;   // parent process pointer
     kernel_tcb_t* next;     // next process in linked list pointer
                             //
@@ -38,6 +41,8 @@ kernel_tcb_t* mt_newtask(void(*task_func)());
 
 pid_t mt_getPidCounter();
 kernel_tcb_t* mt_getCurrent();
+kernel_tcb_t* mt_getMain();
+kernel_tcb_t* mt_getTcbByPid(pid_t pid);
 
 #endif
 

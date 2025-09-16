@@ -131,7 +131,9 @@ void pit_init(u32 freq) {
 }
 
 void pit_handler(REGISTERS* r) {
-    mt_switch(r);
+    if(mt_getPidCounter() > 1)
+        mt_switch(r);
+
     tick++;
 }
 
