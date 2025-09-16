@@ -12,6 +12,7 @@ u16 rtl8139_io_base;
 u32 rtl8139_io_bar0;
 
 u8* rtl8139_rxbuffer = NULL;
+u8* rtl8139_txbuffer[RTL8139_TXBUFFER_COUNT] = {NULL};
 
 u8 rtl8139_mac[6];
 
@@ -77,6 +78,22 @@ void rtl8139_init() {
         return;
     }
 
+    // --- Set up TX buffer
+    for(int i = 0; i < RTL8139_TXBUFFER_COUNT; i++) {
+        rtl8139_txbuffer[i] = (u8*) kmalloc(RTL8139_TXBUFFER_SIZE + 4);
+
+        if(!rtl8139_txbuffer[i]) {
+            debug_message("not enough memory for TX buffer", "rtl8139", KERNEL_ERROR);
+
+            for(int i0 = 0; i0 < i; i0++)
+                kfree(rtl8139_txbuffer[i0]);
+
+            return;
+        }
+
+        rtl8139_txbuffer[i] = (u8*) (((uintptr_t) rtl8139_txbuffer[i] + 3) & ~3);
+    }
+
     outportl(rtl8139_io_base + RTL8139_REG_RBSTART, (u32) rtl8139_rxbuffer);
 
     debug_message("RX buffer size: ", "rtl8139", KERNEL_MESSAGE);
@@ -95,6 +112,15 @@ void rtl8139_init() {
 
     outportl(rtl8139_io_base + RTL8139_REG_RCR, rxconfig);
 
+    // --- Do TX configuration ---
+    for(int i = 0; i < RTL8139_TXBUFFER_COUNT; i++)
+        outportl(rtl8139_io_base + 0x20 + i * 4, (u32)rtl8139_txbuffer[i]);
+
+    {
+        u8 cmd = inportb(rtl8139_io_base + RTL8139_REG_CMD);
+        cmd |= RTL8139_TX_EN;
+        outportb(rtl8139_io_base + RTL8139_REG_CMD, cmd);
+    };
     
     // --- Get MAC address --- 
     for(int i = 0; i < 6; i++)
@@ -107,5 +133,7 @@ void rtl8139_init() {
     puts(mac_str);
     puts("\n");
 }
+
+
 
 #undef _require_pci_dev_zero

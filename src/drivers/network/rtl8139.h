@@ -16,6 +16,9 @@
 
 #define RTL8139_RXBUFFER_SIZE ((1024 * 8) + 16 + 1500)
 
+#define RTL8139_TXBUFFER_COUNT 4
+#define RTL8139_TXBUFFER_SIZE  2048
+
 void rtl8139_init();
 
 typedef u8 mac_t[6];
