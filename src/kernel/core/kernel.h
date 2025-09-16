@@ -22,6 +22,20 @@
 
 #define SECTION_MID __attribute__((section(".middlestack")))
 
+#define GLBLABEL_DEFINE(__LABEL)    \
+    asm(                            \
+        ".global " #__LABEL "\n"    \
+        #__LABEL ":"                \
+    );
+
+#define GLBLABEL_USING(__LABEL)     \
+    extern void __LABEL(void);
+
+#define GLBLABEL_GOTO(__LABEL)      \
+    asm(                            \
+        "jmp " #__LABEL             \
+    );
+
 // #define PANIC(msg) panic(msg, __FILE__, __LINE__)
 
 #ifndef ASSERT
