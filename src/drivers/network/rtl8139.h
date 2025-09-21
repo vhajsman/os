@@ -2,6 +2,7 @@
 #define __RTL8139_H
 
 #include "kernel.h"
+#include "net.h"
 
 #define RTL8139_VENDOR_ID 0x10EC
 #define RTL8139_DEVICE_ID 0x8139
@@ -21,7 +22,8 @@
 
 void rtl8139_init();
 
-typedef u8 mac_t[6];
+u8 rtl8139_send(const u8* data, size_t len);
+size_t rtl8139_recv(u8* buff, size_t buff_len);
 
 #endif
 
