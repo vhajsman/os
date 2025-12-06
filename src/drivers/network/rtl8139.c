@@ -7,6 +7,7 @@
 #include "string.h"         // memcpy
 #include "ioport.h"         //
 #include "console.h"        // puts
+#include "time/timer.h"     // pit_wait
 
 pci_dev_t rtl8139_device;
 u16 rtl8139_io_base;
@@ -40,7 +41,16 @@ void rtl8139_command(u8 command) {
 }
 
 void rtl8139_reset() {
+    debug_message("performing RTL8139 reset...", "rtl8139", KERNEL_MESSAGE);
+
     rtl8139_command(RTL8139_CMD_RESET);
+
+    // wait for reset complete
+    while(inportb(rtl8139_io_base + RTL8139_REG_CMD) & 0x10) {
+        for(volatile int i = 0; i < 1000; i++);
+    }
+
+    pit_wait(10);
 }
 
 void rtl8139_init() {
@@ -155,7 +165,7 @@ void rtl8139_init() {
         }
     }
 
-
+    debug_message("RTL8139 init subroutine done", "rtl8139", KERNEL_MESSAGE);
 }
 
 u8 rtl8139_send(const u8* data, size_t len) {
