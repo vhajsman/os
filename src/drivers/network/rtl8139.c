@@ -1,11 +1,12 @@
 #define __require_pci_dev_zero
 
-#include "rtl8139.h"
-#include "pci.h"
-#include "debug.h"
-#include "memory/memory.h"
-#include "ioport.h"
-#include "console.h"
+#include "rtl8139.h"        //
+#include "pci.h"            //
+#include "debug.h"          //
+#include "memory/memory.h"  // kmalloc, kfree
+#include "string.h"         // memcpy
+#include "ioport.h"         //
+#include "console.h"        // puts
 
 pci_dev_t rtl8139_device;
 u16 rtl8139_io_base;
@@ -132,8 +133,64 @@ void rtl8139_init() {
     puts("RTL8139 physical address: ");
     puts(mac_str);
     puts("\n");
+
+    // TEST
+
+    while(1) {
+        u8 t_packet[1536];
+        size_t t_packet_len = rtl8139_recv(t_packet, sizeof(t_packet));
+        if(t_packet_len > 0) {
+            u16 _eth_type = (t_packet[12] << 8) | t_packet[13];
+
+            if(_eth_type == 0x0806) {
+                debug_message("received ARP frame", "rtl8139", KERNEL_MESSAGE);
+                break;
+            } else if(_eth_type == 0x0800) {
+                u8 t_proto = t_packet[23];
+                if(t_proto == 1) {
+                    debug_message("received ICMP frame", "rtl8139", KERNEL_MESSAGE);
+                    break;
+                }
+            }
+        }
+    }
+
+
 }
 
+u8 rtl8139_send(const u8* data, size_t len) {
+    static int tx_curr = 0;
 
+    if(len > RTL8139_TXBUFFER_SIZE)
+        return 1;
+
+    memcpy(rtl8139_txbuffer[tx_curr], data, len);
+    outportl(rtl8139_io_base + 0x10 + tx_curr * 4, len & 0xFFFF);
+
+    tx_curr = (tx_curr + 1) % RTL8139_TXBUFFER_COUNT;
+    return 0;
+}
+
+size_t rtl8139_recv(u8* buff, size_t buff_len) {
+    static u32 offset = 0;
+    u16 packet_len;
+
+    // check if packet ready
+    u16 status = *((u16*)(rtl8139_rxbuffer + offset));
+    if(!(status & 1))
+        return 0;
+
+    packet_len = *((u16*)(rtl8139_rxbuffer + offset + 2));
+    if(packet_len > buff_len)
+        return 0;
+
+    memcpy(buff, rtl8139_rxbuffer + offset + 4, packet_len);
+
+    offset += ((packet_len + 4 + 3) & ~3);
+    if(offset >= RTL8139_RXBUFFER_SIZE)
+        offset = 0;
+
+    return packet_len;
+}
 
 #undef _require_pci_dev_zero
