@@ -102,7 +102,8 @@ void rtl8139_init() {
             return;
         }
 
-        rtl8139_txbuffer[i] = (u8*) (((uintptr_t) rtl8139_txbuffer[i] + 3) & ~3);
+        outportl(rtl8139_io_base + RTL8139_REG_TSAD0 + i * 4, (uintptr_t) rtl8139_txbuffer[i]);
+        // rtl8139_txbuffer[i] = (u8*) (((uintptr_t) rtl8139_txbuffer[i] + 3) & ~3);
     }
 
     outportl(rtl8139_io_base + RTL8139_REG_RBSTART, (u32) rtl8139_rxbuffer);
