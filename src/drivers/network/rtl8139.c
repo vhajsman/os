@@ -144,9 +144,18 @@ void rtl8139_init() {
     puts(mac_str);
     puts("\n");
 
+    debug_message("MAC address: ", "rtl8139", KERNEL_MESSAGE);
+    debug_append(mac_str);
+
     // TEST
 
+    int i = 0;
     while(1) {
+        if(i > 350) {
+            goto e_timeout;
+            return;
+        }
+
         u8 t_packet[1536];
         size_t t_packet_len = rtl8139_recv(t_packet, sizeof(t_packet));
         if(t_packet_len > 0) {
@@ -163,9 +172,24 @@ void rtl8139_init() {
                 }
             }
         }
+
+        pit_wait(10);
+        i++;
     }
 
     debug_message("RTL8139 init subroutine done", "rtl8139", KERNEL_MESSAGE);
+    return;
+
+e_timeout:
+    debug_message("RTL8139 init error: timed out", "rtl8139", KERNEL_ERROR);
+    puts("RTL8139: rtl8139_init(): timeout\n");
+    goto e_exit;
+
+e_exit:
+    free(rtl8139_rxbuffer);
+    free(rtl8139_txbuffer);
+
+    return;
 }
 
 u8 rtl8139_send(const u8* data, size_t len) {
