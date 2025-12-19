@@ -119,7 +119,9 @@ void rtl8139_init() {
     u32 rxconfig =  (1 << 0)    |   // accept broadcast
                     (1 << 1)    |   // accept multicast
                     (1 << 2)    |   // accept runt
-                    (1 << 4)    ;   // accept physical match
+                    (1 << 4)    |   // accept physical match
+                    (1 << 7)    |   // wrap
+                    (2 << 11)   ;   // rblen = 10 = 32 kib
 
     outportl(rtl8139_io_base + RTL8139_REG_RCR, rxconfig);
 
