@@ -13,10 +13,12 @@ pci_dev_t rtl8139_device;
 u16 rtl8139_io_base;
 u32 rtl8139_io_bar0;
 
-u8* rtl8139_rxbuffer = NULL;
+volatile u8* rtl8139_rxbuffer = NULL;
 u8* rtl8139_txbuffer[RTL8139_TXBUFFER_COUNT] = {NULL};
 
 u8 rtl8139_mac[6];
+
+static u32 rx_offset = 0;
 
 void mac2str(const mac_t mac, char buffer[18]) {
     const char* hex = "0123456789ABCDEF";
@@ -50,7 +52,57 @@ void rtl8139_reset() {
         for(volatile int i = 0; i < 1000; i++);
     }
 
-    pit_wait(10);
+    pit_wait(100);
+}
+
+u8** rtl8139_setupTx() {
+    for(int i = 0; i < RTL8139_TXBUFFER_COUNT; i++) {
+        rtl8139_txbuffer[i] = (u8*) kmalloc(RTL8139_TXBUFFER_SIZE);
+
+        if(!rtl8139_txbuffer[i]) {
+            debug_message("not enough memory for TX buffer", "rtl8139", KERNEL_ERROR);
+
+            for(int i0 = 0; i0 < i; i0++)
+                kfree(rtl8139_txbuffer[i0]);
+
+            return NULL;
+        }
+    }
+
+    for(int i = 0; i < RTL8139_TXBUFFER_COUNT; i++) {
+        outportl(rtl8139_io_base + RTL8139_REG_TSAD0 + i * 4, (u32)rtl8139_txbuffer[i]);
+
+        u8 cmd = inportb(rtl8139_io_base + RTL8139_REG_CMD);
+        cmd |= RTL8139_TX_EN;
+        outportb(rtl8139_io_base + RTL8139_REG_CMD, cmd);
+    };
+
+    return rtl8139_txbuffer;
+}
+
+volatile u8* rtl8139_setupRx(bool acceptBroadcast, bool acceptMulticast, bool acceptRunt, u32 rblen_raw) {
+    u32 rxconfig = 0;
+    rxconfig |= acceptBroadcast ? (1 << 0) : 0;
+    rxconfig |= acceptMulticast ? (1 << 1) : 0;
+    rxconfig |= acceptRunt      ? (1 << 2) : 0;
+    rxconfig |= (1 << 4);   // accept phys. match
+    rxconfig |= (1 << 7);   // wrap
+    rxconfig |= (rblen_raw << 11);
+
+    rtl8139_rxbuffer = (u8*) kmalloc((size_t) RTL8139_RXBUFFER_SIZE);
+    if(rtl8139_rxbuffer == NULL) {
+        debug_message("not enough memory for RX buffer", "rtl8139", KERNEL_ERROR);
+        return NULL;
+    }
+
+    outportl(rtl8139_io_base + RTL8139_REG_RBSTART, (u32) rtl8139_rxbuffer);
+    outportl(rtl8139_io_base + RTL8139_REG_RCR, rxconfig);
+    outportl(rtl8139_io_base + RTL8139_REG_CMD, RTL8139_RX_EN);
+
+    debug_message("RX buffer size: ", "rtl8139", KERNEL_MESSAGE);
+    debug_number(RTL8139_RXBUFFER_SIZE, 10);
+
+    return rtl8139_rxbuffer;
 }
 
 void rtl8139_init() {
@@ -81,61 +133,9 @@ void rtl8139_init() {
     // reset 
     rtl8139_reset();
 
+    if(!rtl8139_setupTx())                                      goto e_exit;
+    if(!rtl8139_setupRx(true, true, true, 2 /*rblen=32kib*/))   goto e_exit;
 
-    // --- Set up RX buffer --- 
-    rtl8139_rxbuffer = (u8*) kmalloc((size_t) RTL8139_RXBUFFER_SIZE);
-    if(rtl8139_rxbuffer == NULL) {
-        debug_message("not enough memory for RX buffer", "rtl8139", KERNEL_ERROR);
-        return;
-    }
-
-    // --- Set up TX buffer
-    for(int i = 0; i < RTL8139_TXBUFFER_COUNT; i++) {
-        rtl8139_txbuffer[i] = (u8*) kmalloc(RTL8139_TXBUFFER_SIZE + 4);
-
-        if(!rtl8139_txbuffer[i]) {
-            debug_message("not enough memory for TX buffer", "rtl8139", KERNEL_ERROR);
-
-            for(int i0 = 0; i0 < i; i0++)
-                kfree(rtl8139_txbuffer[i0]);
-
-            return;
-        }
-
-        outportl(rtl8139_io_base + RTL8139_REG_TSAD0 + i * 4, (uintptr_t) rtl8139_txbuffer[i]);
-        // rtl8139_txbuffer[i] = (u8*) (((uintptr_t) rtl8139_txbuffer[i] + 3) & ~3);
-    }
-
-    outportl(rtl8139_io_base + RTL8139_REG_RBSTART, (u32) rtl8139_rxbuffer);
-
-    debug_message("RX buffer size: ", "rtl8139", KERNEL_MESSAGE);
-    debug_number(RTL8139_RXBUFFER_SIZE, 10);
-
-
-    // --- Enable RX, TX --- 
-    rtl8139_command(RTL8139_RX_EN | RTL8139_TX_EN);
-
-
-    // --- Do RX configuration --- 
-    u32 rxconfig =  (1 << 0)    |   // accept broadcast
-                    (1 << 1)    |   // accept multicast
-                    (1 << 2)    |   // accept runt
-                    (1 << 4)    |   // accept physical match
-                    (1 << 7)    |   // wrap
-                    (2 << 11)   ;   // rblen = 10 = 32 kib
-
-    outportl(rtl8139_io_base + RTL8139_REG_RCR, rxconfig);
-
-    // --- Do TX configuration ---
-    for(int i = 0; i < RTL8139_TXBUFFER_COUNT; i++)
-        outportl(rtl8139_io_base + 0x20 + i * 4, (u32)rtl8139_txbuffer[i]);
-
-    {
-        u8 cmd = inportb(rtl8139_io_base + RTL8139_REG_CMD);
-        cmd |= RTL8139_TX_EN;
-        outportb(rtl8139_io_base + RTL8139_REG_CMD, cmd);
-    };
-    
     // --- Get MAC address --- 
     for(int i = 0; i < 6; i++)
         rtl8139_mac[i] = inportb(rtl8139_io_base + i);
@@ -162,18 +162,8 @@ void rtl8139_init() {
         u8 t_packet[1536];
         size_t t_packet_len = rtl8139_recv(t_packet, sizeof(t_packet));
         if(t_packet_len > 0) {
-            u16 _eth_type = (t_packet[12] << 8) | t_packet[13];
-
-            if(_eth_type == 0x0806) {
-                debug_message("received ARP frame", "rtl8139", KERNEL_MESSAGE);
-                break;
-            } else if(_eth_type == 0x0800) {
-                u8 t_proto = t_packet[23];
-                if(t_proto == 1) {
-                    debug_message("received ICMP frame", "rtl8139", KERNEL_MESSAGE);
-                    break;
-                }
-            }
+            debug_message("rtl8139_init(): packet accepted", "rtl8139", KERNEL_MESSAGE);
+            break;
         }
 
         pit_wait(10);
@@ -189,8 +179,10 @@ e_timeout:
     goto e_exit;
 
 e_exit:
-    free(rtl8139_rxbuffer);
-    free(rtl8139_txbuffer);
+    free((void*) rtl8139_rxbuffer);
+
+    for(int i01 = 0; i01 < RTL8139_TXBUFFER_COUNT; i01++)
+        free(rtl8139_txbuffer[i01]);
 
     return;
 }
@@ -209,25 +201,46 @@ u8 rtl8139_send(const u8* data, size_t len) {
 }
 
 size_t rtl8139_recv(u8* buff, size_t buff_len) {
-    static u32 offset = 0;
-    u16 packet_len;
+    u16 status = *(volatile u16*)(rtl8139_rxbuffer + rx_offset);
 
-    // check if packet ready
-    u16 status = *((u16*)(rtl8139_rxbuffer + offset));
-    if(!(status & 1))
+    // packet not ready
+    if(!(status & 0x01))
         return 0;
 
-    packet_len = *((u16*)(rtl8139_rxbuffer + offset + 2));
+    u16 packet_len = *(volatile u16*)(rtl8139_rxbuffer + rx_offset + 2);
+
+    // invalid packet
+    if(status & 0x1E) {
+        rx_offset += (packet_len + 4 + 3) & ~3;
+        rx_offset %= RTL8139_RXBUFFER_SIZE;
+
+        goto update_capr;
+    }
+
+    packet_len -= 4; // strip CRC
     if(packet_len > buff_len)
         return 0;
 
-    memcpy(buff, rtl8139_rxbuffer + offset + 4, packet_len);
+    u32 data_offset = rx_offset + 4;
 
-    offset += ((packet_len + 4 + 3) & ~3);
-    if(offset >= RTL8139_RXBUFFER_SIZE)
-        offset = 0;
+    // handle wrap
+    if(data_offset + packet_len <= RTL8139_RXBUFFER_SIZE) {
+        memcpy(buff, (const void*)(rtl8139_rxbuffer + data_offset), packet_len);
+    } else {
+        u32 first = RTL8139_RXBUFFER_SIZE - data_offset;
+
+        memcpy(buff, (const void*)(rtl8139_rxbuffer + data_offset), first);
+        memcpy(buff + first, (const void*)(rtl8139_rxbuffer), packet_len - first);
+    }
+
+    rx_offset += (packet_len + 4 + 3) & ~3;
+    rx_offset %= RTL8139_RXBUFFER_SIZE;
+
+update_capr:
+    outportw(rtl8139_io_base + RTL8139_REG_CAPR,
+        (rx_offset >= 16) ? (rx_offset - 16) : (RTL8139_RXBUFFER_SIZE + rx_offset - 16)
+    );
 
     return packet_len;
 }
-
 #undef _require_pci_dev_zero
