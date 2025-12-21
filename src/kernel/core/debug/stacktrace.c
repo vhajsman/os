@@ -34,8 +34,8 @@ void debug_captureStackTrace(void** buffer, unsigned int maxFrames) {
         if(frame == NULL || frame->ebp == NULL)
             break;
 
-        if(!frameInStackRange(frame) || !validateRetAddr(frame->ret_addr))
-            break;
+//        if(!frameInStackRange(frame) || !validateRetAddr(frame->ret_addr))
+//            break;
 
         buffer[i] = frame->ret_addr;
         frame = frame->ebp;
