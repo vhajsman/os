@@ -24,6 +24,8 @@ u8* rtl8139_txbuffer[RTL8139_TXBUFFER_COUNT] = {NULL};
 u8 rtl8139_mac[6];
 static u32 rx_offset = 0;
 
+u32 rtl8139_currentPacket = 0;
+
 enum rtl8139_irqStatusBit {
     RxOK       = 0x0001,
     RxErr      = 0x0002,
@@ -45,8 +47,40 @@ enum rtl8139_rxconfBits {
     AcceptBroadcast = 0x08,
 };
 
+enum rtl8139_packetStatusBits {
+    PacketROK  = 0x0,
+    PacketFAE  = 0x1,
+    PacketCRC  = 0x2,
+    PacketLONG = 0x3,
+    PacketRUNT = 0x4,
+    PacketISE  = 0x5,
+    PacketBAR  = 0xD,
+    PacketPAM  = 0xE,
+    PacketMAR  = 0xF
+};
+
+typedef struct {
+    u16 status;
+    u16 length;
+} __attribute__((packed))  rtl8139_rxheader_t;
+
 #define __rtl8192_virtToPhys(__virt) \
     ((u32) __virt)
+
+const char* rtl8139_packetStatusToString(u8 packetStatus) {
+    switch(packetStatus) {
+        case PacketROK:  return "OK";
+        case PacketFAE:  return "Frame Alignment Error";
+        case PacketCRC:  return "CRC Error";
+        case PacketLONG: return "Oversized Packet";
+        case PacketRUNT: return "Runt Packet";
+        case PacketISE:  return "Internal Symbol Error";
+        case PacketBAR:  return "Broadcast Address Error";
+        case PacketPAM:  return "Physical Address Multicast";
+        case PacketMAR:  return "Multicast Address";
+        default:         return "Unknown";
+    }
+}
 
 void rtl8139_reset() {
     u32 eax, ebx, ecx, edx;
@@ -74,7 +108,11 @@ void rtl8139_irq(REGISTERS*) {
         return;
     }
 
-    // TODO: encode the status and execute payload
+    u8* buff = (u8*) kmalloc(64);
+    size_t res = rtl8139_recv(buff, 64);
+
+    debug_message("test: ", "rtl8139", KERNEL_MESSAGE);
+    debug_number(res, 10);
 }
 
 void rtl8139_initrx() {
@@ -151,6 +189,72 @@ void rtl8139_init() {
     char mac_str[18]; macToString(rtl8139_mac, mac_str);
     debug_message("MAC address: ", "rtl8139", KERNEL_MESSAGE);
     debug_append(mac_str);
+}
+
+rtl8139_rxheader_t rtl8139_readPacket(u32 offset) {
+    rtl8139_rxheader_t header;
+    header.status = *(u16*)(rtl8139_rxbuffer + offset + 0);
+    header.length = *(u16*)(rtl8139_rxbuffer + offset + 2);
+
+    return header;
+}
+
+size_t rtl8139_recv(u8* buff, size_t buff_len) {
+    if(!buff || !buff_len || !rtl8139_rxbuffer) {
+        debug_message("invalid params", "rtl8139", KERNEL_ERROR);
+        return 0;
+    }
+
+    rtl8139_rxheader_t header = rtl8139_readPacket(rx_offset);
+
+    if(!(header.status & 0x01)) {
+        debug_message("packet not ready", "rtl8139", KERNEL_ERROR);
+        return 0;
+    }
+
+    if(((header.status >> 3) & 0x0F) != PacketROK) {
+        debug_message("packet error: ", "rtl8139", KERNEL_ERROR);
+        debug_append(rtl8139_packetStatusToString(header.status));
+
+        // update rx_offset depending on packet length and align to 4 bytes
+        rx_offset += (header.length + 4 + 3) & ~3;
+        rx_offset %= RTL8139_RXBUFFER_SIZE;
+
+        // update CAPR
+        outportw(rtl8139_io_base + RTL8139_REG_CAPR, 
+            (rx_offset >= 16) ? rx_offset - 16 : RTL8139_RXBUFFER_SIZE + rx_offset - 16
+        );
+
+        return 0;
+    }
+
+    // strip CRC
+    if(header.length < 4)
+        return 0;
+    header.length -= 4;
+
+    if(header.length > buff_len)
+        header.length = buff_len;
+
+    u32 dataOffset = rx_offset + 4;
+    if(dataOffset + header.length <= RTL8139_RXBUFFER_SIZE) {
+        memcpy(buff, (const void*)rtl8139_rxbuffer + dataOffset, header.length);
+    } else {
+        u32 first = RTL8139_RXBUFFER_SIZE - dataOffset;
+        memcpy(buff, (const void*)rtl8139_rxbuffer + dataOffset, first);
+        memcpy(buff + first, (const void*)rtl8139_rxbuffer, header.length - first);
+    }
+
+    // update rx_offset and align to 4 bytes
+    rx_offset += (header.length + 4 + 3) & ~3;
+    rx_offset %= RTL8139_RXBUFFER_SIZE;
+
+    // update CAPR
+    outportw(rtl8139_io_base + RTL8139_REG_CAPR,
+        (rx_offset >= 16) ? rx_offset - 16 : RTL8139_RXBUFFER_SIZE + rx_offset - 16
+    );
+
+    return header.length;
 }
 
 #undef _require_pci_dev_zero
