@@ -15,7 +15,10 @@
 #define RTL8139_REG_TSAD2   0x28
 #define RTL8139_REG_TSAD3   0x2C
 #define RTL8139_REG_ISR     0x3E
+#define RTL8139_REG_IMR     0x3C
 #define RTL8139_REG_CAPR    0x38
+#define RTL8139_REG_TCR     0x40
+#define RTL8139_REG_CONFIG1 0x52
 
 #define RTL8139_CMD_RESET   0x10
 #define RTL8139_RX_EN       0x08
