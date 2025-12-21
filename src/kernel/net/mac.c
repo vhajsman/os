@@ -9,7 +9,7 @@ void macToString(const mac_t mac, char buffer[18]) {
         buffer[pos++] = hex[mac[i] & 0xF];
 
         if(i < 5)
-            buffer[pos++] = ":";
+            buffer[pos++] = ':';
     }
 
     buffer[pos] = '\0';
