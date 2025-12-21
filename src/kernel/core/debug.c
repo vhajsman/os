@@ -113,6 +113,12 @@ void debug_message(const  char* message, const  char* interface, enum kernel_sta
         }
     }*/
 
+    void* caller = __builtin_return_address(0);
+    const char* caller_string = debug_lookup((uintptr_t) caller);
+
+    debug_append(caller_string);
+    debug_append("(): ");
+
     debug_append(message);
 }
 
