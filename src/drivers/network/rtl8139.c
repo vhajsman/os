@@ -257,4 +257,42 @@ size_t rtl8139_recv(u8* buff, size_t buff_len) {
     return header.length;
 }
 
+u8 rtl8139_send(const u8* data, size_t len) {
+    if(!len || !data) {
+        debug_message("invalid params", "rtl8139", KERNEL_ERROR);
+        return 1;
+    }
+
+    if(len > RTL8139_TXBUFFER_SIZE)
+        len = RTL8139_TXBUFFER_SIZE;
+
+    static int tx_curr = 0;
+    size_t tx_len = (len < 60) ? 60 : len;
+
+    memcpy(rtl8139_txbuffer[tx_curr], data, len);
+    if(tx_len > len)
+        memcpy(rtl8139_txbuffer[tx_curr] + len, 0, tx_len - len);
+
+    // sync with DMA
+    asm volatile("" ::: "memory");
+
+    u32 tsd = (tx_len & 0x1FFF); // packet length
+    outportl(rtl8139_io_base + RTL8139_REG_TSAD0 + tx_curr * 4, (u32)rtl8139_txbuffer[tx_curr]);
+    outportl(rtl8139_io_base + RTL8139_REG_TSD0  + tx_curr * 4, tsd);
+
+    for(int i = 0; i < 1000000; i++) {
+        u32 status = inportl(rtl8139_io_base + RTL8139_REG_TSD0 + tx_curr * 4);
+        if(status & (1 << 15))
+            break;
+
+        if(status & (1 << 14)){
+            debug_message("error sending packet", "rtl8139", KERNEL_ERROR);
+            return 2;
+        }
+    }
+
+    tx_curr = (tx_curr + 1) % RTL8139_TXBUFFER_COUNT;
+    return 0;
+}
+
 #undef _require_pci_dev_zero
