@@ -212,7 +212,7 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
         kbd_discard();
 
         if(l == '\0') {
-            debug_messagen("EOF or string terminator @: ", "getc()", KERNEL_MESSAGE, l, 10);
+//            debug_messagen("EOF or string terminator @: ", "getc()", KERNEL_MESSAGE, l, 10);
             break;
         }
 
@@ -235,7 +235,7 @@ void gets(char* buffer, size_t bufferSize/*, char breaker*/) {
         buffer[i] = l;
         
         if(l == '\n') {
-            debug_messagen("Breaker char @: ", "getc()", KERNEL_MESSAGE, l, 10);
+//            debug_messagen("Breaker char @: ", "getc()", KERNEL_MESSAGE, l, 10);
             break;
         }
 
@@ -287,10 +287,10 @@ char console_wait() {
         if(__console_wait_event.evtype == KEYBOARD_EVENT_KEY_PRESSED && __console_wait_event.hanrtdone == 0) {
             __console_wait_event.hanrtdone = 1;
 
-            debug_message("received kbd event: scancode=", "console", KERNEL_MESSAGE);
-            debug_number(__console_wait_event.scancode, 16);
-            debug_append(", character=");
-            debug_append(&__console_wait_event.character);
+//            debug_message("received kbd event: scancode=", "console", KERNEL_MESSAGE);
+//            debug_number(__console_wait_event.scancode, 16);
+//            debug_append(", character=");
+//            debug_append(&__console_wait_event.character);
 
             kbd_setEventHandler(NULL);
             return __console_wait_event.character;
