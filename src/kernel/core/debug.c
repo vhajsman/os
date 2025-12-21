@@ -3,10 +3,12 @@
 #include "console.h"
 #include "string.h"
 #include "types.h"
+#include "util/fmt.h"
 
 int _verbose = 0;
 int _timestamp = 0; // UNDONE
 int _debug_enable = 0;
+unsigned int _debug_msgcount = 0;
 
 u16 _port;
 
@@ -15,16 +17,16 @@ u16 _port;
         return
 
 char* _levelsStrings[10] = {
-    "[   ***   ]\0",
-    "[ NOTE    ]\0",
-    "[ NOTE !! ]\0",
-    "[ WARNING ]\0",
-    "[ ERROR   ]\0",
-    "[ FATAL   ]\0",
-    "[ VERBOSE ]\0",
-    "[ OKAY    ]\0",
-    "[ FAIL    ]\0",
-    "[ PENDING ]\0"
+    "\x1b[00m[ * ]\0",
+    "\x1b[36m[ N ]\0",
+    "\x1b[36m[ N!]\0",
+    "\x1b[33m[ W ]\0",
+    "\x1b[31m[ E ]\0",
+    "\x1b[91m[ X ]\0",
+    "\x1b[35m[ V ]\0",
+    "\x1b[92m[ K ]\0",
+    "\x1b[31m[ F ]\0",
+    "\x1b[35m[ P ]\0"
 };
 
 void debug_setVerbose(int verbose) {
@@ -67,19 +69,25 @@ void debug_append(const  char* data) {
 
 void debug_message(const  char* message, const  char* interface, enum kernel_statusLevels level) {
     __check_debug;
+    _debug_msgcount++;
 
     if(level == KERNEL_VERBOSE && !_verbose)
         // * Message level verbose, but verbosity not allowed.
         return;
     
     //debug_append("\n");
-    debug_append("\n\rDEBUG: ");
+    //debug_append("\n\rDEBUG: ");
+    debug_append("\x1b[0m\n\r");
+    
+    char msgcount_fmt[16]; fmt_u32_blocks(_debug_msgcount, msgcount_fmt, "0.");
+    debug_append(msgcount_fmt);
     
     if(message == NULL) {
         debug_append("\n\r");
         return;
     }
 
+    debug_append("  ");
     debug_append(_levelsStrings[level]);
 
     if(interface != NULL) {
