@@ -10,7 +10,7 @@ qemu-system-i386                                                \
     -m 128                                                      \
     -vga std                                                    \
     -device ac97                                                \
-    -netdev user,id=n0                                          \
+    -netdev bridge,id=n0,br=virbr0                              \
     -device rtl8139,netdev=n0                                   \
     -accel tcg,thread=multi,tb-size=2048                        \
     -boot d                                                     \
