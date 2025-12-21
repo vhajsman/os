@@ -14,6 +14,10 @@
 #define RTL8139_REG_TSAD1   0x24
 #define RTL8139_REG_TSAD2   0x28
 #define RTL8139_REG_TSAD3   0x2C
+#define RTL8139_REG_TSD0    0x10
+#define RTL8139_REG_TSD1    0x14
+#define RTL8139_REG_TSD2    0x18
+#define RTL8139_REG_TSD3    0x1C
 #define RTL8139_REG_ISR     0x3E
 #define RTL8139_REG_IMR     0x3C
 #define RTL8139_REG_CAPR    0x38
