@@ -148,7 +148,7 @@ void isr_exception_handler(REGISTERS *reg) {
 void isr_init() {
     memset(g_interrupt_handlers, 0x00, sizeof(g_interrupt_handlers));
     for(int i = 0; i < NO_INTERRUPT_HANDLERS; i++) {
-        g_interrupt_handlers[i].handler = default_irq_handler;
+        g_interrupt_handlers[i].handler = NULL;
         g_interrupt_handlers[i].flags = 0x00;
         g_interrupt_handlers[i].additionalContextResolv = NULL;
     }
