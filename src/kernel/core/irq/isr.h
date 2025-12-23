@@ -40,6 +40,7 @@ struct kernel_isrpb {
     unsigned int trigCountTmp;
     unsigned int completeCount;
     unsigned int trigTimestamp;
+    unsigned int droppedCount;
 
     unsigned int flags;
 
@@ -47,6 +48,18 @@ struct kernel_isrpb {
 } __attribute__((packed));
 
 typedef struct kernel_isrpb isrpb_t;
+
+typedef struct {
+    isrpb_t* isr;
+} isr_event_t;
+
+#define ISR_QUEUE_LENGTH 256
+
+typedef struct {
+    isr_event_t buff[ISR_QUEUE_LENGTH];
+    volatile u32 head;
+    volatile u32 tail;
+} isr_queue_t; // 256*4+4+4 = 1024+8 = 1032 bytes
 
 extern void exception_0();
 extern void exception_1();

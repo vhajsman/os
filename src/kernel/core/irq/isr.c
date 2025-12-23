@@ -9,6 +9,11 @@
 void isr_doStats(isrpb_t* isr, u32 start);
 void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq);
 
+void isr_queue_push(isrpb_t* isr);
+unsigned int isr_getPriority(isrpb_t* isr);
+int isr_canRunNow(unsigned int priority);
+void isr_processQueue();
+
 // ISR g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
 isrpb_t g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
 
@@ -107,7 +112,26 @@ void isr_irqHandler(REGISTERS *reg) {
     }
 
     isrpb_t* isr = &g_interrupt_handlers[reg->int_no];
+    // isr_dispatch(isr, reg, 1);
+
+    if(!(isr->flags & IsrEnabled))
+        goto out;
+
+    // run immediatelly if critical or queue empty
+    unsigned int priority = isr_getPriority(isr);
+    if(isr_canRunNow(priority))
+        goto skip;
+
+    isr_queue_push(isr);
+    return;
+
+skip:
     isr_dispatch(isr, reg, 1);
+    isr_processQueue();
+    return;
+
+out:
+    pic8259_eoi(reg->int_no - IRQ_BASE);
 }
 
 void print_registers(REGISTERS *reg) {
@@ -197,42 +221,6 @@ void isr_exception_handler(REGISTERS *reg) {
 
     isrpb_t* isr = &g_interrupt_handlers[reg->int_no];
     isr_dispatch(isr, reg, 0);
-
-    /*
-    if(reg->int_no < NO_INTERRUPT_HANDLERS) {
-        isrpb_t *isr = &g_interrupt_handlers[reg->int_no];
-        if(isr->handler) {
-            if(!(isr->flags & IsrEnabled))
-                return;
-
-            isr->trigCount++;
-
-            if((isr->flags & IsrActive) && !(isr->flags & IsrReentrant))
-                return;
-
-            isr->flags |= IsrActive;
-
-            if(!(isr->flags & IsrPriorityCrit))
-                isr->trigTimestamp = pit_get();
-
-            ISR handler = isr->handler;
-            handler(reg);
-
-            isr->completeCount++;
-
-            if((isr->flags & IsrDoStats) && !(isr->flags & IsrPriorityCrit)) {
-                u32 elapsed = pit_get() - isr->trigTimestamp;
-
-                isr->avgTimeElapsed = ((isr->avgTimeElapsed * (isr->completeCount -1)) + elapsed) / isr->completeCount;
-                isr->maxTimeElapsed = elapsed > isr->maxTimeElapsed ? elapsed : isr->maxTimeElapsed;
-
-                if(!isr->completeCount || elapsed < isr->minTimeElapsed) 
-                    isr->minTimeElapsed = elapsed;
-            }
-
-            isr->flags &= ~IsrActive;
-        }
-    }*/
 }
 
 void isr_init() {
@@ -245,3 +233,94 @@ void isr_init() {
 }
 
 void irq_done() {}
+
+// =================================================================
+// ========== QUEUE, PRIORITIES
+// =================================================================
+
+#ifndef REF_GUARD
+#define REF_GUARD(__identifier)                                     \
+    if(!__identifier) {                                             \
+        debug_message("unexcepted null ptr", "IRQ", KERNEL_ERROR);  \
+        return 0;                                                   \
+    }
+#endif
+
+#ifndef REF_GUARD_VOID
+#define REF_GUARD_VOID(__identifier)                                \
+    if(!__identifier) {                                             \
+        debug_message("unexcepted null ptr", "IRQ", KERNEL_ERROR);  \
+        return;                                                     \
+    }
+#endif
+
+unsigned int isr_getPriority(isrpb_t* isr) {
+    REF_GUARD(isr);
+    if(isr->flags & IsrPriorityCrit)
+        return 0;
+
+    return isr->flags & IsrPriorityHigh ? 1 : 2;
+}
+
+static isr_queue_t isr_queues[3 /*3 priority levels*/]; // 1032*3 = 3096 bytes
+
+void isr_queue_push(isrpb_t* isr) {
+    REF_GUARD_VOID(isr);
+
+    unsigned int priority = isr_getPriority(isr);
+    if(priority > 2) 
+        priority = 2;
+
+    isr_queue_t* queue = &isr_queues[priority];
+    u32 next = (queue->tail + 1) & (ISR_QUEUE_LENGTH - 1);
+
+    if(next == queue->head) {
+        // system is overloaded and not capable of any new ISR at the moment.
+        isr->droppedCount++;
+        return;
+    }
+
+    queue->buff[queue->tail].isr = isr;
+    queue->tail = next;
+}
+
+isrpb_t* isr_queue_pop(unsigned int priority) {
+    isr_queue_t* queue = &isr_queues[priority];
+    if(queue->head == queue->tail)  // queue is empty
+        return NULL;
+
+    isrpb_t* isr = queue->buff[queue->head].isr;
+    queue->head = (queue->head + 1) % ISR_QUEUE_LENGTH;
+
+    return isr;
+}
+
+isrpb_t* isr_queue_autotake() {
+    for(unsigned int priority = 0; priority < 3; priority++) {
+        isrpb_t* isr = isr_queue_pop(priority);
+        if(isr)
+            return isr;
+    }
+
+    return NULL;
+}
+
+int isr_canRunNow(unsigned int priority) {
+    if(priority == 0)
+        return 1;
+
+    for(unsigned int p = 0; p < priority; p++) {
+        if(isr_queues[p].head != isr_queues[p].tail)
+            return 0;
+    }
+
+    return 1;
+}
+
+void isr_processQueue() {
+    isrpb_t* isr = isr_queue_autotake();
+    if(isr)
+        isr_dispatch(isr, NULL, 1);
+}
+
+#undef REF_GUARD
