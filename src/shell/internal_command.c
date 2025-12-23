@@ -28,6 +28,7 @@ INCLUDE_INTERNAL_COMMAND(mtdump);
 #ifdef _BUILD_INSIDERS
 INCLUDE_INTERNAL_COMMAND(mmdu);
 INCLUDE_INTERNAL_COMMAND(random);
+INCLUDE_INTERNAL_COMMAND(irqlookup);
 #endif
 
 void shell_registerAll() {
@@ -46,5 +47,6 @@ void shell_registerAll() {
     #ifdef _BUILD_INSIDERS
     registerCommand(&command_mmdu);
     registerCommand(&command_random);
+    registerCommand(&command_irqlookup);
     #endif
 }
