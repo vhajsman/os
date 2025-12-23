@@ -70,7 +70,7 @@ void isr_registerInterruptHandler(int num, ISR handler) {
     dest->trigCount = 0;
     dest->completeCount = 0;
     dest->trigTimestamp = 0;
-    dest->flags = IsrEnabled | IsrDoStats | (isPit ? IsrPriorityCrit : 0);
+    dest->flags = IsrEnabled | (isPit ? IsrPriorityCrit : IsrDoStats);
     dest->additionalContextResolv = NULL;
 }
 
