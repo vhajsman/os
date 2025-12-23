@@ -119,7 +119,16 @@ void print_registers(REGISTERS *reg) {
 }
 
 void isr_doStats(isrpb_t* isr, u32 start) {
-    u32 elapsed = pit_get() - start;
+    u32 now = pit_get();
+    u32 elapsed = now - start;
+    if(elapsed == 0)
+        elapsed = 1;
+
+    u32 tdiff = now - isr->trigTimestamp;
+    if(tdiff >= PIT_FREQUENCY) {
+        isr->avgTrigPerSecond = (isr->trigCountTmp * PIT_FREQUENCY) / tdiff;
+        isr->trigCountTmp = 0;
+    }
 
     if(isr->completeCount > 0) {
         isr->avgTimeElapsed =   ((isr->avgTimeElapsed * isr->completeCount) + elapsed)
@@ -145,6 +154,8 @@ void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq) {
         return;
 
     isr->trigCount++;
+    isr->trigCountTmp++;
+    isr->trigTimestamp = pit_get();
 
     if((isr->flags & IsrActive) && !(isr->flags & IsrReentrant))
         return;
@@ -156,7 +167,7 @@ void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq) {
     // do stats only if IsrDoStats and not IsrPriorityCrit
     int doStats = (isr->flags & IsrDoStats) && !(isr->flags & IsrPriorityCrit);
     if(doStats)
-        start = pit_get();
+        start = isr->trigTimestamp;
 
     ISR handler = isr->handler;
     handler(reg);

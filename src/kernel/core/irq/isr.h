@@ -37,6 +37,7 @@ struct kernel_isrpb {
     unsigned int minTimeElapsed;
 
     unsigned int trigCount;
+    unsigned int trigCountTmp;
     unsigned int completeCount;
     unsigned int trigTimestamp;
 
