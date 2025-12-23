@@ -138,9 +138,36 @@ void isr_exception_handler(REGISTERS *reg) {
 
     if(reg->int_no < NO_INTERRUPT_HANDLERS) {
         isrpb_t *isr = &g_interrupt_handlers[reg->int_no];
-        if(isr->handler && (isr->flags & IsrEnabled)) {
+        if(isr->handler) {
+            if(!(isr->flags & IsrEnabled))
+                return;
+
+            isr->trigCount++;
+
+            if((isr->flags & IsrActive) && !(isr->flags & IsrReentrant))
+                return;
+
+            isr->flags |= IsrActive;
+
+            if(!(isr->flags & IsrPriorityCrit))
+                isr->trigTimestamp = pit_get();
+
             ISR handler = isr->handler;
             handler(reg);
+
+            isr->completeCount++;
+
+            if((isr->flags & IsrDoStats) && !(isr->flags & IsrPriorityCrit)) {
+                u32 elapsed = pit_get() - isr->trigTimestamp;
+
+                isr->avgTimeElapsed = ((isr->avgTimeElapsed * (isr->completeCount -1)) + elapsed) / isr->completeCount;
+                isr->maxTimeElapsed = elapsed > isr->maxTimeElapsed ? elapsed : isr->maxTimeElapsed;
+
+                if(!isr->completeCount || elapsed < isr->minTimeElapsed) 
+                    isr->minTimeElapsed = elapsed;
+            }
+
+            isr->flags &= ~IsrActive;
         }
     }
 }
