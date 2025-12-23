@@ -82,6 +82,7 @@ int __irqlookup(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc,
 
             callback_stdout(" IRQ acknowledge count : "); outnum(p->trigCount, 10); callback_stdout(" times\n");
             callback_stdout("    ISR complete count : "); outnum(p->completeCount, 10); callback_stdout(" times\n");
+            callback_stdout("        ISR drop count : "); outnum(p->droppedCount, 10); callback_stdout(" times\n");
             callback_stdout("        last timestamp : "); outnum(p->trigTimestamp, 10); callback_stdout("\n");
 
             callback_stdout("  average time elapsed : "); outnum(p->avgTimeElapsed, 10); callback_stdout(" ticks\n"); 
@@ -166,6 +167,7 @@ int __irqlookup(char tokens[SHELL_MAX_TOKENS][SHELL_MAX_TOKEN_LENGTH], int tokc,
         callback_stdout(" lastTrig=");  outnum(p->trigTimestamp, 10);
         callback_stdout(" cc="); outnum(p->completeCount, 10);
         callback_stdout(" tc="); outnum(p->trigCount, 10);
+        callback_stdout(" dc="); outnum(p->droppedCount, 10)
         
         callback_stdout(" flags=");
         outnum(p->flags, 16);
