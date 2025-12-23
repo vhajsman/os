@@ -4,8 +4,10 @@
 #include "console.h"
 #include "debug.h"
 #include "irqdef.h"
+#include "libc/string.h" // memset
 
-ISR g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
+// ISR g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
+isrpb_t g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
 
 char *exception_messages[32] = {
     "Division By Zero",
@@ -44,11 +46,50 @@ char *exception_messages[32] = {
 
 u8 _irq_busy = 0;
 
+void default_irq_handler(REGISTERS *reg) {
+    pic8259_eoi(reg->int_no - IRQ_BASE);
+}
+
 void isr_registerInterruptHandler(int num, ISR handler) {
     // printf("IRQ %d registered\n", num);
 
-    if (num < NO_INTERRUPT_HANDLERS)
-        g_interrupt_handlers[num] = handler;
+    if(num >= NO_INTERRUPT_HANDLERS) {
+        debug_message("invalid irq number: ", "IRQ", KERNEL_ERROR);
+        debug_number(num, 16);
+        return;
+    }
+
+    bool isPit = num == IRQ_BASE + IRQ0_TIMER;
+
+    isrpb_t* dest = &g_interrupt_handlers[num];
+    dest->handler = handler;
+    dest->avgTimeElapsed = 0;
+    dest->avgTrigPerSecond = 0;
+    dest->maxTimeElapsed = 0;
+    dest->minTimeElapsed = 0;
+    dest->trigCount = 0;
+    dest->completeCount = 0;
+    dest->trigTimestamp = 0;
+    dest->flags = IsrEnabled | IsrDoStats | (isPit ? IsrPriorityCrit : 0);
+    dest->additionalContextResolv = NULL;
+}
+
+void isr_registerInterruptHandlerWithParams(int num, isrpb_t* params) {
+    if(num >= NO_INTERRUPT_HANDLERS) {
+        debug_message("invalid irq number: ", "IRQ", KERNEL_ERROR);
+        debug_number(num, 16);
+        return;
+    }
+
+    isrpb_t* dest = &g_interrupt_handlers[num];
+    *dest = *params;
+}
+
+isrpb_t* isr_getParamBlock(int num) {
+    if(num >= NO_INTERRUPT_HANDLERS)
+        return NULL;
+
+    return &g_interrupt_handlers[num];
 }
 
 void isr_endInterrupt(int num) {
@@ -56,22 +97,25 @@ void isr_endInterrupt(int num) {
 }
 
 void isr_irqHandler(REGISTERS *reg) {
-    if(g_interrupt_handlers[reg->int_no] != NULL) {
-        _irq_busy = 1;
-        // __asm__ __volatile__("cli");
+    if(reg->int_no >= NO_INTERRUPT_HANDLERS) {
+        kernel_panic(reg, -1); // unexcepted
+        return;
+    }
 
-        ISR handler = g_interrupt_handlers[reg->int_no];
+    isrpb_t *isr = &g_interrupt_handlers[reg->int_no];
+
+    if(isr->handler && (isr->flags & IsrEnabled)) {
+        _irq_busy = 1;
+
+        ISR handler = isr->handler;
         handler(reg);
 
         _irq_busy = 0;
-        // __asm__ __volatile__("sti");
-
-        // debug_message("IRQ subroutine done: ", "IRQ", KERNEL_MESSAGE);
-        // debug_number(reg->int_no, 16);
-
     }
-    
-    pic8259_eoi(reg->int_no + IRQ_BASE);
+
+    if(reg->int_no >= IRQ_BASE) {
+        pic8259_eoi(reg->int_no - IRQ_BASE);
+    }
 }
 
 void print_registers(REGISTERS *reg) {
@@ -86,13 +130,27 @@ void print_registers(REGISTERS *reg) {
  * invoke exception routine,
  * being called in exception.asm
  */
-void isr_exception_handler(REGISTERS reg) {
-    if (reg.int_no < 32)
-        kernel_panic(&reg, (signed int) reg.int_no);
-        
-    if (g_interrupt_handlers[reg.int_no] != NULL) {
-        ISR handler = g_interrupt_handlers[reg.int_no];
-        handler(&reg);
+void isr_exception_handler(REGISTERS *reg) {
+    if(reg->int_no < 32) {
+        kernel_panic(reg, reg->int_no);
+        return;
+    }
+
+    if(reg->int_no < NO_INTERRUPT_HANDLERS) {
+        isrpb_t *isr = &g_interrupt_handlers[reg->int_no];
+        if(isr->handler && (isr->flags & IsrEnabled)) {
+            ISR handler = isr->handler;
+            handler(reg);
+        }
+    }
+}
+
+void isr_init() {
+    memset(g_interrupt_handlers, 0x00, sizeof(g_interrupt_handlers));
+    for(int i = 0; i < NO_INTERRUPT_HANDLERS; i++) {
+        g_interrupt_handlers[i].handler = default_irq_handler;
+        g_interrupt_handlers[i].flags = 0x00;
+        g_interrupt_handlers[i].additionalContextResolv = NULL;
     }
 }
 

@@ -126,8 +126,6 @@ void pit_init(u32 freq) {
     // Send the frequency divisor to channel 0 data port
     outportb(PIT_REG_DATA0, (u8)  (divisor & 0xFF));        // Low byte
     outportb(PIT_REG_DATA0, (u8) ((divisor >> 8) & 0xFF));  // High byte
-
-    isr_registerInterruptHandler(IRQ_BASE + IRQ0_TIMER, pit_handler);
 }
 
 void pit_handler(REGISTERS* r) {

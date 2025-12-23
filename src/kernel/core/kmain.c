@@ -27,7 +27,7 @@
 #include "util/fstab.h"
 #include "network/rtl8139.h"
 #include "multitask.h"
-
+#include "irq/irqdef.h"
 #include "random.h"
 struct rng_ctx kernel_seed_ctx;
 
@@ -223,7 +223,10 @@ GLBLABEL_DEFINE(_l_kmain_stage0);
     kmain_init_cursor();
     gdt_init();
 
+    isr_init();
     idt_init();
+
+    isr_registerInterruptHandler(IRQ_BASE + IRQ0_TIMER, pit_handler);
     pit_init(1000); 
 
     // DO NOT initialize debugging on your own if not insiders build

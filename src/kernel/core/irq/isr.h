@@ -7,6 +7,7 @@
 #define NO_INTERRUPT_HANDLERS    256
 
 typedef void (*ISR)(REGISTERS *);
+typedef struct kernel_isrpb kernel_isrpb;
 
 void isr_registerInterruptHandler(int num, ISR handler);
 void isr_endInterrupt(int num);
@@ -14,6 +15,37 @@ void isr_exceptionHandler(REGISTERS reg);
 void isr_irqHandler(REGISTERS *reg);
 
 extern char* exception_messages[32];
+
+enum kernel_isrpb_flags {
+    IsrActive       = 1,
+    IsrEnabled      = 2,
+    IsrPriorityHigh = 4,
+    IsrPriorityCrit = 8,
+    IsrReentrant    = 16,
+    IsrDoStats      = 32,
+    IsrShared       = 64,
+    IsrWakeup       = 128
+};
+
+// interrupt subroutine parameter block
+struct kernel_isrpb {
+    ISR handler;
+
+    unsigned int avgTimeElapsed;
+    unsigned int avgTrigPerSecond;
+    unsigned int maxTimeElapsed;
+    unsigned int minTimeElapsed;
+
+    unsigned int trigCount;
+    unsigned int completeCount;
+    unsigned int trigTimestamp;
+
+    unsigned int flags;
+
+    void* (*additionalContextResolv) (struct kernel_isrpb* param);
+} __attribute__((packed));
+
+typedef struct kernel_isrpb isrpb_t;
 
 extern void exception_0();
 extern void exception_1();
@@ -73,5 +105,10 @@ extern void irq_15();
     void __irqhandler(REGISTER* r)
 
 void print_registers(REGISTERS *reg);
+
+void isr_registerInterruptHandlerWithParams(int num, isrpb_t* params);
+isrpb_t* isr_getParamBlock(int num);
+
+void isr_init();
 
 #endif

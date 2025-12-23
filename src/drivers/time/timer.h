@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "devices/pic.h"
+#include "kernel.h"
 
 // #include "devices/pic.h"
 // #define PIT_DEFAULT_FREQUENCY 18.2065
@@ -62,6 +63,7 @@
 #define PIT_REG_MODE    0x43
 #define PIT_REG_COMMAND 0x43
 
+void pit_handler(REGISTERS* r);
 void pit_init(u32 freq);
 void sleep(u32 ms);
 void wait(u32 ticks);
