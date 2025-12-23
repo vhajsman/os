@@ -6,6 +6,9 @@
 #include "irqdef.h"
 #include "libc/string.h" // memset
 
+void isr_doStats(isrpb_t* isr, u32 start);
+void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq);
+
 // ISR g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
 isrpb_t g_interrupt_handlers[NO_INTERRUPT_HANDLERS];
 
@@ -70,7 +73,7 @@ void isr_registerInterruptHandler(int num, ISR handler) {
     dest->trigCount = 0;
     dest->completeCount = 0;
     dest->trigTimestamp = 0;
-    dest->flags = IsrEnabled | (isPit ? IsrPriorityCrit : IsrDoStats);
+    dest->flags = IsrEnabled | IsrReentrant | (isPit ? IsrPriorityCrit : IsrDoStats);
     dest->additionalContextResolv = NULL;
 }
 
@@ -98,24 +101,13 @@ void isr_endInterrupt(int num) {
 
 void isr_irqHandler(REGISTERS *reg) {
     if(reg->int_no >= NO_INTERRUPT_HANDLERS) {
-        kernel_panic(reg, -1); // unexcepted
+        // kernel_panic(reg, -1); // unexcepted
+        pic8259_eoi(reg->int_no - IRQ_BASE);
         return;
     }
 
-    isrpb_t *isr = &g_interrupt_handlers[reg->int_no];
-
-    if(isr->handler && (isr->flags & IsrEnabled)) {
-        _irq_busy = 1;
-
-        ISR handler = isr->handler;
-        handler(reg);
-
-        _irq_busy = 0;
-    }
-
-    if(reg->int_no >= IRQ_BASE) {
-        pic8259_eoi(reg->int_no - IRQ_BASE);
-    }
+    isrpb_t* isr = &g_interrupt_handlers[reg->int_no];
+    isr_dispatch(isr, reg, 1);
 }
 
 void print_registers(REGISTERS *reg) {
@@ -124,6 +116,59 @@ void print_registers(REGISTERS *reg) {
     printf("eax=0x%x, ebx=0x%x, ecx=0x%x,   edx=0x%x\n", reg->eax,          reg->ebx, reg->ecx, reg->edx);
     printf("edi=0x%x, esi=0x%x, ebp=0x%x,   esp=0x%x\n", reg->edi,          reg->esi, reg->ebp, reg->esp);
     printf("eip=0x%x, cs=0x%x,  ss=0x%x,    eflags=0x%x, useresp=0x%x\n",   reg->eip, reg->ss,  reg->eflags, reg->useresp);
+}
+
+void isr_doStats(isrpb_t* isr, u32 start) {
+    u32 elapsed = pit_get() - start;
+
+    if(isr->completeCount > 0) {
+        isr->avgTimeElapsed =   ((isr->avgTimeElapsed * isr->completeCount) + elapsed)
+                                / (isr->completeCount + 1);
+
+        if(elapsed > isr->maxTimeElapsed) isr->maxTimeElapsed = elapsed;
+        if(elapsed < isr->minTimeElapsed) isr->minTimeElapsed = elapsed;
+
+        return;
+    }
+
+    isr->avgTimeElapsed = elapsed;
+    isr->minTimeElapsed = elapsed;
+    isr->maxTimeElapsed = elapsed;
+}
+
+void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq) {
+    IGNORE_UNUSED(is_irq);
+
+    if(!isr->handler)
+        return;
+    if(!(isr->flags & IsrEnabled))
+        return;
+
+    isr->trigCount++;
+
+    if((isr->flags & IsrActive) && !(isr->flags & IsrReentrant))
+        return;
+
+    isr->flags |= IsrActive;
+
+    u32 start = 0;
+
+    // do stats only if IsrDoStats and not IsrPriorityCrit
+    int doStats = (isr->flags & IsrDoStats) && !(isr->flags & IsrPriorityCrit);
+    if(doStats)
+        start = pit_get();
+
+    ISR handler = isr->handler;
+    handler(reg);
+
+    if(doStats)
+        isr_doStats(isr, start);
+
+    isr->flags &= ~IsrActive;
+    isr->completeCount++;
+
+    if(is_irq && reg->int_no >= IRQ_BASE)
+        pic8259_eoi(reg->int_no - IRQ_BASE);
 }
 
 /**
@@ -136,6 +181,13 @@ void isr_exception_handler(REGISTERS *reg) {
         return;
     }
 
+    if(reg->int_no >= NO_INTERRUPT_HANDLERS)
+        return;
+
+    isrpb_t* isr = &g_interrupt_handlers[reg->int_no];
+    isr_dispatch(isr, reg, 0);
+
+    /*
     if(reg->int_no < NO_INTERRUPT_HANDLERS) {
         isrpb_t *isr = &g_interrupt_handlers[reg->int_no];
         if(isr->handler) {
@@ -169,7 +221,7 @@ void isr_exception_handler(REGISTERS *reg) {
 
             isr->flags &= ~IsrActive;
         }
-    }
+    }*/
 }
 
 void isr_init() {
