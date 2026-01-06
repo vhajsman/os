@@ -288,6 +288,8 @@ GLBLABEL_DEFINE(_l_kmain_stage1);
 
     __asm__ __volatile__("sti");
 
+//    int x = 21/0;
+
     shell();
 }
 

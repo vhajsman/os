@@ -7,7 +7,7 @@
 #include "libc/string.h" // memset
 
 void isr_doStats(isrpb_t* isr, u32 start);
-void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq);
+void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq, int force);
 
 void isr_queue_push(isrpb_t* isr);
 unsigned int isr_getPriority(isrpb_t* isr);
@@ -126,7 +126,7 @@ void isr_irqHandler(REGISTERS *reg) {
     return;
 
 skip:
-    isr_dispatch(isr, reg, 1);
+    isr_dispatch(isr, reg, 1, 0);
     isr_processQueue();
     return;
 
@@ -169,19 +169,17 @@ void isr_doStats(isrpb_t* isr, u32 start) {
     isr->maxTimeElapsed = elapsed;
 }
 
-void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq) {
+void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq, int force) {
     IGNORE_UNUSED(is_irq);
 
-    if(!isr->handler)
-        return;
-    if(!(isr->flags & IsrEnabled))
-        return;
+    if(!isr->handler || !isr)                return;
+    if(!(isr->flags & IsrEnabled) && !force) return;
 
     isr->trigCount++;
     isr->trigCountTmp++;
     isr->trigTimestamp = pit_get();
 
-    if((isr->flags & IsrActive) && !(isr->flags & IsrReentrant))
+    if((isr->flags & IsrActive) && !(isr->flags & IsrReentrant) && !force)
         return;
 
     isr->flags |= IsrActive;
@@ -211,7 +209,7 @@ void isr_dispatch(isrpb_t* isr, REGISTERS* reg, int is_irq) {
  * being called in exception.asm
  */
 void isr_exception_handler(REGISTERS *reg) {
-    if(reg->int_no < 32) {
+    if(reg->int_no > 32) {
         kernel_panic(reg, reg->int_no);
         return;
     }
@@ -220,7 +218,9 @@ void isr_exception_handler(REGISTERS *reg) {
         return;
 
     isrpb_t* isr = &g_interrupt_handlers[reg->int_no];
-    isr_dispatch(isr, reg, 0);
+
+    if(isr)
+        isr_dispatch(isr, reg, 0, 1);
 }
 
 void isr_init() {
@@ -320,7 +320,7 @@ int isr_canRunNow(unsigned int priority) {
 void isr_processQueue() {
     isrpb_t* isr = isr_queue_autotake();
     if(isr)
-        isr_dispatch(isr, NULL, 1);
+        isr_dispatch(isr, NULL, 1, 0);
 }
 
 #undef REF_GUARD
